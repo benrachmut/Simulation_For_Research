@@ -1,13 +1,10 @@
-import random
-from abc import ABC
+
 from itertools import filterfalse
 
 from simulation_abstract_components import TaskGenerator, TaskSimple, calculate_distance, \
     find_and_allocate_responsible_player, PlayerSimple, MissionSimple, Status
 
 
-def are_neighbours():
-    return True
 
 class SimulationEvent:
     """

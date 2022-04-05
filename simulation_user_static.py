@@ -49,7 +49,7 @@ def create_players(i):
     return ans
 
 
-def get_solver():
+def get_solver(i):
     # TODO
     pass
 

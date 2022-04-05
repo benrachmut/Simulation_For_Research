@@ -5,8 +5,9 @@ import random
 from abc import ABC
 import numpy as np
 
-from simulation_abstract import are_neighbours
 
+def are_neighbours():
+    return True
 
 
 class MapSimple:
