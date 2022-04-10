@@ -302,9 +302,6 @@ class Mailer(threading.Thread):
 
     def mailer_iteration(self, with_update_clock_for_empty_msg_to_send):
 
-        #if self.all_tasks_finish():
-            #print(self.time_mailer.clock)
-        #print(self.time_mailer.clock)
 
         self.last_time = self.time_mailer.clock
         msgs_from_inbox = self.inbox.extract()
@@ -1046,7 +1043,7 @@ class AllocationSolverDistributed(AllocationSolver):
         :param f_global_measurements: function that returns dictionary=  {key: str of fields name,function of calculated fields
         :param f_communication_disturbance: function that returns None for msg loss, or a number for NCLO delay
         """
-        AllocationSolver.__init__(self)
+        AllocationSolver.__init__(self,tasks_simulation=[], players_simulation=[])
         self.f_termination_condition =f_termination_condition
         self.f_global_measurements =f_global_measurements
         self.f_communication_disturbance =f_communication_disturbance
@@ -1059,7 +1056,6 @@ class AllocationSolverDistributed(AllocationSolver):
 
     def solve(self, tnow, centralized_computer=None) -> {}:
         self.tnow = tnow
-        self.centralized_computer = centralized_computer
 
         self.agents_algorithm = []
         self.players_algorithm = []
@@ -1540,6 +1536,9 @@ class AllocationSolverDistributedV2(AllocationSolverDistributed):
     def agents_initialize(self):
         for player_algo in self.players_algorithm:
             player_algo.initiate_algorithm()
+
+
+
 
 #
 # class AllocationSolverTasksPlayersFullRandTaskInit(AllocationSolverDistributedV2):

@@ -5,8 +5,9 @@ import sys
 from abc import ABC
 from random import random
 
-from simulation_abstract_components import Entity, TaskSimple, calculate_distance_input_location
-from solver_abstract import PlayerAlgorithm, Msg, TaskAlgorithm
+from simulation_abstract_components import Entity, TaskSimple, calculate_distance_input_location, PlayerSimple
+from solver_abstract import PlayerAlgorithm, Msg, TaskAlgorithm, AllocationSolverSingleTaskInit, \
+    default_communication_disturbance
 
 is_with_scheduling = True
 fisher_player_debug = False
@@ -126,7 +127,7 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
         task_hash = task_entity.id_.__hash__()
         rnd_seed = simulation_rep_received * 17 + me_hash * 13 + mission_hash * 23 + task_hash * 27
 
-        rnd = random.Random(rnd_seed)
+        #rnd = random.Random(rnd_seed)
 
         calculated_util = self.future_utility_function(player_entity=self.simulation_entity, mission_entity=mission_entity,
                                                        task_entity=task_entity,
@@ -974,7 +975,6 @@ class FisherTaskASY(TaskAlgorithm):
 
         return ans
 
-
 class FisherTaskASY_TSG_greedy_Schedual(FisherTaskASY, ABC):
     def __init__(self, agent_simulator: TaskSimple, t_now, is_with_timestamp, counter_of_converges=4, Threshold=0.001):
 
@@ -1065,3 +1065,34 @@ class FisherTaskASY_TSG_greedy_Schedual(FisherTaskASY, ABC):
         else:
             pass
 
+class FMC_ATA(AllocationSolverSingleTaskInit):
+    def __init__(self, util_structure_level = 1, mailer=None, f_termination_condition=None, f_global_measurements={},
+                 f_communication_disturbance=default_communication_disturbance, future_utility_function=None,
+                 is_with_timestamp=True, ro=0.9 ):
+        AllocationSolverSingleTaskInit.__init__(self, mailer, f_termination_condition,
+                                                                f_global_measurements,
+                                                                f_communication_disturbance)
+        self.util_structure_level = util_structure_level
+        self.ro = ro
+        self.future_utility_function = future_utility_function
+        self.is_with_timestamp = is_with_timestamp
+
+    def create_algorithm_task(self, task: TaskSimple):
+        return FisherTaskASY_TSG_greedy_Schedual(agent_simulator=task, t_now=self.tnow, is_with_timestamp=self.is_with_timestamp)
+
+    def create_algorithm_player(self, player: PlayerSimple):
+        return FisherPlayerASY_TSG_greedy_Schedual(util_structure_level=self.util_structure_level,
+                                                   agent_simulator=player, t_now=self.tnow,
+                                                   future_utility_function=self.future_utility_function,
+                                                   is_with_timestamp=self.is_with_timestamp, ro=self.ro)
+
+    def allocate(self):
+        self.reset_algorithm_agents()
+        self.mailer.reset(self.tnow)
+        #should_allocate = self.solve_tasks_with_players_that_pay_them_all_bug()
+        self.connect_entities()
+        self.agents_initialize()
+        self.start_all_threads()
+        self.mailer.start()
+        self.mailer.join()
+        return  self.mailer.time_mailer.clock

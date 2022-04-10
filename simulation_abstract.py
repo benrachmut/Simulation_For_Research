@@ -157,7 +157,7 @@ class MissionFinishedEvent(SimulationEvent):
                 player.update_status(Status.IDLE, self.time)
                 player.current_mission = None
                 player.current_task = None
-                simulation.generate_player_update_event(player=player)
+                #simulation.generate_player_update_event(player=player)
 
         self.mission.players_allocated_to_the_mission = []
         self.mission.players_handling_with_the_mission = []
@@ -165,7 +165,7 @@ class MissionFinishedEvent(SimulationEvent):
         if self.task.is_done:
             simulation.handle_task_ended(self.task)
             simulation.solver.remove_task_from_solver(self.task)
-        simulation.generate_task_update_event(task=self.task)
+        #simulation.generate_task_update_event(task=self.task)
 
 class PlayerArriveToEMissionEvent(SimulationEvent):
     """
@@ -194,8 +194,8 @@ class PlayerArriveToEMissionEvent(SimulationEvent):
             self.player.schedule.pop(0)
         self.mission.add_handling_player(self.player, self.time)
         simulation.generate_mission_finished_event(mission=self.mission, task=self.task)
-        simulation.generate_player_update_event(player=self.player)
-        simulation.generate_task_update_event(task=self.task)
+        #simulation.generate_player_update_event(player=self.player)
+        #simulation.generate_task_update_event(task=self.task)
 
 
 class Simulation:
@@ -203,7 +203,7 @@ class Simulation:
                  tasks_generator: TaskGenerator, end_time: float,
                  number_of_initial_tasks=10,
                  is_static=True,
-                 debug_mode=False
+                 debug_mode=True
                  ):
         """
         :param name: The name of simulation
@@ -390,7 +390,7 @@ class Simulation:
             player.current_mission = next_mission
             player.current_task = next_task
             travel_time = self.f_calculate_distance(player, next_task) / player.speed
-            self.generate_player_update_event(player=player)
+            #self.generate_player_update_event(player=player)
 
 
             self.diary.append(

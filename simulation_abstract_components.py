@@ -5,6 +5,8 @@ import random
 from abc import ABC
 import numpy as np
 
+length_  = None
+width_ = None
 
 def are_neighbours():
     return True
@@ -29,6 +31,13 @@ class MapSimple:
         """
         self.length = length
         self.width = width
+        global length_
+        length_ = length
+
+        global width_
+        width_ = width
+
+
         self.rand = random.Random(seed)
 
 
@@ -79,7 +88,7 @@ class Status(enum.Enum):
     TO_MISSION = 2
 
 class SimpleTaskGenerator(TaskGenerator):
-    def __init__(self, max_number_of_missions ,map_, seed, max_importance=10):
+    def __init__(self, max_number_of_missions ,map_, seed, players_list,max_importance=10):
         """
 
         :param map_: object to initiate location
@@ -89,11 +98,11 @@ class SimpleTaskGenerator(TaskGenerator):
         :param exp_lambda_parameter: used to get random gap between tasks exp(exp_lambda_parameter)
         """
         TaskGenerator.__init__(self, map_, seed)
-        self.id_task_counter = 0
-        self.id_mission_counter = 0
+        self.id_task_counter = 1
+        self.id_mission_counter = 1
         self.max_importance = max_importance
         self.max_number_of_missions =  max_number_of_missions
-
+        self.players_list = players_list
         self.skill_range =  []
         for skill_number in range(self.max_number_of_missions):
             self.skill_range.append(skill_number)
@@ -107,12 +116,12 @@ class SimpleTaskGenerator(TaskGenerator):
         :rtype: TaskSimple
         """
 
-        amount_of_missions = self.random.randint(1, self.max_number_of_missions)
-        required_abilities = self.random.sample(self.skill_range ,amount_of_missions)
+        #amount_of_missions = self.random.randint(1, self.max_number_of_missions)
+        required_abilities = self.skill_range#self.random.sample(self.skill_range ,amount_of_missions)
         self.id_task_counter = self.id_task_counter + 1
         id_ = str(self.id_task_counter)
         location = self.map.generate_location()# #self.map.generate_location()
-        importance = (self.random.random() * self.max_importance)
+        importance = 1000+(self.random.random() * self.max_importance)
         if flag_time_zero:
             arrival_time = tnow
         else:
@@ -122,9 +131,25 @@ class SimpleTaskGenerator(TaskGenerator):
             mission_created = self.create_random_mission(task_importance=importance, arrival_time=arrival_time,ability = ability)
             missions_list.append(mission_created)
 
-        return TaskSimple(id_=id_, location=location, importance=importance,
+
+        task = TaskSimple(id_=id_, location=location, importance=importance,
                           missions_list=missions_list, arrival_time=arrival_time)
 
+
+        task.neighbours = self.get_neighbors_ids(missions_list)
+        return task
+
+    def get_neighbors_ids(self,missions_list):
+        ans = []
+        skills_list  = []
+        for mission in missions_list:
+            for ability in mission.abilities:
+                skills_list.append(ability)
+        for player in self.players_list:
+            for ability in player.abilities:
+                if ability in skills_list:
+                    ans.append(player.id_)
+        return ans
     def get_tasks_number_of_tasks_now(self, tnow,number_of_tasks):
         ans = []
         for _ in range(number_of_tasks):
@@ -137,7 +162,8 @@ class SimpleTaskGenerator(TaskGenerator):
         mission_id = str(self.id_mission_counter)
         initial_workload = self.random.uniform(task_importance,task_importance*3)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
-        rnd_ = round(self.random.uniform(2,task_importance/1000))
+
+        rnd_ = round(self.random.uniform(1,task_importance/1000))
         max_players = min(rnd_,10)
 
         return MissionSimple(task_importance = task_importance,mission_id= mission_id,
