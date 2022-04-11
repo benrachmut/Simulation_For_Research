@@ -271,6 +271,8 @@ class Simulation:
         if self.check_diary_during_solver(time):
             self.diary.append(SolverFinishEvent(time_=time))
             return
+        self.tnow = self.tnow + solver_duration_NCLO
+
         # handle_new allocation
         self.remove_mission_finished_events()
         self.remove_player_arrive_to_mission_event_from_diary()

@@ -150,6 +150,7 @@ class SimpleTaskGenerator(TaskGenerator):
                 if ability in skills_list:
                     ans.append(player.id_)
         return ans
+
     def get_tasks_number_of_tasks_now(self, tnow,number_of_tasks):
         ans = []
         for _ in range(number_of_tasks):
@@ -160,7 +161,7 @@ class SimpleTaskGenerator(TaskGenerator):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
-        initial_workload = self.random.uniform(task_importance,task_importance*3)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
+        initial_workload = self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
 
         rnd_ = round(self.random.uniform(1,task_importance/1000))
@@ -381,7 +382,6 @@ class MissionMeasurements:
 
         self.x3_abandonment_counter = 0  # each decrease in players present
         self.x4_total_abandonment_counter = 0  # decrease from 1 to 0
-        self.x20_abandonment_penalty = 0
         self.x5_simulation_time_mission_end = None
         self.x6_total_time_since_arrive_to_system = None
         self.x7_total_time_since_first_agent_arrive = None
@@ -399,6 +399,7 @@ class MissionMeasurements:
         self.x14_workload_per_quantity_time_first_player = self.create_dict_of_players_amounts()
 
         self.x16_workload_utility = None
+        self.x20_abandonment_penalty = 0
 
         self.players_allocated_to_the_mission_previous = []
         self.players_handling_with_the_mission_previous = []
@@ -547,19 +548,19 @@ class MissionSimple:
                                                 initial_workload=self.initial_workload, max_players=self.max_players)
         #####----------
 
-        self.x0_simulation_time_mission_enter_system = self.arrival_time_to_the_system
-        self.x1_simulation_time_first_player_arrive = None  # update when mission finish
-        self.x2_delay = None
-
-        self.x3_abandonment_counter = 0  # each decrease in players present
-        self.x4_total_abandonment_counter = 0  # decrease from 1 to 0
-
-        self.x8_optimal_time = self.initial_workload / self.max_players
-        self.x9_ratio_time_taken_arrive_to_system_and_opt = None
-        self.x10_ratio_time_taken_first_agent_arrive_and_opt = None
-
-        self.x13_time_amount_of_agents_from_system = self.create_dict_of_players_amounts()
-        self.x14_time_amount_of_agents_and_time_mission_finish_ratio_system = self.create_dict_of_players_amounts()
+        # self.x0_simulation_time_mission_enter_system = self.arrival_time_to_the_system
+        # self.x1_simulation_time_first_player_arrive = None  # update when mission finish
+        # self.x2_delay = None
+        #
+        # self.x3_abandonment_counter = 0  # each decrease in players present
+        # self.x4_total_abandonment_counter = 0  # decrease from 1 to 0
+        #
+        # self.x8_optimal_time = self.initial_workload / self.max_players
+        # self.x9_ratio_time_taken_arrive_to_system_and_opt = None
+        # self.x10_ratio_time_taken_first_agent_arrive_and_opt = None
+        #
+        # self.x13_time_amount_of_agents_from_system = self.create_dict_of_players_amounts()
+        # self.x14_time_amount_of_agents_and_time_mission_finish_ratio_system = self.create_dict_of_players_amounts()
 
     def create_dict_of_players_amounts(self):
         ans = {}

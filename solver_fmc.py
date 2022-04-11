@@ -1013,7 +1013,7 @@ class FisherTaskASY_TSG_greedy_Schedual(FisherTaskASY, ABC):
         #     self.price_delta[mission] = 9999999
         #     self.counter_of_converges_dict[mission] = self.counter_of_converges
         FisherTaskASY.__init__(self, agent_simulator=agent_simulator, t_now=t_now, is_with_timestamp=is_with_timestamp,
-                               counter_of_converges=2, Threshold=0.001)
+                               counter_of_converges=counter_of_converges, Threshold=Threshold)
         self.max_time_per_mission = {}
         self.player_greedy_arrive_dict = {}
         self.reset_mission_per_allocation_list()
@@ -1068,7 +1068,7 @@ class FisherTaskASY_TSG_greedy_Schedual(FisherTaskASY, ABC):
 class FMC_ATA(AllocationSolverSingleTaskInit):
     def __init__(self, util_structure_level = 1, mailer=None, f_termination_condition=None, f_global_measurements={},
                  f_communication_disturbance=default_communication_disturbance, future_utility_function=None,
-                 is_with_timestamp=True, ro=0.9 ):
+                 is_with_timestamp=True, ro=0.9,counter_of_converges=3,Threshold = 10**-5 ):
         AllocationSolverSingleTaskInit.__init__(self, mailer, f_termination_condition,
                                                                 f_global_measurements,
                                                                 f_communication_disturbance)
@@ -1076,9 +1076,12 @@ class FMC_ATA(AllocationSolverSingleTaskInit):
         self.ro = ro
         self.future_utility_function = future_utility_function
         self.is_with_timestamp = is_with_timestamp
+        self.counter_of_converges = counter_of_converges
+        self.Threshold=Threshold
 
     def create_algorithm_task(self, task: TaskSimple):
-        return FisherTaskASY_TSG_greedy_Schedual(agent_simulator=task, t_now=self.tnow, is_with_timestamp=self.is_with_timestamp)
+        return FisherTaskASY_TSG_greedy_Schedual(agent_simulator=task, t_now=self.tnow, is_with_timestamp=self.is_with_timestamp,
+                                                 counter_of_converges=self.counter_of_converges,Threshold = self.Threshold )
 
     def create_algorithm_player(self, player: PlayerSimple):
         return FisherPlayerASY_TSG_greedy_Schedual(util_structure_level=self.util_structure_level,
