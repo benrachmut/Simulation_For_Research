@@ -1010,6 +1010,10 @@ class AllocationSolver:
         return self.allocate()
 
     @abc.abstractmethod
+    def __str__(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def __add_player_to_solver(self, player: PlayerSimple):
         raise NotImplementedError
 

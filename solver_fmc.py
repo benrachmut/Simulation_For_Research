@@ -1079,6 +1079,9 @@ class FMC_ATA(AllocationSolverSingleTaskInit):
         self.counter_of_converges = counter_of_converges
         self.Threshold=Threshold
 
+    def __str__(self):
+        return "FMC_ATA"
+
     def create_algorithm_task(self, task: TaskSimple):
         return FisherTaskASY_TSG_greedy_Schedual(agent_simulator=task, t_now=self.tnow, is_with_timestamp=self.is_with_timestamp,
                                                  counter_of_converges=self.counter_of_converges,Threshold = self.Threshold )

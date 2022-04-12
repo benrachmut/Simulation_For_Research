@@ -1,5 +1,6 @@
 import random
 
+from create_excel_fisher import make_fisher_data
 from general_communication_protocols import CommunicationProtocolLossExponent, CommunicationProtocolDelayExponent
 from general_data_fisher_market import get_data_fisher
 from general_r_ij import calculate_rij_abstract
@@ -22,6 +23,7 @@ fisher_data_jumps = 100
 solver_number = 1
 counter_of_converges=2
 Threshold=10**-5
+algo_name = None
 
 
 # --- communication_protocols ---
@@ -106,6 +108,8 @@ def get_solver(communication_protocol):
                       counter_of_converges=counter_of_converges,
                       Threshold = Threshold
         )
+    global algo_name
+    algo_name= ans.__str__()
 
     return ans
 
@@ -120,38 +124,43 @@ def get_communication_protocols():
     return ans
 
 
-
-def find_relevant_measure_from_dict(nclo, data_map_of_measure):
-    while nclo != 0:
-        if nclo in data_map_of_measure.keys():
-            return data_map_of_measure[nclo]
-        else:
-            nclo = nclo - 1
-    return 0
+def print_players(players_list):
+    for p in players_list:
+        print("id:",p.id_,", ability:",p.abilities[0].ability_type,", location",p.location)
 
 
-def get_data_prior_statistic_fisher(data_):
-    data_keys = []
-    data_keys_t = get_data_fisher().keys()
-    for k in data_keys_t:
-        data_keys.append(k)
+def print_initial_tasks(tasks_generator):
+    for i in range(size_of_initial_tasks):
+        task = tasks_generator.get_task(tnow=0,flag_time_zero=True)
+        print("***--- id:",task.id_,", location:",task.location," importance:",task.importance,"---***")
+        for mission in task.missions_list:
+            print("id:", mission.mission_id, ", workload:", mission.initial_workload,
+                  ", ability:",mission.abilities[0].ability_type, ", max amount:",mission.max_players)
 
-    data_prior_statistic = {}
-    for measure_name in data_keys:
-        data_prior_statistic[measure_name] = {}
-        for nclo in range(0, max_nclo_algo_run, fisher_data_jumps):
-            data_prior_statistic[measure_name][nclo] = []
-            for rep in range(start,end):
-                data_of_rep = data_[rep]
-                data_map_of_measure = data_of_rep[measure_name]
-                the_measure = find_relevant_measure_from_dict(nclo, data_map_of_measure)
-                data_prior_statistic[measure_name][nclo].append(the_measure)
 
-    return data_prior_statistic
-
-def make_fisher_data(fisher_measures):
-    data_prior_statistic = get_data_prior_statistic(fisher_measures)
-    pass
+def run_simulation(i):
+    # --- simulation prep ---
+    communication_protocol.set_seed(i)
+    f_generate_message_disturbance = communication_protocol.get_communication_disturbance
+    name = str(i)
+    players_list = create_players(i)
+    #print_players(players_list)
+    solver = get_solver(communication_protocol)
+    map = MapSimple(seed=i * 200, length=length, width=width)
+    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i,
+                                          max_importance=max_importance, players_list=players_list)
+    #print_initial_tasks(tasks_generator)
+    # --- simulation run ---
+    sim = Simulation(name=name,
+                     players_list=players_list,
+                     solver=solver,
+                     f_generate_message_disturbance=f_generate_message_disturbance,
+                     tasks_generator=tasks_generator,
+                     end_time=end_time,
+                     number_of_initial_tasks=size_of_initial_tasks,
+                     is_static=is_static,
+                     debug_mode=False)
+    return sim
 
 
 if __name__ == '__main__':
@@ -162,32 +171,14 @@ if __name__ == '__main__':
         print(communication_protocol)
         for i in range(start, end):
             print("Simulation number = "+str(i))
+            sim = run_simulation(i)
 
-            # --- simulation prep ---
-            communication_protocol.set_seed(i)
-            f_generate_message_disturbance = communication_protocol.get_communication_disturbance
-            name = str(i)
-            players_list = create_players(i)
-            solver = get_solver(communication_protocol)
-            map = MapSimple(seed=i*200, length=length, width=width)
-            tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i,
-                                                  max_importance=max_importance, players_list =players_list)
-
-            # --- simulation run ---
-            sim = Simulation(name=name,
-                             players_list=players_list,
-                             solver=solver,
-                             f_generate_message_disturbance=f_generate_message_disturbance,
-                             tasks_generator=tasks_generator,
-                             end_time=end_time,
-                             number_of_initial_tasks=size_of_initial_tasks,
-                             is_static=is_static,
-                             debug_mode=False)
             #--- prep data ---
             single_fisher_measures = sim.solver.mailer.measurements
             fisher_measures[i] = single_fisher_measures
 
         print("start data ",communication_protocol)
-        make_fisher_data(fisher_measures)
+
+        make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name)
 
 

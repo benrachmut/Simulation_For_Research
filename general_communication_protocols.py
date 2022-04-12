@@ -17,11 +17,20 @@ def quad_distance(entity1,entity2):
 
 class CommunicationProtocol(ABC):
     def __init__(self, is_with_timestamp, name):
-
+        self.type_ = self.get_type()
         self.name = name
         self.is_with_timestamp = is_with_timestamp
         self.rnd = None
         self.rnd_numpy = None
+
+    @abc.abstractmethod
+    def get_type(self):
+        '''
+        Delay/Loss/Perfect
+        :return:
+        '''
+        raise NotImplementedError
+
 
     def __str__(self):
         return self.name
@@ -47,12 +56,13 @@ class CommunicationProtocol(ABC):
 
 class CommunicationProtocolDistance(CommunicationProtocol):
     def __init__(self, name,alpha,delta_x,delta_y,std = 10, is_with_timestamp=False):
-        CommunicationProtocol.__init__(self, is_with_timestamp, name)
 
         self.delta_x = delta_x
         self.delta_y = delta_y
         self.alpha = alpha
         self.std = std
+        CommunicationProtocol.__init__(self, is_with_timestamp, name)
+
 
 
 
@@ -83,12 +93,23 @@ class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
         else:
             return None
 
+
+    def get_type(self):
+        if self.alpha == 0:
+            return "No Loss"
+        else:
+            return "Loss"
 class CommunicationProtocolDelayExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y, std = 10):
         name = "x^"+str(alpha)
-
         CommunicationProtocolDistance.__init__(self,name = name, alpha =alpha, delta_x=delta_x, delta_y=delta_y, std=std )
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
         x = self.normalize_distance(entity1,entity2)
         return self.alpha ** x
+
+    def get_type(self):
+        if self.alpha == 0:
+            return "No Delay"
+        else:
+            return "Delay"
