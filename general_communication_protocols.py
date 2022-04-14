@@ -66,13 +66,13 @@ class CommunicationProtocolDistance(CommunicationProtocol):
 
 
 
-    def get_entity_quad_distance_rnd(self,entity1,entity2):
+    def get_entity_quad_distance_rnd(self,entity1,entity2,max_quad_distance):
         avg = quad_distance(entity1,entity2)
-        return max(self.rnd_numpy.normal(avg, self.std, 1)[0],0)
+        return min(max(self.rnd_numpy.normal(avg, self.std, 1)[0],0), max_quad_distance   )
 
     def normalize_distance(self,entity1,entity2):
-        entity_quad_distance = self.get_entity_quad_distance_rnd(entity1, entity2)
         max_quad_distance = math.sqrt(self.delta_x**2 + self.delta_y**2)
+        entity_quad_distance = self.get_entity_quad_distance_rnd(entity1, entity2,max_quad_distance)
         if entity_quad_distance>max_quad_distance:
             raise Exception("something is wrong")
         return entity_quad_distance/max_quad_distance

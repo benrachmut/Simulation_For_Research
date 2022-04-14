@@ -653,21 +653,20 @@ class AgentAlgorithm(threading.Thread, ABC):
     def receive_msgs(self, msgs: []):
 
         for msg in msgs:
-
             if self.is_with_timestamp:
 
                 current_timestamp_from_context = self.get_current_timestamp_from_context(msg)
 
                 if msg.timestamp > current_timestamp_from_context:
-                    self.set_receive_flag_to_true_given_msg(msg)
                     self.update_message_in_context(msg)
+                    self.set_receive_flag_to_true_given_msg(msg)
                     self.msg_received_counter += 1
 
                 else:
                     self.msg_not_delivered_loss_timestamp_counter += 1
             else:
-                self.set_receive_flag_to_true_given_msg(msg)
                 self.update_message_in_context(msg)
+                self.set_receive_flag_to_true_given_msg(msg)
                 self.msg_received_counter += 1
 
         self.update_agent_time(msgs)
@@ -761,6 +760,8 @@ class AgentAlgorithm(threading.Thread, ABC):
             msg.add_current_NCLO(self.NCLO.clock)
             msg.add_timestamp(self.timestamp_counter)
             msg.is_with_perfect_communication = self.check_if_msg_should_have_perfect_communication(msg)
+        #print(len(msgs))
+
         self.outbox.insert(msgs)
 
     def check_if_msg_should_have_perfect_communication(self):
@@ -883,13 +884,12 @@ class PlayerAlgorithm(AgentAlgorithmTaskPlayers):
             self.tasks_log.append(self.simulation_entity.current_task)
 
     def check_if_msg_should_have_perfect_communication(self,msg:Msg):
-        ids_ = []
-        for t in self.tasks_log:
-            ids_.append(t.id_)
 
-        if msg.receiver in ids_:
-            return True
+        for task in self.simulation_entity.tasks_responsible:
+            if task.id_ == msg.receiver:
+                return True
         return False
+
 
     def get_list_of_ids_under_responsibility(self):
         return self.tasks_responsible_ids
@@ -1589,3 +1589,30 @@ class AllocationSolverSingleTaskInit(AllocationSolverDistributedV2):
                 current_task_updated = self.get_updated_entity_copy_of_current_task(current_task)
                 if current_task_updated is not None:
                     player_algorithm.update_log_with_task(current_task_updated)
+
+
+class AllocationSolverAllTasksInit(AllocationSolverDistributedV2):
+    def __init__(self, mailer=None, f_termination_condition=None, f_global_measurements=None,
+                 f_communication_disturbance=default_communication_disturbance):
+        AllocationSolverDistributedV2.__init__(self, f_termination_condition, f_global_measurements,
+                                             f_communication_disturbance)
+    def agents_initialize(self):
+
+        for task in self.tasks_simulation:
+            for player_sim in self.players_simulation:
+                player_algorithm = self.get_algorithm_agent_by_entity(player_sim)
+                player_algorithm.add_task_entity_to_log(task)
+
+
+
+        for task in self.tasks_algorithm:
+            task.initiate_algorithm()
+
+
+    def update_log_of_players_current_task(self):
+        """
+        the specified scenario suggests that players are aware of the current information of the tasks they are currently at
+        this method updates the relative information at the players log
+        :return:
+        """
+

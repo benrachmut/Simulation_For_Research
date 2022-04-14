@@ -1,5 +1,6 @@
 import random
 
+from create_excel_dynamic import make_dynamic_simulation
 from create_excel_fisher import make_fisher_data
 from general_communication_protocols import CommunicationProtocolLossExponent, CommunicationProtocolDelayExponent
 from general_data_fisher_market import get_data_fisher
@@ -8,41 +9,41 @@ from simulation_abstract import Simulation
 from simulation_abstract_components import SimpleTaskGenerator, MapSimple, PlayerSimple, AbilitySimple
 from solver_fmc_centralized import  FisherCentralizedPrice
 
-from solver_fmc_distributed import FMC_ATA, FisherTaskASY
+from solver_fmc_distributed import FMC_ATA, FisherTaskASY, FMC_TA
 
 is_static = True
 start = 0
-end = 50
+end = 2
 size_players = 10
 end_time = 10**8
-size_of_initial_tasks = 5
-max_nclo_algo_run = 5000
+size_of_initial_tasks = 10
+max_number_of_missions = 3
+max_nclo_algo_run = 10000
 
 #--- 1 = DATA  ---
-fisher_data_jumps = 10
+fisher_data_jumps = 100
 
 ##--- 1 = distributed FMC_ATA;  ---
-solver_number = 1
-counter_of_converges=5
-Threshold=10**-8
+solver_number = 2
+counter_of_converges=2
+Threshold=10**-3
 algo_name = None
 
 
 # --- communication_protocols ---
 std = 10
-alphas_LossExponent = [0]#[0.1, 0.5, 1, 1.5, 2]
-alphas_delays = [500]
+alphas_LossExponent = []#[0.1, 0.5, 1, 1.5, 2]
+alphas_delays = [0,250,500]
 
 ##--- map ---
-length = 900.0
-width = 900.0
+length = 90.0
+width = 90.0
 
 ##--- task generator ---
-max_number_of_missions = 1
 max_importance = 10000
 
 ##--- agents ---
-speed = 100
+speed = 1
 
 
 # name,alpha,delta_x,delta_y,
@@ -110,6 +111,15 @@ def get_solver(communication_protocol,price_vector):
                       counter_of_converges=counter_of_converges,
                       Threshold = Threshold
         )
+
+    if solver_number == 2:
+        ans = FMC_TA(f_termination_condition=termination_function,
+                      f_global_measurements=data_fisher,
+                      f_communication_disturbance=communication_f,
+                      future_utility_function=rij_function,
+                      counter_of_converges=counter_of_converges,
+                      Threshold=Threshold
+                      )
     global algo_name
     algo_name= ans.__str__()
 
@@ -166,9 +176,7 @@ def run_simulation(i,price_vector):
     players_list = create_players(i)
     tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i,
                                           max_importance=max_importance, players_list=players_list)
-
     solver = get_solver(communication_protocol,price_vector)
-
     #print_initial_tasks(tasks_generator)
     # --- simulation run ---
     sim = Simulation(name=name,
@@ -188,11 +196,10 @@ if __name__ == '__main__':
     price_dict = {}
     for communication_protocol in communication_protocols:
         fisher_measures = {}  # {number run: measurement}
+        finished_tasks ={}
         print(communication_protocol)
         for i in range(start, end):
             print("Simulation number = "+str(i))
-
-
             # print_players(players_list)
 
             if i not in price_dict.keys():
@@ -203,9 +210,9 @@ if __name__ == '__main__':
             #--- prep data ---
             single_fisher_measures = sim.solver.mailer.measurements
             fisher_measures[i] = single_fisher_measures
-
+            finished_tasks[i] = sim.finished_tasks_list
         print("start data ",communication_protocol)
 
         make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name)
-
+        make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name)
 
