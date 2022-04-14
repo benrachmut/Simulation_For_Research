@@ -6,37 +6,39 @@ from general_data_fisher_market import get_data_fisher
 from general_r_ij import calculate_rij_abstract
 from simulation_abstract import Simulation
 from simulation_abstract_components import SimpleTaskGenerator, MapSimple, PlayerSimple, AbilitySimple
-from solver_fmc import FMC_ATA, FisherTaskASY
+from solver_fmc_centralized import  FisherCentralizedPrice
+
+from solver_fmc_distributed import FMC_ATA, FisherTaskASY
 
 is_static = True
 start = 0
-end = 2
+end = 50
 size_players = 10
 end_time = 10**8
-size_of_initial_tasks = 10
-max_nclo_algo_run = 10000
+size_of_initial_tasks = 5
+max_nclo_algo_run = 5000
 
 #--- 1 = DATA  ---
-fisher_data_jumps = 100
+fisher_data_jumps = 10
 
 ##--- 1 = distributed FMC_ATA;  ---
 solver_number = 1
-counter_of_converges=2
-Threshold=10**-5
+counter_of_converges=5
+Threshold=10**-8
 algo_name = None
 
 
 # --- communication_protocols ---
 std = 10
-alphas_LossExponent = [0.1, 0.5, 1, 1.5, 2]
-alphas_delays = [100,200,300,500]
+alphas_LossExponent = [0]#[0.1, 0.5, 1, 1.5, 2]
+alphas_delays = [500]
 
 ##--- map ---
 length = 900.0
 width = 900.0
 
 ##--- task generator ---
-max_number_of_missions = 3
+max_number_of_missions = 1
 max_importance = 10000
 
 ##--- agents ---
@@ -94,9 +96,9 @@ def create_players(i):
     return ans
 
 
-def get_solver(communication_protocol):
+def get_solver(communication_protocol,price_vector):
     communication_f = communication_protocol.get_communication_disturbance
-    data_fisher = get_data_fisher()
+    data_fisher = get_data_fisher(price_vector)
     rij_function = calculate_rij_abstract
     termination_function = f_termination_condition_all_tasks_converged
 
@@ -130,25 +132,43 @@ def print_players(players_list):
 
 
 def print_initial_tasks(tasks_generator):
-    for i in range(size_of_initial_tasks):
-        task = tasks_generator.get_task(tnow=0,flag_time_zero=True)
+
+    tasks_list = tasks_generator.get_tasks_number_of_tasks_now(0,size_of_initial_tasks)
+
+    for task in tasks_list:
         print("***--- id:",task.id_,", location:",task.location," importance:",task.importance,"---***")
         for mission in task.missions_list:
             print("id:", mission.mission_id, ", workload:", mission.initial_workload,
                   ", ability:",mission.abilities[0].ability_type, ", max amount:",mission.max_players)
 
 
-def run_simulation(i):
-    # --- simulation prep ---
+
+
+
+def get_price_vector(i):
+    map = MapSimple(seed=i * 200, length=length, width=width)
+    players_list = create_players(i)
+    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i,
+                                          max_importance=max_importance, players_list=players_list)
+
+    tasks_list = tasks_generator.get_tasks_number_of_tasks_now(0,size_of_initial_tasks)
+    rij_function = calculate_rij_abstract
+
+    solv = FisherCentralizedPrice(THRESHOLD = Threshold, future_utility_function= rij_function, tasks_simulation = tasks_list, players_simulation = players_list)
+    return solv.get_price_vector()
+
+
+def run_simulation(i,price_vector):
     communication_protocol.set_seed(i)
     f_generate_message_disturbance = communication_protocol.get_communication_disturbance
     name = str(i)
-    players_list = create_players(i)
-    #print_players(players_list)
-    solver = get_solver(communication_protocol)
     map = MapSimple(seed=i * 200, length=length, width=width)
+    players_list = create_players(i)
     tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i,
                                           max_importance=max_importance, players_list=players_list)
+
+    solver = get_solver(communication_protocol,price_vector)
+
     #print_initial_tasks(tasks_generator)
     # --- simulation run ---
     sim = Simulation(name=name,
@@ -165,13 +185,20 @@ def run_simulation(i):
 
 if __name__ == '__main__':
     communication_protocols = get_communication_protocols()
-
+    price_dict = {}
     for communication_protocol in communication_protocols:
         fisher_measures = {}  # {number run: measurement}
         print(communication_protocol)
         for i in range(start, end):
             print("Simulation number = "+str(i))
-            sim = run_simulation(i)
+
+
+            # print_players(players_list)
+
+            if i not in price_dict.keys():
+                price_vector = get_price_vector(i)
+                price_dict[i] = price_vector
+            sim = run_simulation(i,price_dict[i])
 
             #--- prep data ---
             single_fisher_measures = sim.solver.mailer.measurements
