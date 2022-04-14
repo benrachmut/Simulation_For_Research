@@ -1,8 +1,11 @@
 
 ###----All is using---###
+import math
+
 from simulation_abstract_components import PlayerSimple, MissionSimple
 from solver_abstract import PlayerAlgorithm, TaskAlgorithm
 
+price_vector_converge = None
 
 def get_specified_type_agent(agents_algorithm, type_agent):
     ans = []
@@ -337,10 +340,41 @@ def calc_sum_max_bpb(agents_algorithm):
             ans.append(max(temp_list))
     return sum(ans)
 
-def get_data_fisher():
+
+def get_current_price(agents_algorithm):
+    ans = {}
+    tasks_algorithm = []
+    for agent in agents_algorithm:
+        if isinstance(agent, TaskAlgorithm):
+            tasks_algorithm.append(agent)
+
+    for t in tasks_algorithm:
+        for mission_entity, price in t.price_current.items():
+            ans[mission_entity.mission_id] = price
+    return ans
+
+
+
+def calculate_distance_price(agents_algorithm):
+    current = get_current_price(agents_algorithm)
+    equilibrium = price_vector_converge
+
+    diff = 0
+    for mission_id, price_current in current.items():
+        price_equilibrium = equilibrium[mission_id]
+        diff = (price_equilibrium-price_current)**2
+    return diff**(0.5)
+
+
+def get_data_fisher(price_vector_input=None):
+
+
+    global price_vector_converge
+    price_vector_converge = price_vector_input
     ans = {}
 
     # ---RiXi---
+    ans["Distance Price"] = calculate_distance_price
     ans["Sigma RiXi"] = calculate_sum_R_X
     ans["Sigma RiXi pov"] = calculate_sum_R_X_pov
     ans["Single Sigma RiXi"] = calculate_single_R_X_player

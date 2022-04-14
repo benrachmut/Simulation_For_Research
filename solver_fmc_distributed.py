@@ -20,7 +20,7 @@ class Utility:
         self.player_entity = player_entity
         self.mission_entity = mission_entity
         self.task_entity = task_entity
-
+        self.xij=0
         self.t_now = t_now
         self.ro = ro
         if util == -1:

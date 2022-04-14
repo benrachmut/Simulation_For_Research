@@ -988,12 +988,11 @@ def get_task_min_id(task_agent:TaskSimple):
 class AllocationSolver:
 
     def __init__(self, tasks_simulation=[], players_simulation=[]):
-        self.agents_algorithm = []
-
         self.tasks_simulation = tasks_simulation
         self.add_tasks_list(self.tasks_simulation)
         self.players_simulation = players_simulation
         self.add_players_list(self.players_simulation)
+        self.agents_algorithm = []
 
         self.tnow = 0
 
