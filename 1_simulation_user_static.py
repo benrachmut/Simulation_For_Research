@@ -9,15 +9,15 @@ from simulation_abstract import Simulation
 from simulation_abstract_components import SimpleTaskGenerator, MapSimple, PlayerSimple, AbilitySimple
 from solver_fmc_centralized import  FisherCentralizedPrice
 
-from solver_fmc_distributed import FMC_ATA, FisherTaskASY, FMC_TA
+from solver_fmc_distributed import FMC_ATA, FisherTaskASY#, FMC_TA
 is_static =True
 
 start = 0
 end = 1
 size_players = 10
-end_time = 100000
+end_time = 10**20
 size_of_initial_tasks = 10
-max_nclo_algo_run= 10000
+max_nclo_algo_run= 50000
 fisher_data_jumps = 100
 
 ##--- 1 = distributed FMC_ATA;  ---
@@ -27,18 +27,18 @@ solver_number = 1
 # --- communication_protocols ---
 std = 10
 alphas_LossExponent = []
-alphas_delays = [100]
+alphas_delays = [250]
 
 ##--- map ---
-length = 900.0
-width = 900.0
+length = 90.0
+width = 90.0
 
 ##--- task generator ---
 max_number_of_missions = 3
 max_importance = 10000
 
 ##--- agents ---
-speed = 100
+speed = 1
 
 # name,alpha,delta_x,delta_y,
 
@@ -107,14 +107,14 @@ def get_solver(communication_protocol,price_vector):
                       Threshold = Threshold
         )
 
-    if solver_number == 2:
-        ans = FMC_TA(f_termination_condition=termination_function,
-                      f_global_measurements=data_fisher,
-                      f_communication_disturbance=communication_f,
-                      future_utility_function=rij_function,
-                      counter_of_converges=counter_of_converges,
-                      Threshold=Threshold
-                      )
+    # if solver_number == 2:
+    #     ans = FMC_TA(f_termination_condition=termination_function,
+    #                   f_global_measurements=data_fisher,
+    #                   f_communication_disturbance=communication_f,
+    #                   future_utility_function=rij_function,
+    #                   counter_of_converges=counter_of_converges,
+    #                   Threshold=Threshold
+    #                   )
     global algo_name
     algo_name= ans.__str__()
 
@@ -210,4 +210,3 @@ if __name__ == '__main__':
 
         make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name)
         make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name)
-

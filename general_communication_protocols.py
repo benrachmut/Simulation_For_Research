@@ -66,15 +66,15 @@ class CommunicationProtocolDistance(CommunicationProtocol):
 
 
 
-    def get_entity_quad_distance_rnd(self,entity1,entity2,max_quad_distance):
+    def get_entity_quad_distance_rnd(self,entity1,entity2):
         avg = quad_distance(entity1,entity2)
-        return min(max(self.rnd_numpy.normal(avg, self.std, 1)[0],0), max_quad_distance   )
+        return max(self.rnd_numpy.normal(avg, self.std, 1)[0],0)
 
     def normalize_distance(self,entity1,entity2):
+        entity_quad_distance = self.get_entity_quad_distance_rnd(entity1, entity2)
         max_quad_distance = math.sqrt(self.delta_x**2 + self.delta_y**2)
-        entity_quad_distance = self.get_entity_quad_distance_rnd(entity1, entity2,max_quad_distance)
         if entity_quad_distance>max_quad_distance:
-            raise Exception("something is wrong")
+            return 1
         return entity_quad_distance/max_quad_distance
 
 class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
@@ -106,7 +106,6 @@ class CommunicationProtocolDelayExponent(CommunicationProtocolDistance):
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
         x = self.normalize_distance(entity1,entity2)
-        #print(self.alpha ** x)
         return self.alpha ** x
 
     def get_type(self):

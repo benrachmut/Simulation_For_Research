@@ -139,10 +139,9 @@ def calculate_sum_R_X_pov(agents_algorithm):
 
                     r_ijk_util = player.r_i[task][mission]
                     r_ijk = r_ijk_util.get_utility()
+                    x_ijk = player.x_i[task][mission]
 
                     try:
-                        x_ijk = player.x_i[task][mission]
-
                         ri_xi += r_ijk * x_ijk
                     except:
                         pass
@@ -182,8 +181,8 @@ def calculate_single_R_X_player_pov(agents_algorithm):
             for mission in task.missions_list:
                 r_ijk_util = single_player.r_i[task][mission]
                 r_ijk = r_ijk_util.get_utility()
+                x_ijk = single_player.x_i[task][mission]
                 try:
-                    x_ijk = single_player.x_i[task][mission]
                     ri_xi += r_ijk * x_ijk
                 except:
                     pass

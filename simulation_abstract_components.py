@@ -128,7 +128,7 @@ class SimpleTaskGenerator(TaskGenerator):
             arrival_time = tnow + self.time_gap_between_tasks()
         missions_list = []
         for ability in required_abilities:
-            mission_created = self.create_random_mission(task_id=id_ ,task_importance=importance, arrival_time=arrival_time,ability = ability)
+            mission_created = self.create_random_mission(task_importance=importance, arrival_time=arrival_time,ability = ability)
             missions_list.append(mission_created)
 
 
@@ -157,7 +157,7 @@ class SimpleTaskGenerator(TaskGenerator):
             ans.append(self.get_task(tnow = tnow,flag_time_zero = True))
         return ans
 
-    def create_random_mission(self, task_id,task_importance: float, arrival_time: float,ability):
+    def create_random_mission(self, task_importance: float, arrival_time: float,ability):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
@@ -167,7 +167,7 @@ class SimpleTaskGenerator(TaskGenerator):
         rnd_ = round(self.random.uniform(1,task_importance/1000))
         max_players = min(rnd_,10)
 
-        return MissionSimple(task_id = task_id,task_importance = task_importance,mission_id= mission_id,
+        return MissionSimple(task_importance = task_importance,mission_id= mission_id,
                              initial_workload= initial_workload, arrival_time_to_the_system= arrival_time_to_the_system, max_players=max_players,abilities=[created_ability])
 
 class AbilitySimple:
@@ -372,9 +372,8 @@ def is_player_can_be_allocated_to_task(task, player):
     return True
 
 class MissionMeasurements:
-    def __init__(self, task_id,task_importance, mission_id, arrival_time_to_the_system, initial_workload, max_players):
+    def __init__(self, task_importance, mission_id, arrival_time_to_the_system, initial_workload, max_players):
         self.task_importance = task_importance
-        self.task_id = task_id
         self.mission_id = mission_id
         self.max_players = max_players
         self.x0_simulation_time_mission_enter_system = copy.copy(arrival_time_to_the_system)
@@ -406,13 +405,10 @@ class MissionMeasurements:
         self.players_handling_with_the_mission_previous = []
         self.is_mission_done = True
 
-
-
     def get_mission_measurements_dict(self):
         ans = {}
-        ans["Task Id"] = self.task_id
-        ans["Task Importance"] = self.task_importance
         ans["Mission Id"] = self.mission_id
+        ans["Task Importance"] = self.task_importance
         ans["Max Players"] = self.max_players
         ans["Initial Workload"] = self.initial_workload
         ans["Arrival Delay"] = self.x2_delay
@@ -521,7 +517,7 @@ class MissionSimple:
     Class that represents a simple mission (as a part of the task)
     """
 
-    def __init__(self, task_id,mission_id, initial_workload, arrival_time_to_the_system, task_importance = 1,
+    def __init__(self, mission_id, initial_workload, arrival_time_to_the_system, task_importance = 1,
                  abilities=[AbilitySimple(ability_type=0)],
                  min_players=1, max_players=1):
         """
@@ -535,7 +531,6 @@ class MissionSimple:
         :param min_players:
         :param max_players:
         """
-        self.task_id =task_id
         self.task_importance = task_importance
         self.mission_id = mission_id
         self.abilities = abilities
@@ -548,7 +543,7 @@ class MissionSimple:
         self.is_done = False
         self.arrival_time_to_the_system = arrival_time_to_the_system
         self.last_updated = arrival_time_to_the_system
-        self.measurements = MissionMeasurements(task_id=self.task_id,task_importance=self.task_importance, mission_id=self.mission_id,
+        self.measurements = MissionMeasurements(task_importance=self.task_importance, mission_id=self.mission_id,
                                                 arrival_time_to_the_system=self.arrival_time_to_the_system,
                                                 initial_workload=self.initial_workload, max_players=self.max_players)
         #####----------
