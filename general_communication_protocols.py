@@ -101,11 +101,12 @@ class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
             return "Loss"
 class CommunicationProtocolDelayExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y, std = 10):
-        name = "x^"+str(alpha)
+        name = str(alpha)+"^x"
         CommunicationProtocolDistance.__init__(self,name = name, alpha =alpha, delta_x=delta_x, delta_y=delta_y, std=std )
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
         x = self.normalize_distance(entity1,entity2)
+        #print(self.alpha ** x)
         return self.alpha ** x
 
     def get_type(self):

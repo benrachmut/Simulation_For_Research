@@ -10,45 +10,40 @@ from simulation_abstract_components import SimpleTaskGenerator, MapSimple, Playe
 from solver_fmc_centralized import  FisherCentralizedPrice
 
 from solver_fmc_distributed import FMC_ATA, FisherTaskASY, FMC_TA
+is_static =True
 
-is_static = True
 start = 0
-end = 2
+end = 1
 size_players = 10
-end_time = 10**8
+end_time = 100000
 size_of_initial_tasks = 10
-max_number_of_missions = 3
-max_nclo_algo_run = 10000
-
-#--- 1 = DATA  ---
+max_nclo_algo_run= 10000
 fisher_data_jumps = 100
 
 ##--- 1 = distributed FMC_ATA;  ---
-solver_number = 2
-counter_of_converges=2
-Threshold=10**-3
-algo_name = None
+solver_number = 1
 
 
 # --- communication_protocols ---
 std = 10
-alphas_LossExponent = []#[0.1, 0.5, 1, 1.5, 2]
-alphas_delays = [0,250,500]
+alphas_LossExponent = []
+alphas_delays = [100]
 
 ##--- map ---
-length = 90.0
-width = 90.0
+length = 900.0
+width = 900.0
 
 ##--- task generator ---
+max_number_of_missions = 3
 max_importance = 10000
 
 ##--- agents ---
-speed = 1
-
+speed = 100
 
 # name,alpha,delta_x,delta_y,
 
-
+counter_of_converges=5
+Threshold=10**-10
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system
