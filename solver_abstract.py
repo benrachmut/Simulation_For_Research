@@ -883,21 +883,21 @@ class PlayerAlgorithm(AgentAlgorithmTaskPlayers):
         if self.simulation_entity.current_task is not None:
             self.tasks_log.append(self.simulation_entity.current_task)
 
-    #def check_if_msg_should_have_perfect_communication(self,msg:Msg):
+    def check_if_msg_should_have_perfect_communication(self,msg:Msg):
 
-    #    for task in self.simulation_entity.tasks_responsible:
-    #        if task.id_ == msg.receiver:
-    #            return True
-    #    return False
-
-    def check_if_msg_should_have_perfect_communication(self, msg: Msg):
-        ids_ = []
-        for t in self.tasks_log:
-            ids_.append(t.id_)
-
-        if msg.receiver in ids_:
-            return True
+        for task in self.simulation_entity.tasks_responsible:
+            if task.id_ == msg.receiver:
+                return True
         return False
+
+    # def check_if_msg_should_have_perfect_communication(self, msg: Msg):
+    #     ids_ = []
+    #     for t in self.tasks_log:
+    #         ids_.append(t.id_)
+    #
+    #     if msg.receiver in ids_:
+    #         return True
+    #     return False
 
     def get_list_of_ids_under_responsibility(self):
         return self.tasks_responsible_ids
