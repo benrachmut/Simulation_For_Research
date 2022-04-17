@@ -9,7 +9,7 @@ from simulation_abstract import Simulation
 from simulation_abstract_components import SimpleTaskGenerator, MapSimple, PlayerSimple, AbilitySimple
 from solver_fmc_centralized import  FisherCentralizedPrice
 
-from solver_fmc_distributed import FMC_ATA, FisherTaskASY#, FMC_TA
+from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY#, FMC_TA
 is_static =True
 
 start = 0

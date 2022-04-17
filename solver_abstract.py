@@ -1596,3 +1596,30 @@ class AllocationSolverSingleTaskInit(AllocationSolverDistributedV2):
                 current_task_updated = self.get_updated_entity_copy_of_current_task(current_task)
                 if current_task_updated is not None:
                     player_algorithm.update_log_with_task(current_task_updated)
+
+
+
+class AllocationSolverAllTasksInit(AllocationSolverDistributedV2):
+    def __init__(self, mailer=None, f_termination_condition=None, f_global_measurements=None,
+                 f_communication_disturbance=default_communication_disturbance):
+        AllocationSolverDistributedV2.__init__(self, f_termination_condition, f_global_measurements,
+                                             f_communication_disturbance)
+    def agents_initialize(self):
+
+        for task in self.tasks_simulation:
+            for player_sim in self.players_simulation:
+                player_algorithm = self.get_algorithm_agent_by_entity(player_sim)
+                player_algorithm.add_task_entity_to_log(task)
+
+
+
+        for task in self.tasks_algorithm:
+            task.initiate_algorithm()
+
+
+    def update_log_of_players_current_task(self):
+        """
+        the specified scenario suggests that players are aware of the current information of the tasks they are currently at
+        this method updates the relative information at the players log
+        :return:
+        """

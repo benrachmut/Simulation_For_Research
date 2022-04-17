@@ -375,7 +375,7 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
 def get_allocation_measure(allo :AllocationData):
     return allo.measure_
 
-class FisherPlayerASY_TSG_greedy_Schedual(FisherPlayerASY):
+class FisherPlayerASY_greedy_Schedual(FisherPlayerASY):
     def __init__(self, util_structure_level, agent_simulator, t_now, future_utility_function, is_with_timestamp, ro=0.9):
         FisherPlayerASY.__init__(self ,util_structure_level = util_structure_level, agent_simulator=agent_simulator,
                                  t_now=t_now, future_utility_function=future_utility_function,
@@ -975,7 +975,7 @@ class FisherTaskASY(TaskAlgorithm):
 
         return ans
 
-class FisherTaskASY_TSG_greedy_Schedual(FisherTaskASY, ABC):
+class FisherTaskASY_greedy_Schedual(FisherTaskASY, ABC):
     def __init__(self, agent_simulator: TaskSimple, t_now, is_with_timestamp, counter_of_converges=4, Threshold=0.001):
 
         # TaskAlgorithm.__init__(self, agent_simulator, t_now=t_now, is_with_timestamp=is_with_timestamp)
@@ -1083,14 +1083,14 @@ class FMC_ATA(AllocationSolverSingleTaskInit):
         return "FMC_ATA"
 
     def create_algorithm_task(self, task: TaskSimple):
-        return FisherTaskASY_TSG_greedy_Schedual(agent_simulator=task, t_now=self.tnow, is_with_timestamp=self.is_with_timestamp,
-                                                 counter_of_converges=self.counter_of_converges,Threshold = self.Threshold )
+        return FisherTaskASY_greedy_Schedual(agent_simulator=task, t_now=self.tnow, is_with_timestamp=self.is_with_timestamp,
+                                             counter_of_converges=self.counter_of_converges, Threshold = self.Threshold)
 
     def create_algorithm_player(self, player: PlayerSimple):
-        return FisherPlayerASY_TSG_greedy_Schedual(util_structure_level=self.util_structure_level,
-                                                   agent_simulator=player, t_now=self.tnow,
-                                                   future_utility_function=self.future_utility_function,
-                                                   is_with_timestamp=self.is_with_timestamp, ro=self.ro)
+        return FisherPlayerASY_greedy_Schedual(util_structure_level=self.util_structure_level,
+                                               agent_simulator=player, t_now=self.tnow,
+                                               future_utility_function=self.future_utility_function,
+                                               is_with_timestamp=self.is_with_timestamp, ro=self.ro)
 
     def allocate(self):
         self.reset_algorithm_agents()
@@ -1102,3 +1102,6 @@ class FMC_ATA(AllocationSolverSingleTaskInit):
         self.mailer.start()
         self.mailer.join()
         return  self.mailer.time_mailer.clock
+
+
+

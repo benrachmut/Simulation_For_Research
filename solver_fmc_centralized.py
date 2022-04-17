@@ -1,5 +1,5 @@
 from solver_abstract import AllocationSolver
-from solver_fmc_distributed import Utility
+from solver_fmc_distributed_asy import Utility
 
 
 class FisherCentralizedImplementation:

@@ -128,7 +128,7 @@ class SimpleTaskGenerator(TaskGenerator):
             arrival_time = tnow + self.time_gap_between_tasks()
         missions_list = []
         for ability in required_abilities:
-            mission_created = self.create_random_mission(task_importance=importance, arrival_time=arrival_time,ability = ability)
+            mission_created = self.create_random_mission(task_id=id_,task_importance=importance, arrival_time=arrival_time,ability = ability)
             missions_list.append(mission_created)
 
 
@@ -157,7 +157,7 @@ class SimpleTaskGenerator(TaskGenerator):
             ans.append(self.get_task(tnow = tnow,flag_time_zero = True))
         return ans
 
-    def create_random_mission(self, task_importance: float, arrival_time: float,ability):
+    def create_random_mission(self, task_id,task_importance: float, arrival_time: float,ability):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
@@ -167,7 +167,7 @@ class SimpleTaskGenerator(TaskGenerator):
         rnd_ = round(self.random.uniform(1,task_importance/1000))
         max_players = min(rnd_,10)
 
-        return MissionSimple(task_importance = task_importance,mission_id= mission_id,
+        return MissionSimple(task_id =task_id,task_importance = task_importance,mission_id= mission_id,
                              initial_workload= initial_workload, arrival_time_to_the_system= arrival_time_to_the_system, max_players=max_players,abilities=[created_ability])
 
 class AbilitySimple:
@@ -372,7 +372,8 @@ def is_player_can_be_allocated_to_task(task, player):
     return True
 
 class MissionMeasurements:
-    def __init__(self, task_importance, mission_id, arrival_time_to_the_system, initial_workload, max_players):
+    def __init__(self, task_id, task_importance, mission_id, arrival_time_to_the_system, initial_workload, max_players):
+        self.task_id = task_id
         self.task_importance = task_importance
         self.mission_id = mission_id
         self.max_players = max_players
@@ -398,7 +399,9 @@ class MissionMeasurements:
         self.x13_time_per_quantity_time_first_player = self.create_dict_of_players_amounts()
         self.x14_workload_per_quantity_time_first_player = self.create_dict_of_players_amounts()
 
-        self.x16_workload_utility = None
+        self.x16_workload_utility_without_zero = None
+        self.x17_workload_utility_with_zero = None
+
         self.x20_abandonment_penalty = 0
 
         self.players_allocated_to_the_mission_previous = []
@@ -407,6 +410,8 @@ class MissionMeasurements:
 
     def get_mission_measurements_dict(self):
         ans = {}
+        ans["Task Id"] = self.task_id
+
         ans["Mission Id"] = self.mission_id
         ans["Task Importance"] = self.task_importance
         ans["Max Players"] = self.max_players
@@ -418,7 +423,8 @@ class MissionMeasurements:
         ans["Total Time Since First Arrival"] = self.x7_total_time_since_first_agent_arrive
         ans["Time Taken (In System) Relative To Optimal"] = self.x9_ratio_time_taken_arrive_to_system_and_opt
         ans["Time Taken (First Arrival) Relative To Optimal"] = self.x10_ratio_time_taken_first_agent_arrive_and_opt
-        ans["Utility"] = self.x16_workload_utility
+        ans["Utility"] = self.x16_workload_utility_without_zero
+
         ans["Is Done"] = self.is_mission_done
         ans["Abandonment Penalty"]  = self.x20_abandonment_penalty
         return ans
@@ -488,11 +494,15 @@ class MissionMeasurements:
     def calculate_mission_utility(self):
         utility_per_workload = self.task_importance / self.initial_workload
 
-        self.x16_workload_utility = 0
-
+        self.x16_workload_utility_without_zero = 0
+        self.x17_workload_utility_with_zero =0
         for amount in self.x12_workload_per_quantity_time_in_system.keys():
             workload_in_system = self.x12_workload_per_quantity_time_in_system[amount]
-            self.x16_workload_utility = self.x16_workload_utility + utility_per_workload * workload_in_system * (
+            workload_in_system_with = self.x11_time_per_quantity_time_in_system[amount]
+
+            self.x16_workload_utility_without_zero = self.x16_workload_utility_without_zero + utility_per_workload * workload_in_system * (
+                        amount / self.max_players)
+            self.x17_workload_utility_with_zero = self.x17_workload_utility_with_zero + utility_per_workload * workload_in_system_with * (
                         amount / self.max_players)
 
     def update_time_per_amount(self, current_amount_of_players, delta, productivity):
@@ -517,7 +527,7 @@ class MissionSimple:
     Class that represents a simple mission (as a part of the task)
     """
 
-    def __init__(self, mission_id, initial_workload, arrival_time_to_the_system, task_importance = 1,
+    def __init__(self, task_id,mission_id, initial_workload, arrival_time_to_the_system, task_importance = 1,
                  abilities=[AbilitySimple(ability_type=0)],
                  min_players=1, max_players=1):
         """
@@ -531,6 +541,7 @@ class MissionSimple:
         :param min_players:
         :param max_players:
         """
+        self.task_id = task_id
         self.task_importance = task_importance
         self.mission_id = mission_id
         self.abilities = abilities
@@ -543,7 +554,7 @@ class MissionSimple:
         self.is_done = False
         self.arrival_time_to_the_system = arrival_time_to_the_system
         self.last_updated = arrival_time_to_the_system
-        self.measurements = MissionMeasurements(task_importance=self.task_importance, mission_id=self.mission_id,
+        self.measurements = MissionMeasurements(task_id = task_id,task_importance=self.task_importance, mission_id=self.mission_id,
                                                 arrival_time_to_the_system=self.arrival_time_to_the_system,
                                                 initial_workload=self.initial_workload, max_players=self.max_players)
         #####----------
