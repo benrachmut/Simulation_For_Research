@@ -285,7 +285,7 @@ class Mailer(threading.Thread):
 
     def self_check_if_all_idle_to_continue(self):
 
-        while self.inbox.is_buffer_empty():
+        while self.inbox.is_buffer_empty() :
 
             are_all_idle = self.are_all_agents_idle()
 

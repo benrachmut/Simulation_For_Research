@@ -23,7 +23,7 @@ max_nclo_algo_run= 50000
 fisher_data_jumps = 100
 
 ##--- 1 = distributed FMC_ATA;  ---
-solver_number = 2
+solver_number = 1
 
 
 # --- communication_protocols ---
@@ -36,7 +36,7 @@ length = 90.0
 width = 90.0
 
 ##--- task generator ---
-max_number_of_missions = 3
+max_number_of_missions = 1#3
 max_importance = 10000
 
 ##--- agents ---

@@ -27,6 +27,7 @@ class FisherTaskSY_greedy_Schedual(FisherTaskASY_greedy_Schedual):
             if msg.timestamp - 1 != self.timestamp_counter:
                 return False
         print(self.simulation_entity.id_)
+
         return True
 
     def set_receive_flag_to_true_given_msg(self, msg: Msg):
@@ -102,7 +103,7 @@ class FisherPlayerSY_greedy_Schedual(FisherPlayerASY_greedy_Schedual):
 
             if msg.timestamp != self.timestamp_counter:
                 return False
-
+        print(self.simulation_entity.id_)
         return True
 
 

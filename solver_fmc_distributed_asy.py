@@ -172,8 +172,12 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
             task_ids_in_r_i = []
             for task_key in self.r_i.keys():
                 task_ids_in_r_i.append(task_key.id_)
+
             if task_entity.id_ not in task_ids_in_r_i:
                 self.r_i[task_entity] = {}
+            if task_entity.id_ not in task_ids_in_r_i:
+                self.x_i[task_entity] = {}
+
             util_value = self.get_linear_util(task_entity=task_entity, mission_entity=mission_entity)
 
             self.r_i[task_entity][mission_entity] = Utility(player_entity=self.simulation_entity,
@@ -181,6 +185,7 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
                                                             task_entity=task_entity, t_now=self.t_now,
                                                             future_utility_function=self.future_utility_function,
                                                             util=util_value)
+            self.x_i[task_entity][mission_entity] = None
 
     def add_task_entity_to_log_centralistic(self ,task_entity):
         self.add_task_entity_to_log(task_entity = task_entity)
@@ -218,8 +223,7 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
         self.set_single_task_in_x_i(task_in_log)
         if is_task_new:
             self.set_single_task_in_r_i(task_in_log)
-            for mission in task_in_log.missions_list:
-                self.x_i[mission] = None
+
 
 
         task_id = msg.sender
