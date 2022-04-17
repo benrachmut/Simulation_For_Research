@@ -218,6 +218,9 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
         self.set_single_task_in_x_i(task_in_log)
         if is_task_new:
             self.set_single_task_in_r_i(task_in_log)
+            for mission in task_in_log.missions_list:
+                self.x_i[mission] = None
+
 
         task_id = msg.sender
         self.msgs_from_tasks[task_id] = msg

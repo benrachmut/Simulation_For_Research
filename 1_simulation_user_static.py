@@ -10,6 +10,8 @@ from simulation_abstract_components import SimpleTaskGenerator, MapSimple, Playe
 from solver_fmc_centralized import  FisherCentralizedPrice
 
 from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY#, FMC_TA
+from solver_fmc_distributed_sy import FMC_TA
+
 is_static =True
 
 start = 0
@@ -21,13 +23,13 @@ max_nclo_algo_run= 50000
 fisher_data_jumps = 100
 
 ##--- 1 = distributed FMC_ATA;  ---
-solver_number = 1
+solver_number = 2
 
 
 # --- communication_protocols ---
 std = 10
 alphas_LossExponent = []
-alphas_delays = [250]
+alphas_delays = [2500]
 
 ##--- map ---
 length = 90.0
@@ -107,14 +109,14 @@ def get_solver(communication_protocol,price_vector):
                       Threshold = Threshold
         )
 
-    # if solver_number == 2:
-    #     ans = FMC_TA(f_termination_condition=termination_function,
-    #                   f_global_measurements=data_fisher,
-    #                   f_communication_disturbance=communication_f,
-    #                   future_utility_function=rij_function,
-    #                   counter_of_converges=counter_of_converges,
-    #                   Threshold=Threshold
-    #                   )
+    if solver_number == 2:
+        ans = FMC_TA(f_termination_condition=termination_function,
+                      f_global_measurements=data_fisher,
+                      f_communication_disturbance=communication_f,
+                      future_utility_function=rij_function,
+                      counter_of_converges=counter_of_converges,
+                      Threshold=Threshold
+                      )
     global algo_name
     algo_name= ans.__str__()
 
