@@ -32,8 +32,8 @@ alphas_LossExponent = []
 alphas_delays = [2500]
 
 ##--- map ---
-length = 90.0
-width = 90.0
+length = 900.0
+width = 900.0
 
 ##--- task generator ---
 max_number_of_missions = 1#3
