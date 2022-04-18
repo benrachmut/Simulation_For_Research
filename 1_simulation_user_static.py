@@ -23,7 +23,7 @@ max_nclo_algo_run= 50000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number = 2
+solver_number = 4
 
 # --- communication_protocols ---
 std = 10

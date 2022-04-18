@@ -1633,6 +1633,8 @@ class AllocationSolverAllTasksInit(AllocationSolverDistributedV2):
                 player_algorithm.add_task_entity_to_log(task)
 
 
+        #for player in self.players_algorithm:
+            #player.initiate_algorithm()
 
         for task in self.tasks_algorithm:
             task.initiate_algorithm()
