@@ -9,6 +9,7 @@ from simulation_abstract_components import Entity, TaskSimple, PlayerSimple
 debug_fisher_market = False
 debug_print_for_distribution = False
 mailer_counter = 0
+debug_timestamp= False
 
 def default_communication_disturbance(msg,entity1,entity2):
     return 0
@@ -235,7 +236,8 @@ class Mailer(threading.Thread):
             self.self_check_if_all_idle_to_continue()
 
             self.mailer_iteration(with_update_clock_for_empty_msg_to_send=False)
-
+            if debug_timestamp:
+                self.print_timestamps()
         self.kill_agents()
 
         for aa in self.agents_algorithm:
@@ -538,6 +540,25 @@ class Mailer(threading.Thread):
                 if not aa.is_finish_phase_II:
                     return False
         return True
+
+    def print_timestamps(self):
+        time_ = self.time_mailer.clock
+        print("---***",time_,"***---")
+
+        print("players:")
+        print("[",end="")
+        for agent in self.agents_algorithm:
+            if isinstance(agent,PlayerAlgorithm):
+                print("{"+str(agent.simulation_entity.id_)+":"+str(agent.timestamp_counter)+"}", end="")
+        print("]")
+
+        print("tasks:")
+        print("[",end="")
+        for agent in self.agents_algorithm:
+            if isinstance(agent,TaskAlgorithm):
+                print("{"+str(agent.simulation_entity.id_)+":"+str(agent.timestamp_counter)+"}", end="")
+        print("]")
+
 
 #---- Agents ----
 

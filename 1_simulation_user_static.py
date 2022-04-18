@@ -16,7 +16,7 @@ is_static =True
 
 start = 0
 end = 1
-size_players = 10
+size_players = 30
 end_time = 10**20
 size_of_initial_tasks = 10
 max_nclo_algo_run= 50000
@@ -29,14 +29,14 @@ solver_number = 1
 # --- communication_protocols ---
 std = 10
 alphas_LossExponent = []
-alphas_delays = [2500]
+alphas_delays = [25000]
 
 ##--- map ---
 length = 900.0
 width = 900.0
 
 ##--- task generator ---
-max_number_of_missions = 1#3
+max_number_of_missions = 3
 max_importance = 10000
 
 ##--- agents ---
@@ -44,8 +44,8 @@ speed = 1
 
 # name,alpha,delta_x,delta_y,
 
-counter_of_converges=5
-Threshold=10**-10
+counter_of_converges=1
+Threshold=10**-5
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system
