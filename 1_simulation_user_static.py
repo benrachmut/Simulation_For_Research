@@ -15,20 +15,20 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 1
+end = 100
 size_players = 30
 end_time = 10**20
 size_of_initial_tasks = 10
-max_nclo_algo_run= 50000
+max_nclo_algo_run= 100000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number = 4
+solver_number = 2
 
 # --- communication_protocols ---
 std = 10
-alphas_LossExponent = []
-alphas_delays = [25000]
+alphas_LossExponent = [0,0.5,1,1.5,2]
+alphas_delays = [0,100,1000,10000,100000]
 
 ##--- map ---
 length = 9000.0

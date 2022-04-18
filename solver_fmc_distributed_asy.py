@@ -7,7 +7,7 @@ import random
 
 from simulation_abstract_components import Entity, TaskSimple, calculate_distance_input_location, PlayerSimple
 from solver_abstract import PlayerAlgorithm, Msg, TaskAlgorithm, AllocationSolverSingleTaskInit, \
-    default_communication_disturbance, AllocationSolverAllTasksInit
+    default_communication_disturbance, AllocationSolverAllPlayersInit
 
 is_with_scheduling = True
 fisher_player_debug = False
@@ -178,7 +178,7 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
                 self.r_i[task_entity] = {}
             if task_entity.id_ not in task_ids_in_r_i:
                 self.x_i[task_entity] = {}
-
+                self.x_i_norm[task_entity] = {}
             util_value = self.get_linear_util(task_entity=task_entity, mission_entity=mission_entity)
 
             self.r_i[task_entity][mission_entity] = Utility(player_entity=self.simulation_entity,
@@ -187,6 +187,8 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
                                                             future_utility_function=self.future_utility_function,
                                                             util=util_value)
             self.x_i[task_entity][mission_entity] = None
+            self.x_i_norm[task_entity][mission_entity] = None
+
 
     def add_task_entity_to_log_centralistic(self ,task_entity):
         self.add_task_entity_to_log(task_entity = task_entity)
@@ -195,7 +197,11 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
             self.x_i_norm[task_entity] = {mission_entity :None}
 
     def initiate_algorithm(self):
-        raise Exception("only tasks initiate the algorithm")
+        self.compute()  # atomic counter must change
+        self.timestamp_counter = self.timestamp_counter + 1
+        self.NCLO.increment_clock(atomic_counter=self.atomic_counter)
+        self.send_msgs()
+        self.set_receive_flag_to_false()
 
     def set_receive_flag_to_true_given_msg_after_check(self, msg):
         self.calculate_bids_flag = True
@@ -1117,13 +1123,13 @@ class FMC_ATA(AllocationSolverSingleTaskInit):
         return  self.mailer.time_mailer.clock
 
 
-class FMC_ATA_task_aware(AllocationSolverAllTasksInit):
+class FMC_ATA_task_aware(AllocationSolverAllPlayersInit):
     def __init__(self, counter_of_converges,Threshold, util_structure_level = 1, mailer=None, f_termination_condition=None, f_global_measurements={},
                  f_communication_disturbance=default_communication_disturbance, future_utility_function=None,
                  is_with_timestamp=True, ro=0.9):
-        AllocationSolverAllTasksInit.__init__(self, mailer, f_termination_condition,
-                                                                f_global_measurements,
-                                                                f_communication_disturbance)
+        AllocationSolverAllPlayersInit.__init__(self, mailer, f_termination_condition,
+                                                f_global_measurements,
+                                                f_communication_disturbance)
         self.util_structure_level = util_structure_level
         self.ro = ro
         self.future_utility_function = future_utility_function

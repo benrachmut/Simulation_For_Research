@@ -1620,7 +1620,7 @@ class AllocationSolverSingleTaskInit(AllocationSolverDistributedV2):
 
 
 
-class AllocationSolverAllTasksInit(AllocationSolverDistributedV2):
+class AllocationSolverAllPlayersInit(AllocationSolverDistributedV2):
     def __init__(self, mailer=None, f_termination_condition=None, f_global_measurements=None,
                  f_communication_disturbance=default_communication_disturbance):
         AllocationSolverDistributedV2.__init__(self, f_termination_condition, f_global_measurements,
@@ -1633,11 +1633,11 @@ class AllocationSolverAllTasksInit(AllocationSolverDistributedV2):
                 player_algorithm.add_task_entity_to_log(task)
 
 
-        #for player in self.players_algorithm:
-            #player.initiate_algorithm()
+        for player in self.players_algorithm:
+            player.initiate_algorithm()
 
-        for task in self.tasks_algorithm:
-            task.initiate_algorithm()
+        #for task in self.tasks_algorithm:
+            #task.initiate_algorithm()
 
 
     def update_log_of_players_current_task(self):

@@ -1,6 +1,6 @@
 from simulation_abstract_components import TaskSimple, PlayerSimple
 from solver_abstract import default_communication_disturbance, AllocationSolverSingleTaskInit, \
-    AllocationSolverAllTasksInit, Msg
+    AllocationSolverAllPlayersInit, Msg
 from solver_fmc_distributed_asy import FisherTaskASY, is_with_scheduling, FisherTaskASY_greedy_Schedual, \
     FisherPlayerASY_greedy_Schedual
 
@@ -108,11 +108,11 @@ class FisherPlayerSY_greedy_Schedual(FisherPlayerASY_greedy_Schedual):
         self.calculate_bids_flag = True
 
 
-class FMC_TA(AllocationSolverAllTasksInit):
+class FMC_TA(AllocationSolverAllPlayersInit):
     def __init__(self, util_structure_level=1, mailer=None, f_termination_condition=None, f_global_measurements={},
                  f_communication_disturbance=default_communication_disturbance, future_utility_function=None,
                  is_with_timestamp=True, ro=0.9, counter_of_converges=3, Threshold=10 ** -5):
-        AllocationSolverAllTasksInit.__init__(self, mailer, f_termination_condition,
+        AllocationSolverAllPlayersInit.__init__(self, mailer, f_termination_condition,
                                                 f_global_measurements,
                                                 f_communication_disturbance)
         self.util_structure_level = util_structure_level
