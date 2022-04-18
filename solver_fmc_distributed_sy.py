@@ -112,7 +112,7 @@ class FMC_TA(AllocationSolverAllTasksInit):
     def __init__(self, util_structure_level=1, mailer=None, f_termination_condition=None, f_global_measurements={},
                  f_communication_disturbance=default_communication_disturbance, future_utility_function=None,
                  is_with_timestamp=True, ro=0.9, counter_of_converges=3, Threshold=10 ** -5):
-        AllocationSolverSingleTaskInit.__init__(self, mailer, f_termination_condition,
+        AllocationSolverAllTasksInit.__init__(self, mailer, f_termination_condition,
                                                 f_global_measurements,
                                                 f_communication_disturbance)
         self.util_structure_level = util_structure_level

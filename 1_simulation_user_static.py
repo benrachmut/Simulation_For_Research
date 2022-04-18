@@ -9,7 +9,7 @@ from simulation_abstract import Simulation
 from simulation_abstract_components import SimpleTaskGenerator, MapSimple, PlayerSimple, AbilitySimple
 from solver_fmc_centralized import  FisherCentralizedPrice
 
-from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY#, FMC_TA
+from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY, FMC_ATA_task_aware  # , FMC_TA
 from solver_fmc_distributed_sy import FMC_TA
 
 is_static =True
@@ -22,9 +22,8 @@ size_of_initial_tasks = 10
 max_nclo_algo_run= 50000
 fisher_data_jumps = 100
 
-##--- 1 = distributed FMC_ATA;  ---
-solver_number = 1
-
+##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
+solver_number = 2
 
 # --- communication_protocols ---
 std = 10
@@ -32,8 +31,8 @@ alphas_LossExponent = []
 alphas_delays = [25000]
 
 ##--- map ---
-length = 900.0
-width = 900.0
+length = 9000.0
+width = 9000.0
 
 ##--- task generator ---
 max_number_of_missions = 3
@@ -101,7 +100,7 @@ def get_solver(communication_protocol,price_vector):
     termination_function = f_termination_condition_all_tasks_converged
 
     if solver_number == 1:
-        ans = FMC_ATA(f_termination_condition=termination_function,
+        ans = FMC_ATA(util_structure_level= 1,f_termination_condition=termination_function,
                       f_global_measurements=data_fisher,
                       f_communication_disturbance=communication_f,
                       future_utility_function=rij_function,
@@ -110,6 +109,24 @@ def get_solver(communication_protocol,price_vector):
         )
 
     if solver_number == 2:
+        ans = FMC_ATA_task_aware(util_structure_level=1, f_termination_condition=termination_function,
+                      f_global_measurements=data_fisher,
+                      f_communication_disturbance=communication_f,
+                      future_utility_function=rij_function,
+                      counter_of_converges=counter_of_converges,
+                      Threshold=Threshold
+                      )
+
+    if solver_number == 3:
+        ans = FMC_ATA(util_structure_level=3, f_termination_condition=termination_function,
+                      f_global_measurements=data_fisher,
+                      f_communication_disturbance=communication_f,
+                      future_utility_function=rij_function,
+                      counter_of_converges=counter_of_converges,
+                      Threshold=Threshold
+                      )
+
+    if solver_number == 4:
         ans = FMC_TA(f_termination_condition=termination_function,
                       f_global_measurements=data_fisher,
                       f_communication_disturbance=communication_f,
