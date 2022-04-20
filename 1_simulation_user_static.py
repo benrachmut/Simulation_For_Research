@@ -19,15 +19,15 @@ end = 100
 size_players = 30
 end_time = 10**20
 size_of_initial_tasks = 10
-max_nclo_algo_run= 500000
+max_nclo_algo_run= 250000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
 solver_number = 2
 
 # --- communication_protocols ---
-std = 10
-alphas_LossExponent = [0,0.5,1,1.5,2]
+std = 0
+alphas_LossExponent = []
 alphas_delays = [100000]#[0,500,1000,5000,10000,50000]
 # [0,100,500,1000,5000,10000,50000,100000]
 
@@ -144,9 +144,9 @@ def get_solver(communication_protocol,price_vector):
 def get_communication_protocols():
     ans = []
     for a in alphas_LossExponent:
-        ans.append(CommunicationProtocolLossExponent(alpha=a, delta_x=width, delta_y=length, std=10))
+        ans.append(CommunicationProtocolLossExponent(alpha=a, delta_x=width, delta_y=length, std=std))
     for b in alphas_delays:
-        ans.append(CommunicationProtocolDelayExponent(alpha=b, delta_x=width, delta_y=length, std=10))
+        ans.append(CommunicationProtocolDelayExponent(alpha=b, delta_x=width, delta_y=length, std=std))
 
     return ans
 
