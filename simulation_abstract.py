@@ -81,7 +81,6 @@ class TaskArrivalEvent(SimulationEvent):
         simulation.solve()
         simulation.generate_new_task_to_diary()
 
-
 class NumberOfTasksArrivalEvent(SimulationEvent):
     """
     Class that represent an simulation event of new task arrival.

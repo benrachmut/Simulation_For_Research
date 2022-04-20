@@ -28,7 +28,8 @@ solver_number = 2
 # --- communication_protocols ---
 std = 10
 alphas_LossExponent = [0,0.5,1,1.5,2]
-alphas_delays = [0,100,1000,10000,100000]
+alphas_delays = [100000]#[0,500,1000,5000,10000,50000]
+# [0,100,500,1000,5000,10000,50000,100000]
 
 ##--- map ---
 length = 9000.0
