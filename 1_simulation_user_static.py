@@ -19,7 +19,7 @@ end = 100
 size_players = 30
 end_time = 10**20
 size_of_initial_tasks = 10
-max_nclo_algo_run= 100000
+max_nclo_algo_run= 500000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
