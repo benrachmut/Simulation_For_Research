@@ -55,20 +55,19 @@ class CommunicationProtocol(ABC):
         raise NotImplementedError
 
 class CommunicationProtocolDistance(CommunicationProtocol):
-    def __init__(self, name,alpha,delta_x,delta_y,std = 10, is_with_timestamp=False):
+    def __init__(self, name,alpha,delta_x,delta_y, is_with_timestamp=False):
 
         self.delta_x = delta_x
         self.delta_y = delta_y
         self.alpha = alpha
-        self.std = std
+
         CommunicationProtocol.__init__(self, is_with_timestamp, name)
 
 
 
 
     def get_entity_quad_distance_rnd(self,entity1,entity2):
-        avg = quad_distance(entity1,entity2)
-        return max(self.rnd_numpy.normal(avg, self.std, 1)[0],0)
+        return quad_distance(entity1,entity2)
 
     def normalize_distance(self,entity1,entity2):
         entity_quad_distance = self.get_entity_quad_distance_rnd(entity1, entity2)
@@ -78,9 +77,9 @@ class CommunicationProtocolDistance(CommunicationProtocol):
         return entity_quad_distance/max_quad_distance
 
 class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
-    def __init__(self, alpha, delta_x, delta_y, std = 10):
+    def __init__(self, alpha, delta_x, delta_y):
         name = "e^-("+str(alpha)+"*d_norm)"
-        CommunicationProtocolDistance.__init__(self,name = name, alpha =alpha, delta_x=delta_x, delta_y=delta_y, std=std )
+        CommunicationProtocolDistance.__init__(self,name = name, alpha =alpha, delta_x=delta_x, delta_y=delta_y )
 
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
@@ -100,13 +99,18 @@ class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
         else:
             return "Loss"
 class CommunicationProtocolDelayExponent(CommunicationProtocolDistance):
-    def __init__(self, alpha, delta_x, delta_y, std = 0):
-        name = str(alpha)+"^d"
-        CommunicationProtocolDistance.__init__(self,name = name, alpha =alpha, delta_x=delta_x, delta_y=delta_y, std=std )
+    def __init__(self, alpha, delta_x, delta_y):
+        name = "pois("+str(alpha)+"^d)"
+        CommunicationProtocolDistance.__init__(self,name = name, alpha =alpha, delta_x=delta_x, delta_y=delta_y )
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
+
+
         x = self.normalize_distance(entity1,entity2)
-        return self.alpha ** x
+        lamb = self.alpha ** x
+        ans = self.rnd_numpy.poisson(lamb)
+
+        return ans
 
     def get_type(self):
         if self.alpha == 0:

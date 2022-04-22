@@ -23,7 +23,7 @@ max_nclo_algo_run= 250000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number = 2
+solver_number = 1
 
 # --- communication_protocols ---
 std = 0
@@ -144,9 +144,9 @@ def get_solver(communication_protocol,price_vector):
 def get_communication_protocols():
     ans = []
     for a in alphas_LossExponent:
-        ans.append(CommunicationProtocolLossExponent(alpha=a, delta_x=width, delta_y=length, std=std))
+        ans.append(CommunicationProtocolLossExponent(alpha=a, delta_x=width, delta_y=length))
     for b in alphas_delays:
-        ans.append(CommunicationProtocolDelayExponent(alpha=b, delta_x=width, delta_y=length, std=std))
+        ans.append(CommunicationProtocolDelayExponent(alpha=b, delta_x=width, delta_y=length))
 
     return ans
 
