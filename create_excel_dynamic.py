@@ -33,3 +33,4 @@ def make_dynamic_simulation(finished_tasks,start, end,communication_protocol,alg
     basic_name = "dynamic"+basic_name
     raw_panda = pd.DataFrame.from_dict(dict_)
     raw_panda.to_csv(basic_name, sep=',')
+    return dict_

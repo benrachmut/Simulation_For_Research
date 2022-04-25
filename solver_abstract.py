@@ -366,6 +366,8 @@ class Mailer(threading.Thread):
         self.update_clock_upon_msg_received(msg)
         e1 = self.get_simulation_entity(msg.sender)
         e2 = self.get_simulation_entity(msg.receiver)
+
+        e1,e2 = self.get_responsible_agent(e1,e2)
         communication_disturbance_output = self.f_communication_disturbance(e1,e2)
         flag = False
         self.msg_sent_counter += 1
@@ -558,6 +560,15 @@ class Mailer(threading.Thread):
             if isinstance(agent,TaskAlgorithm):
                 print("{"+str(agent.simulation_entity.id_)+":"+str(agent.timestamp_counter)+"}", end="")
         print("]")
+
+    def get_responsible_agent(self, e1, e2):
+        task = e1
+        agent = e2
+        if isinstance(e2, TaskSimple):
+            task = e2
+            agent = e1
+
+        return task.player_responsible,agent
 
 
 #---- Agents ----

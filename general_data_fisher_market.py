@@ -362,7 +362,7 @@ def calculate_distance_price(agents_algorithm):
     diff = 0
     for mission_id, price_current in current.items():
         price_equilibrium = equilibrium[mission_id]
-        diff = (price_equilibrium-price_current)**2
+        diff =diff+  (price_equilibrium-price_current)**2
     return diff**(0.5)
 
 

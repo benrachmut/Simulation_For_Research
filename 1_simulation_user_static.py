@@ -1,5 +1,6 @@
 import random
 
+from create_dynamic_simulation_cumulative import make_dynamic_simulation_cumulative
 from create_excel_dynamic import make_dynamic_simulation
 from create_excel_fisher import make_fisher_data
 from general_communication_protocols import CommunicationProtocolLossExponent, CommunicationProtocolDelayExponent
@@ -15,11 +16,11 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 100
+end = 5
 size_players = 30
 end_time = 10**20
 size_of_initial_tasks = 10
-max_nclo_algo_run= 250000
+max_nclo_algo_run= 50000 #1000 = 50000 5000 = 200000, 10000 = 260000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
@@ -28,7 +29,7 @@ solver_number = 1
 # --- communication_protocols ---
 std = 0
 alphas_LossExponent = []
-alphas_delays = [100000]#[0,500,1000,5000,10000,50000]
+alphas_delays = [1000]#[0,500,1000,5000,10000,50000]
 # [0,100,500,1000,5000,10000,50000,100000]
 
 ##--- map ---
@@ -229,4 +230,5 @@ if __name__ == '__main__':
         print("start data ",communication_protocol)
 
         make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name)
-        make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name)
+        organized_data = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name)
+        make_dynamic_simulation_cumulative(organized_data,fisher_data_jumps)
