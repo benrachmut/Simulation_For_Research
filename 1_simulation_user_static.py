@@ -3,7 +3,8 @@ import random
 from create_dynamic_simulation_cumulative import make_dynamic_simulation_cumulative
 from create_excel_dynamic import make_dynamic_simulation
 from create_excel_fisher import make_fisher_data
-from general_communication_protocols import CommunicationProtocolLossExponent, CommunicationProtocolDelayExponent
+from general_communication_protocols import CommunicationProtocolLossExponent, \
+    CommunicationProtocolDelayDistancePoissonExponent, get_communication_protocols
 from general_data_fisher_market import get_data_fisher
 from general_r_ij import calculate_rij_abstract
 from simulation_abstract import Simulation
@@ -16,21 +17,27 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 5
+end = 2
 size_players = 30
-end_time = 10**20
+end_time = 10**25
 size_of_initial_tasks = 10
-max_nclo_algo_run= 50000 #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run= 5000 #1000 = 50000 5000 = 200000, 10000 = 260000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
 solver_number = 1
 
 # --- communication_protocols ---
-std = 0
-alphas_LossExponent = []
-alphas_delays = [1000]#[0,500,1000,5000,10000,50000]
-# [0,100,500,1000,5000,10000,50000,100000]
+is_with_timestamp = True
+constants_loss_distance = [] # e^-(alpha*d)
+constants_delay_poisson_distance = [] # Pois(alpha^d)
+constants_delay_uniform_distance=[] # U(0, alpha^d)
+
+constants_loss_constant=[] # prob
+constants_delay_poisson = [] # Pois(lambda)
+constants_delay_uniform=[1000] # U(0,UB) #---
+
+
 
 ##--- map ---
 length = 9000.0
@@ -142,14 +149,7 @@ def get_solver(communication_protocol,price_vector):
     return ans
 
 
-def get_communication_protocols():
-    ans = []
-    for a in alphas_LossExponent:
-        ans.append(CommunicationProtocolLossExponent(alpha=a, delta_x=width, delta_y=length))
-    for b in alphas_delays:
-        ans.append(CommunicationProtocolDelayExponent(alpha=b, delta_x=width, delta_y=length))
 
-    return ans
 
 
 def print_players(players_list):
@@ -208,7 +208,19 @@ def run_simulation(i,price_vector):
 
 
 if __name__ == '__main__':
-    communication_protocols = get_communication_protocols()
+
+
+
+
+
+    communication_protocols = get_communication_protocols(
+        is_with_timestamp=is_with_timestamp,length=length,width=width,
+        constants_loss_distance=constants_loss_distance,
+        constants_delay_poisson_distance=constants_delay_poisson_distance,
+        constants_delay_uniform_distance=constants_delay_uniform_distance,
+        constants_loss_constant=constants_loss_constant,
+        constants_delay_poisson=constants_delay_poisson,
+        constants_delay_uniform=constants_delay_uniform)
     price_dict = {}
     for communication_protocol in communication_protocols:
         fisher_measures = {}  # {number run: measurement}
@@ -229,6 +241,6 @@ if __name__ == '__main__':
             finished_tasks[i] = sim.finished_tasks_list
         print("start data ",communication_protocol)
 
-        make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name)
-        organized_data = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name)
-        make_dynamic_simulation_cumulative(organized_data,fisher_data_jumps)
+        make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name,length,width)
+        organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width)
+        make_dynamic_simulation_cumulative(organized_data,fisher_data_jumps,name_)
