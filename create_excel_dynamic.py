@@ -27,10 +27,10 @@ def get_dict_dynamic(finished_tasks, communication_protocol,algo_name):
     return ans
 
 
-def make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name):
+def make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width):
     dict_ = get_dict_dynamic(finished_tasks,communication_protocol,algo_name)
-    basic_name = ",algo_"+algo_name+",comm_"+communication_protocol.name+",start_"+str(start)+",end_"+str(end)+".csv"
+    basic_name = ",algo_"+algo_name+",comm_"+communication_protocol.name+",start_"+str(start)+",end_"+str(end)+","+str(int(length))+"x"+str(int(width))+".csv"
     basic_name = "dynamic"+basic_name
     raw_panda = pd.DataFrame.from_dict(dict_)
     raw_panda.to_csv(basic_name, sep=',')
-    return dict_
+    return dict_,basic_name

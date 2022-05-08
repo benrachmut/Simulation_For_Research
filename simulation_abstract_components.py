@@ -423,7 +423,7 @@ class MissionMeasurements:
         ans["Total Time Since First Arrival"] = self.x7_total_time_since_first_agent_arrive
         ans["Time Taken (In System) Relative To Optimal"] = self.x9_ratio_time_taken_arrive_to_system_and_opt
         ans["Time Taken (First Arrival) Relative To Optimal"] = self.x10_ratio_time_taken_first_agent_arrive_and_opt
-        ans["Utility"] = self.x16_workload_utility_without_zero
+        ans["Cap"] = self.x16_workload_utility_without_zero
 
         ans["Is Done"] = self.is_mission_done
         ans["Abandonment Penalty"]  = self.x20_abandonment_penalty
