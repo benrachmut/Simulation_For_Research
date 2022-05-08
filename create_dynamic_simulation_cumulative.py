@@ -101,7 +101,15 @@ def get_data_cumulative_dict(data_prior_cumulative):
 
 
 def calculate_avg_data_cumulative(data_cumulative_dict):
-    pass
+    ans = {}
+    ans["NCLO"] = []
+    for time_, measure_data_dict in data_cumulative_dict.items():
+        for measure_,data_list in measure_data_dict.items():
+            if measure_ not in ans:
+                ans[measure_] = []
+            ans[measure_].append(sum(data_list)/len(data_list))
+        ans["NCLO"].append(time_)
+    return ans
 
 
 def make_dynamic_simulation_cumulative(organized_data ,fisher_data_jumps,name_,keys =
@@ -119,4 +127,5 @@ def make_dynamic_simulation_cumulative(organized_data ,fisher_data_jumps,name_,k
     data_prior_cumulative = get_data_prior_cumulative(data_time_simNumber_indexs, data_group_by_scenario_via_list,keys)
     data_cumulative_dict = get_data_cumulative_dict(data_prior_cumulative)
     data_cumulative_dict_for_panda = calculate_avg_data_cumulative(data_cumulative_dict)
-
+    #TODO add utility in function one line above!!!!
+    pass
