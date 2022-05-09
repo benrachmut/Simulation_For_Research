@@ -1,7 +1,8 @@
 import simulation_abstract_components
 from simulation_abstract_components import PlayerSimple, MissionSimple, TaskSimple
 
-distance_factor = 0.9
+
+
 def get_normalized_distance(player_entity, task_entity):
     distance = simulation_abstract_components.calculate_distance(player_entity, task_entity)
 
@@ -19,8 +20,15 @@ def calculate_rij_abstract(player_entity :PlayerSimple, mission_entity:MissionSi
     importance_parameter= task_entity.importance
 
     #distance_parameter = (discount_factor**distance)
-    normalize_distance = get_normalized_distance(player_entity, task_entity)
-    distance_parameter = distance_factor**((normalize_distance)*10)
+    #normalize_distance = get_normalized_distance(player_entity, task_entity)
+    distance =  simulation_abstract_components.calculate_distance(player_entity, task_entity)
+    speed = player_entity.speed
+    arrive_time = distance/speed
+
+    travel_factor = simulation_abstract_components.travel_factor
+    travel_factor_normalized = simulation_abstract_components.travel_factor_normalized
+
+    distance_parameter = travel_factor**(arrive_time / travel_factor_normalized)
     abandonment_parameter = 0
     current_mission = player_entity.current_mission
     current_task = player_entity.current_task

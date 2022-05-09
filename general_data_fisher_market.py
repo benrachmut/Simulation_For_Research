@@ -4,6 +4,8 @@ import math
 
 from simulation_abstract_components import PlayerSimple, MissionSimple
 from solver_abstract import PlayerAlgorithm, TaskAlgorithm
+time_factor = 0.9
+time_normalize_factor = 10000
 
 price_vector_converge = None
 
@@ -374,7 +376,7 @@ def get_data_fisher(price_vector_input=None):
     ans = {}
 
     # ---RiXi---
-    ans["Distance Price"] = calculate_distance_price
+    #ans["Distance Price"] = calculate_distance_price
     ans["Sigma RiXi"] = calculate_sum_R_X
     ans["Sigma RiXi pov"] = calculate_sum_R_X_pov
     ans["Single Sigma RiXi"] = calculate_single_R_X_player

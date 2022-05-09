@@ -98,12 +98,13 @@ def get_value_list_size(dict_):
         return len(v)
 
 def add_communication_protocol_and_algo(data_avg_before_excel, data_last_before_excel, data_time_converged_before_excel,
-                                        communication_protocol,algo_name,length,width):
+                                        communication_protocol,algo_name,length,width,max_nclo_algo_run,converge_threshold):
     protocol_type = communication_protocol.type_
     protocol_name = communication_protocol.name
     map_size = str(int(length))+"X"+str(int(width))
 
-    what_to_add = {"protocol_type":protocol_type,"protocol_name":protocol_name,"Algorithm":algo_name,"map_size":map_size}
+    what_to_add = {"protocol_type":protocol_type,"protocol_name":protocol_name,
+                   "Algorithm":algo_name,"map_size":map_size,"max_nclo":max_nclo_algo_run,"converge_threshold":converge_threshold}
 
     value_size = get_value_list_size(data_avg_before_excel)
     add_stuff_to_dictionary(what_to_add,value_size,data_avg_before_excel)
@@ -128,8 +129,9 @@ def create_excel_fisher(basic_name, data_avg_before_excel, data_last_before_exce
     converge_panda.to_csv("converge"+basic_name, sep=',')
 
 
-def make_fisher_data(fisher_measures,get_data_fisher,max_nclo_algo_run, fisher_data_jumps,start,end,communication_protocol,algo_name,length,width):
+def make_fisher_data(fisher_measures,get_data_fisher,max_nclo_algo_run, fisher_data_jumps,start,end,communication_protocol,algo_name,length,width,converge_threshold,basic_name):
     data_avg_before_excel,data_last_before_excel,data_time_converged_before_excel = process_data_before_excel(fisher_measures,get_data_fisher,max_nclo_algo_run, fisher_data_jumps,start,end)
-    add_communication_protocol_and_algo(data_avg_before_excel, data_last_before_excel, data_time_converged_before_excel, communication_protocol, algo_name,length,width)
-    basic_name = ",algo_"+algo_name+",comm_"+communication_protocol.name+",start_"+str(start)+",end_"+str(end)+","+str(int(length))+"x"+str(int(width))+".csv"
+    add_communication_protocol_and_algo(data_avg_before_excel, data_last_before_excel, data_time_converged_before_excel, communication_protocol, algo_name,length,width,max_nclo_algo_run,converge_threshold)
+    #basic_name = ",algo_"+algo_name+",comm_"+communication_protocol.name+",start_"+str(start)+",end_"+str(end)\
+    #             +","+str(int(length))+"x"+str(int(width))+",maxNclo_"+str(max_nclo_algo_run)+",threshold_"+str(converge_threshold)+".csv"
     create_excel_fisher(basic_name,data_avg_before_excel,data_last_before_excel,data_time_converged_before_excel)

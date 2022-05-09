@@ -1,5 +1,7 @@
 import pandas as pd
 
+from create_excel_fisher import add_stuff_to_dictionary, get_value_list_size
+
 
 def get_dict_dynamic(finished_tasks, communication_protocol,algo_name):
     protocol_type = communication_protocol.type_
@@ -27,10 +29,31 @@ def get_dict_dynamic(finished_tasks, communication_protocol,algo_name):
     return ans
 
 
-def make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width):
+
+def add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_run,converge_threshold,dict_):
+    protocol_type = communication_protocol.type_
+    protocol_name = communication_protocol.name
+    map_size = str(int(length)) + "X" + str(int(width))
+
+    what_to_add = {"protocol_type":protocol_type,"protocol_name":protocol_name,
+                   "Algorithm":algo_name,"map_size":map_size,"max_nclo":max_nclo_algo_run,
+                   "converge_threshold":converge_threshold}
+
+    value_size = get_value_list_size(dict_)
+    add_stuff_to_dictionary(what_to_add,value_size,dict_)
+
+def make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,converge_threshold):
     dict_ = get_dict_dynamic(finished_tasks,communication_protocol,algo_name)
-    basic_name = ",algo_"+algo_name+",comm_"+communication_protocol.name+",start_"+str(start)+",end_"+str(end)+","+str(int(length))+"x"+str(int(width))+".csv"
-    basic_name = "dynamic"+basic_name
+    add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_run,converge_threshold,dict_)
+
+
+
+    basic_name = ",algo_" + algo_name + ",comm_" + communication_protocol.name + ",start_" + str(start) + ",end_" + str(
+        end) + "," + str(int(length)) + "x" + str(int(width)) + ",maxNclo_" + str(
+        max_nclo_algo_run) + ",threshold_" + str(converge_threshold) + ".csv"
+
+
+    file_name = "dynamic"+basic_name
     raw_panda = pd.DataFrame.from_dict(dict_)
-    raw_panda.to_csv(basic_name, sep=',')
+    raw_panda.to_csv(file_name, sep=',')
     return dict_,basic_name
