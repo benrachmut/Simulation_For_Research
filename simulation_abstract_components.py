@@ -5,6 +5,8 @@ import random
 from abc import ABC
 import numpy as np
 
+travel_factor = 0.9
+travel_factor_normalized = 1000
 length_  = None
 width_ = None
 
@@ -427,6 +429,10 @@ class MissionMeasurements:
 
         ans["Is Done"] = self.is_mission_done
         ans["Abandonment Penalty"]  = self.x20_abandonment_penalty
+        if isinstance(ans["Cap"],float) and isinstance(ans["Arrival Delay"],float):
+            ans["Utility"] = ans["Cap"] * (travel_factor**(ans["Arrival Delay"]/travel_factor_normalized)) - ans["Abandonment Penalty"]
+        else:
+            ans["Utility"] = 0
         return ans
 
     def close_measurements(self):
