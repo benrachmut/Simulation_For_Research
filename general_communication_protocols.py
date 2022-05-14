@@ -227,7 +227,7 @@ def get_communication_protocols(width, length, is_with_timestamp,
                                                                      is_with_timestamp=is_with_timestamp))
 
     for b_ub in constants_delay_uniform_distance:
-        ans.append(CommunicationProtocolDelayDistancePoissonExponent(alpha=b_ub, delta_x=width, delta_y=length,
+        ans.append(CommunicationProtocolDelayDistanceUniformExponent(alpha=b_ub, delta_x=width, delta_y=length,
                                                                      is_with_timestamp=is_with_timestamp))
 
     for lam in constants_delay_poisson:
