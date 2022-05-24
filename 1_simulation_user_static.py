@@ -19,11 +19,11 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 10
+end = 2
 size_players = 30
 end_time = 10**25
 size_of_initial_tasks = 10
-max_nclo_algo_run= 20000 #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run= 5000 #1000 = 50000 5000 = 200000, 10000 = 260000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
@@ -32,13 +32,13 @@ solver_number = 4
 
 # --- communication_protocols ---
 is_with_timestamp = True
-constants_loss_distance = [] # e^-(alpha*d)
+constants_loss_distance = [0] # e^-(alpha*d)
 constants_delay_poisson_distance = [] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
 constants_delay_poisson = [] # Pois(lambda)
-constants_delay_uniform=[1000] # U(0,UB) #---
+constants_delay_uniform=[] # U(0,UB) #---
 
 
 
@@ -61,6 +61,7 @@ Threshold=10**-5
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system
     if mailer.time_mailer.get_clock() > max_nclo_algo_run:
+        mailer.time_mailer.clock = max_nclo_algo_run
         return True
 
     tasks = []

@@ -116,8 +116,9 @@ class CommunicationProtocolDistance(CommunicationProtocol):
 class CommunicationProtocolLossConstant(CommunicationProtocol):
     def __init__(self, p):
         name = "P=" + str(p)
-        CommunicationProtocol.__init__(self, name=name, is_with_timestamp=False)
         self.P = p
+        CommunicationProtocol.__init__(self, name=name, is_with_timestamp=False)
+
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
         p = self.rnd.random()
@@ -135,7 +136,7 @@ class CommunicationProtocolLossConstant(CommunicationProtocol):
             return "Loss"
 class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y):
-        name = "e^-(" + str(alpha) + "*d)"
+        name = "e^-(" + str(alpha) + "d)"
         CommunicationProtocolDistance.__init__(self, name=name, alpha=alpha, delta_x=delta_x, delta_y=delta_y)
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
@@ -182,9 +183,9 @@ class CommunicationProtocolDelayDistancePoissonExponent(CommunicationProtocolDis
 class CommunicationProtocolDelayDistanceUniformExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y, is_with_timestamp):
         if is_with_timestamp:
-            name = "U(0" + str(alpha) + "^d)+TS"
+            name = "U(0," + str(alpha) + "^d)+TS"
         else:
-            name = "U(0" + str(alpha) + "^d)"
+            name = "U(0," + str(alpha) + "^d)"
         CommunicationProtocolDistance.__init__(self, name=name, alpha=alpha, delta_x=delta_x, delta_y=delta_y)
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
@@ -216,8 +217,8 @@ def get_communication_protocols(width, length, is_with_timestamp,
     ans = []
 
     for a in constants_loss_distance:
-        ans.append(CommunicationProtocolLossExponent(alpha=a, delta_x=width, delta_y=length,
-                                                     is_with_timestamp=is_with_timestamp))
+        ans.append(CommunicationProtocolLossExponent(alpha=a, delta_x=width, delta_y=length
+                                                     ))
 
     for p in constants_loss_constant:
         ans.append(CommunicationProtocolLossConstant(p=p))
