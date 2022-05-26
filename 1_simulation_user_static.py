@@ -20,10 +20,10 @@ is_static =True
 
 start = 0
 end = 100
-size_players = 50
+size_players = 30
 end_time = 10**40
 size_of_initial_tasks = 10
-max_nclo_algo_run_list= [100000] #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run_list= range(1000,50000,1000) #1000 = 50000 5000 = 200000, 10000 = 260000
 max_nclo_algo_run = None
 fisher_data_jumps = 1000
 
@@ -48,7 +48,7 @@ neighbors_ratio = 1
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 100000
+max_importance = 10
 
 ##--- agents ---
 speed = 1
@@ -246,7 +246,7 @@ if __name__ == '__main__':
                 finished_tasks ={}
                 print(communication_protocol)
                 for i in range(start, end):
-                    print("Simulation number = "+str(i))
+                    print("Simulation number = "+str(i),", max algo run = ",str(max_nclo_algo_run),", Threshold = ", str(Threshold ))
                     sim = run_simulation(i)
                     #--- prep data ---
                     single_fisher_measures = sim.solver.mailer.measurements
