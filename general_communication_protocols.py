@@ -91,7 +91,7 @@ class CommunicationProtocolDelayPoisson(CommunicationProtocol):
             return "Delay"
 
 class CommunicationProtocolDistance(CommunicationProtocol):
-    def __init__(self, name, alpha, delta_x, delta_y, is_with_timestamp=False):
+    def __init__(self, name, alpha, delta_x, delta_y, is_with_timestamp):
         self.delta_x = delta_x
         self.delta_y = delta_y
         self.alpha = alpha
@@ -157,7 +157,7 @@ class CommunicationProtocolDelayDistancePoissonExponent(CommunicationProtocolDis
     def __init__(self, alpha, delta_x, delta_y, is_with_timestamp):
 
         name = "Pois(" + str(alpha) + "^d)"
-        CommunicationProtocolDistance.__init__(self, name=name, alpha=alpha, delta_x=delta_x, delta_y=delta_y)
+        CommunicationProtocolDistance.__init__(self, name=name, alpha=alpha, delta_x=delta_x, delta_y=delta_y,is_with_timestamp =is_with_timestamp)
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
 
@@ -178,7 +178,7 @@ class CommunicationProtocolDelayDistanceUniformExponent(CommunicationProtocolDis
     def __init__(self, alpha, delta_x, delta_y, is_with_timestamp):
 
         name = "U(0," + str(alpha) + "^d)"
-        CommunicationProtocolDistance.__init__(self, name=name, alpha=alpha, delta_x=delta_x, delta_y=delta_y)
+        CommunicationProtocolDistance.__init__(self, name=name, alpha=alpha, delta_x=delta_x, delta_y=delta_y,is_with_timestamp = is_with_timestamp)
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
 
