@@ -42,8 +42,8 @@ constants_delay_poisson = [] # Pois(lambda)
 constants_delay_uniform=[] # U(0,UB) #---
 
 ##--- map ---
-length = 900.0
-width = 900.0
+length = 9000.0
+width = 9000.0
 neighbors_ratio = 1
 
 ##--- task generator ---
