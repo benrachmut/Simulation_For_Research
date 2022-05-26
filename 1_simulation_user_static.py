@@ -8,7 +8,7 @@ from general_communication_protocols import CommunicationProtocolLossExponent, \
 from general_data_fisher_market import get_data_fisher
 from general_r_ij import calculate_rij_abstract
 from simulation_abstract import Simulation
-from simulation_abstract_components import SimpleTaskGenerator, MapSimple, PlayerSimple, AbilitySimple
+from simulation_abstract_components import SimpleTaskGenerator, MapSimple, PlayerSimple, AbilitySimple, Entity
 from solver_fmc_centralized import  FisherCentralizedPrice
 
 from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY, FMC_ATA_task_aware  # , FMC_TA
@@ -19,12 +19,13 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 2
+end = 100
 size_players = 30
-end_time = 10**25
+end_time = 10**40
 size_of_initial_tasks = 10
-max_nclo_algo_run= 5000 #1000 = 50000 5000 = 200000, 10000 = 260000
-fisher_data_jumps = 100
+max_nclo_algo_run_list= [1000,10000,100000] #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run = None
+fisher_data_jumps = 1000
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
 solver_number = 4
@@ -32,19 +33,18 @@ solver_number = 4
 
 # --- communication_protocols ---
 is_with_timestamp = True
-constants_loss_distance = [0] # e^-(alpha*d)
-constants_delay_poisson_distance = [] # Pois(alpha^d)
+constants_loss_distance = [] # e^-(alpha*d)
+constants_delay_poisson_distance = [1000] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
 constants_delay_poisson = [] # Pois(lambda)
 constants_delay_uniform=[] # U(0,UB) #---
 
-
-
 ##--- map ---
 length = 9000.0
 width = 9000.0
+neighbors_ratio = 1
 
 ##--- task generator ---
 max_number_of_missions = 3
@@ -54,9 +54,24 @@ max_importance = 10000
 speed = 1
 
 # name,alpha,delta_x,delta_y,
-
 counter_of_converges=1
-Threshold=10**-5
+Threshold_list=[10**-100]
+Threshold= None
+
+
+def neighbors_agents_to_tasks(e1:Entity,e2:Entity):
+    distance_threshold = (length**2+width**2)**0.5
+    e1_location = e1.location
+    e2_location = e2.location
+
+    x_delta = (e1_location[0]-e2_location[0])**2
+    y_delta = (e1_location[1]-e2_location[1])**2
+    distance_between_entities = (x_delta+y_delta)**0.5
+
+    if distance_between_entities<distance_threshold*neighbors_ratio:
+        return True
+    else:
+        return False
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system
@@ -78,12 +93,9 @@ def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
 
     return True
 
-
 def create_random_player(map_,id_, rnd_ability):
 
     return PlayerSimple(id_ =id_*-1 , current_location =map_.generate_location(), speed = speed,abilities=[rnd_ability])
-
-
 
 def create_players(i,map1):
     ans = []
@@ -104,7 +116,6 @@ def create_players(i,map1):
         player = create_random_player(map1,id_,abil)
         ans.append(player)
     return ans
-
 
 def get_solver(communication_protocol):
     communication_f = communication_protocol.get_communication_disturbance
@@ -152,14 +163,9 @@ def get_solver(communication_protocol):
 
     return ans
 
-
-
-
-
 def print_players(players_list):
     for p in players_list:
         print("id:",p.id_,", ability:",p.abilities[0].ability_type,", location",p.location)
-
 
 def print_initial_tasks(tasks_generator):
 
@@ -175,17 +181,17 @@ def print_initial_tasks(tasks_generator):
 
 
 
-def get_price_vector(i):
-    map = MapSimple(seed=i * 200, length=length, width=width)
-    players_list = create_players(i)
-    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i,
-                                          max_importance=max_importance, players_list=players_list)
-
-    tasks_list = tasks_generator.get_tasks_number_of_tasks_now(0,size_of_initial_tasks)
-    rij_function = calculate_rij_abstract
-
-    solv = FisherCentralizedPrice(THRESHOLD = Threshold, future_utility_function= rij_function, tasks_simulation = tasks_list, players_simulation = players_list)
-    return solv.get_price_vector()
+# def get_price_vector(i):
+#     map = MapSimple(seed=i * 200, length=length, width=width)
+#     players_list = create_players(i)
+#     tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i,
+#                                           max_importance=max_importance, players_list=players_list)
+#
+#     tasks_list = tasks_generator.get_tasks_number_of_tasks_now(0,size_of_initial_tasks)
+#     rij_function = calculate_rij_abstract
+#
+#     solv = FisherCentralizedPrice(THRESHOLD = Threshold, future_utility_function= rij_function, tasks_simulation = tasks_list, players_simulation = players_list)
+#     return solv.get_price_vector()
 
 
 def run_simulation(i):
@@ -197,7 +203,7 @@ def run_simulation(i):
     players_list = create_players(i,map)
 
     tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i*17,
-                                          max_importance=max_importance, players_list=players_list)
+                                          max_importance=max_importance,are_neighbors_f = neighbors_agents_to_tasks, players_list=players_list)
     solver = get_solver(communication_protocol)
     #print_initial_tasks(tasks_generator)
     # --- simulation run ---
@@ -227,26 +233,27 @@ if __name__ == '__main__':
         constants_loss_constant=constants_loss_constant,
         constants_delay_poisson=constants_delay_poisson,
         constants_delay_uniform=constants_delay_uniform)
+
     price_dict = {}
-    for communication_protocol in communication_protocols:
-        fisher_measures = {}  # {number run: measurement}
-        finished_tasks ={}
-        print(communication_protocol)
-        for i in range(start, end):
-            print("Simulation number = "+str(i))
-            # print_players(players_list)
 
-            #if i not in price_dict.keys():
-            #    price_vector = get_price_vector(i)
-            #    price_dict[i] = price_vector
-            sim = run_simulation(i)
+    for max_nclo_algo_run_temp in max_nclo_algo_run_list:
+        max_nclo_algo_run = max_nclo_algo_run_temp
 
-            #--- prep data ---
-            single_fisher_measures = sim.solver.mailer.measurements
-            fisher_measures[i] = single_fisher_measures
-            finished_tasks[i] = sim.finished_tasks_list
-        print("start data ",communication_protocol)
-        organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold)
-        make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name,length,width,Threshold,name_)
+        for threshold_tmp in Threshold_list:
+            Threshold = threshold_tmp
+            for communication_protocol in communication_protocols:
+                fisher_measures = {}  # {number run: measurement}
+                finished_tasks ={}
+                print(communication_protocol)
+                for i in range(start, end):
+                    print("Simulation number = "+str(i))
+                    sim = run_simulation(i)
+                    #--- prep data ---
+                    single_fisher_measures = sim.solver.mailer.measurements
+                    fisher_measures[i] = single_fisher_measures
+                    finished_tasks[i] = sim.finished_tasks_list
+                print("start data ",communication_protocol)
 
-        make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,Threshold,organized_data,fisher_data_jumps,name_)
+                organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold)
+                #make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name,length,width,Threshold,name_)
+                #make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,Threshold,organized_data,fisher_data_jumps,name_)
