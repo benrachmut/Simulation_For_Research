@@ -59,10 +59,8 @@ class CommunicationProtocol(ABC):
 class CommunicationProtocolDelayUniform(CommunicationProtocol):
     def __init__(self, is_with_timestamp, ub):
         self.ub = ub
-        if is_with_timestamp:
-            name = "U(0," + str(self.ub) + ")+TS"
-        else:
-            name = "U(0," + str(self.ub) + ")"
+
+        name = "U(0," + str(self.ub) + ")"
         CommunicationProtocol.__init__(self, is_with_timestamp, name)
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
@@ -78,10 +76,8 @@ class CommunicationProtocolDelayUniform(CommunicationProtocol):
 class CommunicationProtocolDelayPoisson(CommunicationProtocol):
     def __init__(self, is_with_timestamp, lambda_pois):
         self.lambda_pois = lambda_pois
-        if is_with_timestamp:
-            name = "Pois(" + str(self.lambda_pois) + ")+TS"
-        else:
-            name = "Pois(" + str(self.lambda_pois) + ")"
+
+        name = "Pois(" + str(self.lambda_pois) + ")"
         CommunicationProtocol.__init__(self, is_with_timestamp, name)
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
@@ -159,10 +155,8 @@ class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
 
 class CommunicationProtocolDelayDistancePoissonExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y, is_with_timestamp):
-        if is_with_timestamp:
-            name = "Pois(" + str(alpha) + "^d)+TS"
-        else:
-            name = "Pois(" + str(alpha) + "^d)"
+
+        name = "Pois(" + str(alpha) + "^d)"
         CommunicationProtocolDistance.__init__(self, name=name, alpha=alpha, delta_x=delta_x, delta_y=delta_y)
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
@@ -182,10 +176,8 @@ class CommunicationProtocolDelayDistancePoissonExponent(CommunicationProtocolDis
 
 class CommunicationProtocolDelayDistanceUniformExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y, is_with_timestamp):
-        if is_with_timestamp:
-            name = "U(0," + str(alpha) + "^d)+TS"
-        else:
-            name = "U(0," + str(alpha) + "^d)"
+
+        name = "U(0," + str(alpha) + "^d)"
         CommunicationProtocolDistance.__init__(self, name=name, alpha=alpha, delta_x=delta_x, delta_y=delta_y)
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
