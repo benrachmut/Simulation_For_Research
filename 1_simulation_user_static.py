@@ -19,7 +19,7 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 5
+end = 100
 size_players = 50
 end_time = 10**40
 size_of_initial_tasks = 10
