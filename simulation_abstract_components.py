@@ -121,7 +121,7 @@ class SimpleTaskGenerator(TaskGenerator):
         self.id_task_counter = self.id_task_counter + 1
         id_ = str(self.id_task_counter)
         location = self.map.generate_location()# #self.map.generate_location()
-        importance = 1000+(self.random.random() * self.max_importance)
+        importance = 10000+(self.random.random() * self.max_importance)
         if flag_time_zero:
             arrival_time = tnow
         else:
@@ -166,7 +166,7 @@ class SimpleTaskGenerator(TaskGenerator):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
-        initial_workload = self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
+        initial_workload = task_importance#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.random.uniform(task_importance,task_importance*2)#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
 
         rnd_ = round(self.random.uniform(1,task_importance/1000))

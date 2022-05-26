@@ -19,16 +19,16 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 100
-size_players = 30
+end = 5
+size_players = 50
 end_time = 10**40
 size_of_initial_tasks = 10
-max_nclo_algo_run_list= [1000,10000,100000] #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run_list= [100000] #1000 = 50000 5000 = 200000, 10000 = 260000
 max_nclo_algo_run = None
 fisher_data_jumps = 1000
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number = 4
+solver_number = 1
 
 
 # --- communication_protocols ---
@@ -42,20 +42,20 @@ constants_delay_poisson = [] # Pois(lambda)
 constants_delay_uniform=[] # U(0,UB) #---
 
 ##--- map ---
-length = 9000.0
-width = 9000.0
+length = 900.0
+width = 900.0
 neighbors_ratio = 1
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 10000
+max_importance = 100000
 
 ##--- agents ---
 speed = 1
 
 # name,alpha,delta_x,delta_y,
 counter_of_converges=1
-Threshold_list=[10**-100]
+Threshold_list=[10**-5]
 Threshold= None
 
 

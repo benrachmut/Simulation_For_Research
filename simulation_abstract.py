@@ -270,7 +270,7 @@ class Simulation:
         if self.check_diary_during_solver(time):
             self.diary.append(SolverFinishEvent(time_=time))
             return
-        self.tnow = self.tnow + solver_duration_NCLO
+        #self.tnow = self.tnow + solver_duration_NCLO
         #TODO -CREATE ALLOCATION EVENTS
         # handle_new allocation
         self.remove_mission_finished_events()
