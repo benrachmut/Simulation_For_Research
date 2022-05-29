@@ -5,11 +5,13 @@ import random
 from abc import ABC
 import numpy as np
 
-travel_factor = 0.95
-travel_factor_normalized = 10000
+travel_factor = 0.9
+travel_factor_normalized = 1000
 length_  = None
 width_ = None
 
+def are_neighbours():
+    return True
 
 
 class MapSimple:
@@ -107,6 +109,7 @@ class SimpleTaskGenerator(TaskGenerator):
         for skill_number in range(self.max_number_of_missions):
             self.skill_range.append(skill_number)
 
+
     def time_gap_between_tasks(self):
         return self.rnd_numpy.exponential(scale=self.beta, size=1)[0]
 
@@ -120,14 +123,15 @@ class SimpleTaskGenerator(TaskGenerator):
         self.id_task_counter = self.id_task_counter + 1
         id_ = str(self.id_task_counter)
         location = self.map.generate_location()# #self.map.generate_location()
-        importance = (self.random.random() * self.max_importance)
+        rnd_number = self.random.random()
+        importance = 1000+(rnd_number  * self.max_importance)
         if flag_time_zero:
             arrival_time = tnow
         else:
             arrival_time = tnow + self.time_gap_between_tasks()
         missions_list = []
         for ability in required_abilities:
-            mission_created = self.create_random_mission(task_id=id_,task_importance=importance, arrival_time=arrival_time,ability = ability)
+            mission_created = self.create_random_mission(task_id=id_,task_importance=importance, arrival_time=arrival_time,ability = ability,rnd_number = rnd_number)
             missions_list.append(mission_created)
 
 
@@ -135,11 +139,11 @@ class SimpleTaskGenerator(TaskGenerator):
                           missions_list=missions_list, arrival_time=arrival_time)
 
 
-        task.neighbours = self.get_neighbors_ids(task,missions_list)
+        task.neighbours = self.get_neighbors_ids(missions_list)
         return task
 
-    def get_neighbors_ids(self,task,missions_list):
-        player_ids = []
+    def get_neighbors_ids(self,missions_list):
+        ans = []
         skills_list  = []
         for mission in missions_list:
             for ability in mission.abilities:
@@ -147,13 +151,8 @@ class SimpleTaskGenerator(TaskGenerator):
         for player in self.players_list:
             for ability in player.abilities:
                 if ability in skills_list:
-                    #if self.are_neighbors_f(task,player):
-                    player_ids.append(player.id_)
-        # player_responsible = task.player_responsible
-        # if player_responsible.id_ not in player_ids:
-        #     player_ids.append(player_responsible)
-
-        return player_ids
+                    ans.append(player.id_)
+        return ans
 
     def get_tasks_number_of_tasks_now(self, tnow,number_of_tasks):
         ans = []
@@ -161,17 +160,14 @@ class SimpleTaskGenerator(TaskGenerator):
             ans.append(self.get_task(tnow = tnow,flag_time_zero = True))
         return ans
 
-    def create_random_mission(self, task_id,task_importance: float, arrival_time: float,ability):
+    def create_random_mission(self, task_id,task_importance: float, arrival_time: float,ability,rnd_number):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
-        initial_workload = task_importance*100000
-
-            #task_importance*10000#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.random.uniform(task_importance,task_importance*2)#self.factor_initial_workload ** (task_importance/1000)
+        initial_workload = task_importance#self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
-
-        rnd_ = max(2,round(self.random.uniform(1,task_importance)))
-        max_players = min(rnd_,10)
+        rnd_ = round(self.random.uniform(1,task_importance/1000))
+        max_players = min(rnd_,9)
 
         return MissionSimple(task_id =task_id,task_importance = task_importance,mission_id= mission_id,
                              initial_workload= initial_workload, arrival_time_to_the_system= arrival_time_to_the_system, max_players=max_players,abilities=[created_ability])
@@ -341,16 +337,16 @@ class PlayerSimple(Entity):
         self.location = location
         self.update_time(tnow)
 
-    # def create_neighbours_list(self, players_list, f_are_neighbours=are_neighbours):
-    #     """
-    #     creates neighbours list of players
-    #     :param players_list:
-    #     :param f_are_neighbours:
-    #     :return:None
-    #     """
-    #     for p in players_list:
-    #         if self.id_ != p.id_ and f_are_neighbours(self, p):
-    #             self.neighbours.append(p)
+    def create_neighbours_list(self, players_list, f_are_neighbours=are_neighbours):
+        """
+        creates neighbours list of players
+        :param players_list:
+        :param f_are_neighbours:
+        :return:None
+        """
+        for p in players_list:
+            if self.id_ != p.id_ and f_are_neighbours(self, p):
+                self.neighbours.append(p)
 
     def calculate_relative_location(self, tnow):
         if self.status == Status.TO_MISSION:
@@ -433,6 +429,13 @@ class MissionMeasurements:
 
         ans["Is Done"] = self.is_mission_done
         ans["Abandonment Penalty"]  = self.x20_abandonment_penalty
+
+        if  isinstance(ans["Arrival Delay"],float):
+            ans["Delay Penalty"] = travel_factor**(ans["Arrival Delay"]/travel_factor_normalized)
+        else:
+            ans["Delay Penalty"] = "0"
+
+
         if isinstance(ans["Cap"],float) and isinstance(ans["Arrival Delay"],float):
             ans["Utility"] = ans["Cap"] * (travel_factor**(ans["Arrival Delay"]/travel_factor_normalized)) - ans["Abandonment Penalty"]
         else:
@@ -740,9 +743,9 @@ def find_and_allocate_responsible_player(task: TaskSimple, players):
 
     for player in players:
         if calculate_distance(task, player) == min_distance:
-             #for mission in task.missions_list:
-             #    for ability in mission.abilities:
-             #        if ability in player.abilities:
+            # for mission in task.missions_list:
+            #     for ability in mission.abilities:
+            #         if ability in player.abilities:
             players_min_distances.append(player)
 
     selected_player = min(players_min_distances, key=amount_of_task_responsible)

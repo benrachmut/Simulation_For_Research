@@ -19,11 +19,11 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 2
+end = 1
 size_players = 30
 end_time = 10**25
 size_of_initial_tasks = 10
-max_nclo_algo_run= 5000 #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run= 2000 #1000 = 50000 5000 = 200000, 10000 = 260000
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
@@ -48,7 +48,7 @@ width = 9000.0
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 10
+max_importance = 10000
 
 ##--- agents ---
 speed = 1
@@ -56,7 +56,7 @@ speed = 1
 # name,alpha,delta_x,delta_y,
 
 counter_of_converges=1
-Threshold=10**-5
+Threshold=10**-200
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system
