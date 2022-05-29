@@ -48,7 +48,7 @@ width = 9000.0
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 10000
+max_importance = 10
 
 ##--- agents ---
 speed = 1
