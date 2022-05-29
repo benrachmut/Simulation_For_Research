@@ -121,7 +121,7 @@ class SimpleTaskGenerator(TaskGenerator):
         self.id_task_counter = self.id_task_counter + 1
         id_ = str(self.id_task_counter)
         location = self.map.generate_location()# #self.map.generate_location()
-        importance = 10000+(self.random.random() * self.max_importance)
+        importance = (self.random.random() * self.max_importance)
         if flag_time_zero:
             arrival_time = tnow
         else:
