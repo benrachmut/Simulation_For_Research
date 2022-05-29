@@ -166,7 +166,9 @@ class SimpleTaskGenerator(TaskGenerator):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
-        initial_workload = task_importance*100000#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.random.uniform(task_importance,task_importance*2)#self.factor_initial_workload ** (task_importance/1000)
+        initial_workload = task_importance*100000
+
+            #task_importance*10000#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.random.uniform(task_importance,task_importance*2)#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
 
         rnd_ = round(self.random.uniform(1,task_importance))
