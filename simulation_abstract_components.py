@@ -5,8 +5,8 @@ import random
 from abc import ABC
 import numpy as np
 
-travel_factor = 0.9
-travel_factor_normalized = 1000
+travel_factor = 0.95
+travel_factor_normalized = 10000
 length_  = None
 width_ = None
 

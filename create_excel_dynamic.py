@@ -42,7 +42,7 @@ def add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_ru
 
     what_to_add = {"protocol_type":protocol_type,"protocol_name":protocol_name,
                    "Algorithm":algo_name,"map_size":map_size,"max_nclo":max_nclo_algo_run,
-                   "converge_threshold":converge_threshold, "Time Stamp":timestamp}
+                   "converge_threshold":str(converge_threshold), "Time Stamp":timestamp}
 
     value_size = get_value_list_size(dict_)
     add_stuff_to_dictionary(what_to_add,value_size,dict_)
