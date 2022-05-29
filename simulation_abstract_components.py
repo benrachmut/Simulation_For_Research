@@ -5,8 +5,8 @@ import random
 from abc import ABC
 import numpy as np
 
-travel_factor = 0.9
-travel_factor_normalized = 1000
+travel_factor = 0.95
+travel_factor_normalized = 10000
 length_  = None
 width_ = None
 
@@ -88,7 +88,7 @@ class Status(enum.Enum):
     TO_MISSION = 2
 
 class SimpleTaskGenerator(TaskGenerator):
-    def __init__(self, max_number_of_missions ,map_, seed, players_list,are_neighbors_f,max_importance=10):
+    def __init__(self, max_number_of_missions ,map_, seed, players_list,max_importance=10):
         """
 
         :param map_: object to initiate location
@@ -106,7 +106,6 @@ class SimpleTaskGenerator(TaskGenerator):
         self.skill_range =  []
         for skill_number in range(self.max_number_of_missions):
             self.skill_range.append(skill_number)
-        self.are_neighbors_f = are_neighbors_f
 
     def time_gap_between_tasks(self):
         return self.rnd_numpy.exponential(scale=self.beta, size=1)[0]
@@ -148,8 +147,8 @@ class SimpleTaskGenerator(TaskGenerator):
         for player in self.players_list:
             for ability in player.abilities:
                 if ability in skills_list:
-                    if self.are_neighbors_f(task,player):
-                        player_ids.append(player.id_)
+                    #if self.are_neighbors_f(task,player):
+                    player_ids.append(player.id_)
         # player_responsible = task.player_responsible
         # if player_responsible.id_ not in player_ids:
         #     player_ids.append(player_responsible)
