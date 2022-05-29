@@ -1640,8 +1640,6 @@ class AllocationSolverAllPlayersInit(AllocationSolverDistributedV2):
 
         for task in self.tasks_simulation:
             for player_sim in self.players_simulation:
-                #if player_sim.id_ in task.neighbours:
-                    #if player_sim.id_ in task.neighbours:
                 player_algorithm = self.get_algorithm_agent_by_entity(player_sim)
                 player_algorithm.add_task_entity_to_log(task)
 

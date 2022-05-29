@@ -1160,4 +1160,3 @@ class FMC_ATA_task_aware(AllocationSolverAllPlayersInit):
         self.mailer.start()
         self.mailer.join()
         return  self.mailer.time_mailer.clock
-
