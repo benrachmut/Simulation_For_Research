@@ -10,8 +10,6 @@ travel_factor_normalized = 1000
 length_  = None
 width_ = None
 
-def are_neighbours():
-    return True
 
 
 class MapSimple:
@@ -90,7 +88,7 @@ class Status(enum.Enum):
     TO_MISSION = 2
 
 class SimpleTaskGenerator(TaskGenerator):
-    def __init__(self, max_number_of_missions ,map_, seed, players_list,max_importance=10):
+    def __init__(self, max_number_of_missions ,map_, seed, players_list,are_neighbors_f,max_importance=10):
         """
 
         :param map_: object to initiate location
@@ -108,7 +106,7 @@ class SimpleTaskGenerator(TaskGenerator):
         self.skill_range =  []
         for skill_number in range(self.max_number_of_missions):
             self.skill_range.append(skill_number)
-
+        self.are_neighbors_f = are_neighbors_f
 
     def time_gap_between_tasks(self):
         return self.rnd_numpy.exponential(scale=self.beta, size=1)[0]
@@ -123,7 +121,7 @@ class SimpleTaskGenerator(TaskGenerator):
         self.id_task_counter = self.id_task_counter + 1
         id_ = str(self.id_task_counter)
         location = self.map.generate_location()# #self.map.generate_location()
-        importance = 1000+(self.random.random() * self.max_importance)
+        importance = (self.random.random() * self.max_importance)
         if flag_time_zero:
             arrival_time = tnow
         else:
@@ -138,11 +136,11 @@ class SimpleTaskGenerator(TaskGenerator):
                           missions_list=missions_list, arrival_time=arrival_time)
 
 
-        task.neighbours = self.get_neighbors_ids(missions_list)
+        task.neighbours = self.get_neighbors_ids(task,missions_list)
         return task
 
-    def get_neighbors_ids(self,missions_list):
-        ans = []
+    def get_neighbors_ids(self,task,missions_list):
+        player_ids = []
         skills_list  = []
         for mission in missions_list:
             for ability in mission.abilities:
@@ -150,8 +148,13 @@ class SimpleTaskGenerator(TaskGenerator):
         for player in self.players_list:
             for ability in player.abilities:
                 if ability in skills_list:
-                    ans.append(player.id_)
-        return ans
+                    if self.are_neighbors_f(task,player):
+                        player_ids.append(player.id_)
+        # player_responsible = task.player_responsible
+        # if player_responsible.id_ not in player_ids:
+        #     player_ids.append(player_responsible)
+
+        return player_ids
 
     def get_tasks_number_of_tasks_now(self, tnow,number_of_tasks):
         ans = []
@@ -163,10 +166,12 @@ class SimpleTaskGenerator(TaskGenerator):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
-        initial_workload = self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
+        initial_workload = task_importance*100000
+
+            #task_importance*10000#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.random.uniform(task_importance,task_importance*2)#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
 
-        rnd_ = round(self.random.uniform(1,task_importance/1000))
+        rnd_ = max(2,round(self.random.uniform(1,task_importance)))
         max_players = min(rnd_,10)
 
         return MissionSimple(task_id =task_id,task_importance = task_importance,mission_id= mission_id,
@@ -337,16 +342,16 @@ class PlayerSimple(Entity):
         self.location = location
         self.update_time(tnow)
 
-    def create_neighbours_list(self, players_list, f_are_neighbours=are_neighbours):
-        """
-        creates neighbours list of players
-        :param players_list:
-        :param f_are_neighbours:
-        :return:None
-        """
-        for p in players_list:
-            if self.id_ != p.id_ and f_are_neighbours(self, p):
-                self.neighbours.append(p)
+    # def create_neighbours_list(self, players_list, f_are_neighbours=are_neighbours):
+    #     """
+    #     creates neighbours list of players
+    #     :param players_list:
+    #     :param f_are_neighbours:
+    #     :return:None
+    #     """
+    #     for p in players_list:
+    #         if self.id_ != p.id_ and f_are_neighbours(self, p):
+    #             self.neighbours.append(p)
 
     def calculate_relative_location(self, tnow):
         if self.status == Status.TO_MISSION:
@@ -736,9 +741,9 @@ def find_and_allocate_responsible_player(task: TaskSimple, players):
 
     for player in players:
         if calculate_distance(task, player) == min_distance:
-            # for mission in task.missions_list:
-            #     for ability in mission.abilities:
-            #         if ability in player.abilities:
+             #for mission in task.missions_list:
+             #    for ability in mission.abilities:
+             #        if ability in player.abilities:
             players_min_distances.append(player)
 
     selected_player = min(players_min_distances, key=amount_of_task_responsible)
