@@ -34,7 +34,7 @@ def add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_ru
     protocol_type = communication_protocol.type_
     protocol_name = communication_protocol.name
     if communication_protocol.is_with_timestamp:
-        timestamp = "+TS"
+        timestamp = "TS"
     else:
         timestamp = ""
 
