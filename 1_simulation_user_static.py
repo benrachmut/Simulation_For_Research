@@ -23,11 +23,12 @@ end = 1
 size_players = 30
 end_time = 10**25
 size_of_initial_tasks = 10
-max_nclo_algo_run= 2000 #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run_list= [30000] #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run = None
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number = 4
+solver_number = 1
 
 
 # --- communication_protocols ---
@@ -48,7 +49,7 @@ width = 9000.0
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 10000
+max_importance = 1000#10000
 
 ##--- agents ---
 speed = 1
@@ -228,25 +229,28 @@ if __name__ == '__main__':
         constants_delay_poisson=constants_delay_poisson,
         constants_delay_uniform=constants_delay_uniform)
     price_dict = {}
-    for communication_protocol in communication_protocols:
-        fisher_measures = {}  # {number run: measurement}
-        finished_tasks ={}
-        print(communication_protocol)
-        for i in range(start, end):
-            print("Simulation number = "+str(i))
-            # print_players(players_list)
 
-            #if i not in price_dict.keys():
-            #    price_vector = get_price_vector(i)
-            #    price_dict[i] = price_vector
-            sim = run_simulation(i)
+    for t_ in max_nclo_algo_run_list:
+        max_nclo_algo_run = t_
+        for communication_protocol in communication_protocols:
+            fisher_measures = {}  # {number run: measurement}
+            finished_tasks ={}
+            print(communication_protocol)
+            for i in range(start, end):
+                print("Simulation number = "+str(i))
+                # print_players(players_list)
 
-            #--- prep data ---
-            single_fisher_measures = sim.solver.mailer.measurements
-            fisher_measures[i] = single_fisher_measures
-            finished_tasks[i] = sim.finished_tasks_list
-        print("start data ",communication_protocol)
-        organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold)
-        make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name,length,width,Threshold,name_)
+                #if i not in price_dict.keys():
+                #    price_vector = get_price_vector(i)
+                #    price_dict[i] = price_vector
+                sim = run_simulation(i)
 
-        make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,Threshold,organized_data,fisher_data_jumps,name_)
+                #--- prep data ---
+                single_fisher_measures = sim.solver.mailer.measurements
+                fisher_measures[i] = single_fisher_measures
+                finished_tasks[i] = sim.finished_tasks_list
+            print("start data ",communication_protocol)
+            organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold)
+            make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name,length,width,Threshold,name_)
+
+            make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,Threshold,organized_data,fisher_data_jumps,name_)
