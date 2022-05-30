@@ -19,7 +19,7 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 1
+end = 100
 size_players = 30
 end_time = 10**25
 size_of_initial_tasks = 10
@@ -33,8 +33,8 @@ solver_number = 1
 
 # --- communication_protocols ---
 is_with_timestamp = True
-constants_loss_distance = [0] # e^-(alpha*d)
-constants_delay_poisson_distance = [] # Pois(alpha^d)
+constants_loss_distance = [] # e^-(alpha*d)
+constants_delay_poisson_distance = [1000] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
