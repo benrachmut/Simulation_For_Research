@@ -34,11 +34,12 @@ def add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_ru
     protocol_type = communication_protocol.type_
     protocol_name = communication_protocol.name
     if communication_protocol.is_with_timestamp:
-        timestamp = 1
+        timestamp = "+TS"
     else:
-        timestamp = 0
+        timestamp = ""
 
     map_size = str(int(length)) + "X" + str(int(width))
+
 
     what_to_add = {"protocol_type":protocol_type,"protocol_name":protocol_name,
                    "Algorithm":algo_name,"map_size":map_size,"max_nclo":max_nclo_algo_run,
