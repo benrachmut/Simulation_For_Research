@@ -33,11 +33,16 @@ def get_dict_dynamic(finished_tasks, communication_protocol,algo_name):
 def add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_run,converge_threshold,dict_):
     protocol_type = communication_protocol.type_
     protocol_name = communication_protocol.name
+    if communication_protocol.is_with_timestamp:
+        timestamp = 1
+    else:
+        timestamp = 0
+
     map_size = str(int(length)) + "X" + str(int(width))
 
     what_to_add = {"protocol_type":protocol_type,"protocol_name":protocol_name,
                    "Algorithm":algo_name,"map_size":map_size,"max_nclo":max_nclo_algo_run,
-                   "converge_threshold":converge_threshold}
+                   "converge_threshold":converge_threshold, "Time Stamp":timestamp}
 
     value_size = get_value_list_size(dict_)
     add_stuff_to_dictionary(what_to_add,value_size,dict_)
@@ -50,7 +55,7 @@ def make_dynamic_simulation(finished_tasks,start, end,communication_protocol,alg
 
     basic_name = ",algo_" + algo_name + ",comm_" + communication_protocol.name + ",start_" + str(start) + ",end_" + str(
         end) + "," + str(int(length)) + "x" + str(int(width)) + ",maxNclo_" + str(
-        max_nclo_algo_run) + ",threshold_" + str(converge_threshold) + ".csv"
+        max_nclo_algo_run) + ",threshold_" + str(converge_threshold) +",timestamp_"+str(communication_protocol.is_with_timestamp)+ ".csv"
 
 
     file_name = "dynamic"+basic_name
