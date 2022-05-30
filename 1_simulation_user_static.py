@@ -23,7 +23,7 @@ end = 1
 size_players = 30
 end_time = 10**25
 size_of_initial_tasks = 10
-max_nclo_algo_run_list= [30000] #1000 = 50000 5000 = 200000, 10000 = 260000
+max_nclo_algo_run_list= range(500,10000,500) #1000 = 50000 5000 = 200000, 10000 = 260000
 max_nclo_algo_run = None
 fisher_data_jumps = 100
 
@@ -251,6 +251,6 @@ if __name__ == '__main__':
                 finished_tasks[i] = sim.finished_tasks_list
             print("start data ",communication_protocol)
             organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold)
-            make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name,length,width,Threshold,name_)
+           #make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name,length,width,Threshold,name_)
 
-            make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,Threshold,organized_data,fisher_data_jumps,name_)
+            #make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,Threshold,organized_data,fisher_data_jumps,name_)
