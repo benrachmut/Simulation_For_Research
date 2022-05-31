@@ -19,7 +19,7 @@ from solver_fmc_distributed_sy import FMC_TA
 is_static =True
 
 start = 0
-end = 2
+end = 100
 size_players = 30
 end_time = 10**40
 size_of_initial_tasks = 10
@@ -29,7 +29,7 @@ max_nclo_algo_run = None
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number_list = [2]
+solver_number_list = [1,2,4]
 solver_number = None
 is_with_fisher_data = False
 
@@ -234,17 +234,15 @@ if __name__ == '__main__':
 
     for t_ in max_nclo_algo_run_list:
         max_nclo_algo_run = t_
-        for communication_protocol in communication_protocols:
-            for solver_number_t in solver_number_list:
-                solver_number = solver_number_t
-                is_with_timestamp_list = [False]
-                if solver_number<=2:
-                    is_with_timestamp_list = [False,True]
-                for is_with_timestamp_t in is_with_timestamp_list:
-                    is_with_timestamp = is_with_timestamp_t
+        for solver_number_t in solver_number_list:
+            solver_number = solver_number_t
+            is_with_timestamp_list = [False]
+            if solver_number <= 2:
+                is_with_timestamp_list = [False, True]
+            for is_with_timestamp_t in is_with_timestamp_list:
+                is_with_timestamp = is_with_timestamp_t
+                for communication_protocol in communication_protocols:
                     communication_protocol.is_with_timestamp = is_with_timestamp
-
-
                     fisher_measures = {}  # {number run: measurement}
                     finished_tasks ={}
                     print(communication_protocol)
