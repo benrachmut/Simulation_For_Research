@@ -23,7 +23,8 @@ end = 2
 size_players = 30
 end_time = 10**40
 size_of_initial_tasks = 10
-max_nclo_algo_run_list= [1000]#range(500,10000,500) #1000 = 50000 5000 = 200000, 10000 = 260000
+# 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
+max_nclo_algo_run_list= [1000]
 max_nclo_algo_run = None
 fisher_data_jumps = 100
 
