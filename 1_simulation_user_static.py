@@ -28,7 +28,7 @@ max_nclo_algo_run = None
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number_list = [1,2,3,4]
+solver_number_list = [2]
 solver_number = None
 is_with_fisher_data = False
 
@@ -120,7 +120,7 @@ def get_solver(communication_protocol):
                       f_communication_disturbance=communication_f,
                       future_utility_function=rij_function,
                       counter_of_converges=counter_of_converges,
-                      Threshold = Threshold
+                      Threshold = Threshold,is_with_timestamp= is_with_timestamp
         )
 
     if solver_number == 2:
@@ -129,7 +129,7 @@ def get_solver(communication_protocol):
                       f_communication_disturbance=communication_f,
                       future_utility_function=rij_function,
                       counter_of_converges=counter_of_converges,
-                      Threshold=Threshold
+                      Threshold=Threshold,is_with_timestamp= is_with_timestamp
                       )
 
     if solver_number == 3:
@@ -238,7 +238,7 @@ if __name__ == '__main__':
                 solver_number = solver_number_t
                 is_with_timestamp_list = [False]
                 if solver_number<=2:
-                    is_with_timestamp_list = [True,False]
+                    is_with_timestamp_list = [False,True]
                 for is_with_timestamp_t in is_with_timestamp_list:
                     is_with_timestamp = is_with_timestamp_t
                     communication_protocol.is_with_timestamp = is_with_timestamp
