@@ -237,7 +237,7 @@ if __name__ == '__main__':
         for solver_number_t in solver_number_list:
             solver_number = solver_number_t
             is_with_timestamp_list = [False]
-            if solver_number < 2:
+            if solver_number <= 2:
                 is_with_timestamp_list = [False, True]
             for is_with_timestamp_t in is_with_timestamp_list:
                 is_with_timestamp = is_with_timestamp_t
