@@ -24,19 +24,19 @@ size_players = 30
 end_time = 10**40
 size_of_initial_tasks = 10
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
-max_nclo_algo_run_list= [1000]
+max_nclo_algo_run_list= [5000]
 max_nclo_algo_run = None
 fisher_data_jumps = 100
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number_list = [1,2,4]
+solver_number_list = [2]
 solver_number = None
-is_with_fisher_data = False
+is_with_fisher_data = True
 
 # --- communication_protocols ---
 is_with_timestamp = None
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [1000] # Pois(alpha^d)
+constants_delay_poisson_distance = [0,100,1000,10000] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
@@ -237,7 +237,7 @@ if __name__ == '__main__':
         for solver_number_t in solver_number_list:
             solver_number = solver_number_t
             is_with_timestamp_list = [False]
-            if solver_number <= 2:
+            if solver_number < 2:
                 is_with_timestamp_list = [False, True]
             for is_with_timestamp_t in is_with_timestamp_list:
                 is_with_timestamp = is_with_timestamp_t
