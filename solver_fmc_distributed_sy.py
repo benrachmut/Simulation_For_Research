@@ -6,6 +6,28 @@ from solver_fmc_distributed_asy import FisherTaskASY, is_with_scheduling, Fisher
 
 debug_sy = False
 
+class FisherTaskASY_Task_Aware(FisherTaskASY_greedy_Schedual):
+    def __init__(self, agent_simulator: TaskSimple, t_now, is_with_timestamp, counter_of_converges=4, Threshold=0.001):
+
+        FisherTaskASY_greedy_Schedual.__init__(self, agent_simulator=agent_simulator, t_now=t_now, is_with_timestamp=is_with_timestamp,
+                               counter_of_converges=counter_of_converges, Threshold=Threshold)
+
+
+
+
+class FisherPlayerASY_Task_Aware(FisherPlayerASY_greedy_Schedual):
+    def __init__(self, util_structure_level, agent_simulator, t_now, future_utility_function, is_with_timestamp, ro=0.9,tasks_ids = []):
+        FisherPlayerASY_greedy_Schedual.__init__(self ,util_structure_level = util_structure_level, agent_simulator=agent_simulator,
+                                 t_now=t_now, future_utility_function=future_utility_function,
+                                 is_with_timestamp=is_with_timestamp, ro=ro)
+
+
+
+
+
+
+
+
 class FisherTaskSY_greedy_Schedual(FisherTaskASY_greedy_Schedual):
     def __init__(self, agent_simulator: TaskSimple, t_now, is_with_timestamp, counter_of_converges=4, Threshold=0.001):
 
@@ -86,8 +108,6 @@ class FisherPlayerSY_greedy_Schedual(FisherPlayerASY_greedy_Schedual):
             self.msgs_timestamp[task_id] = -1
 
     def more_reset_additional_fields(self):
-
-
         FisherPlayerASY_greedy_Schedual.more_reset_additional_fields(self)
         self.reset_msgs_timestamp()
 
@@ -107,6 +127,53 @@ class FisherPlayerSY_greedy_Schedual(FisherPlayerASY_greedy_Schedual):
                 return
         self.calculate_bids_flag = True
 
+
+
+
+
+class FMC_ATA_task_aware(AllocationSolverAllPlayersInit):
+    def __init__(self, util_structure_level=1, mailer=None, f_termination_condition=None, f_global_measurements={},
+                 f_communication_disturbance=default_communication_disturbance, future_utility_function=None,
+                 is_with_timestamp=True, ro=0.9, counter_of_converges=3, Threshold=10 ** -5):
+        AllocationSolverAllPlayersInit.__init__(self, mailer, f_termination_condition,
+                                                f_global_measurements,
+                                                f_communication_disturbance)
+        self.util_structure_level = util_structure_level
+        self.ro = ro
+        self.future_utility_function = future_utility_function
+        self.is_with_timestamp = is_with_timestamp
+        self.counter_of_converges = counter_of_converges
+        self.Threshold = Threshold
+
+    def __str__(self):
+        return "FMC_ATA_task_aware"
+
+    def create_algorithm_task(self, task: TaskSimple):
+        return FisherTaskASY_Task_Aware(agent_simulator=task, t_now=self.tnow,
+                                             is_with_timestamp=self.is_with_timestamp,
+                                             counter_of_converges=self.counter_of_converges, Threshold=self.Threshold)
+
+    def create_algorithm_player(self, player: PlayerSimple):
+
+        tasks_ids = []
+        for task in self.tasks_simulation:
+            tasks_ids.append(task.id_)
+
+        return FisherPlayerASY_Task_Aware(util_structure_level=self.util_structure_level,
+                                               agent_simulator=player, t_now=self.tnow,
+                                               future_utility_function=self.future_utility_function,
+                                               is_with_timestamp=self.is_with_timestamp, ro=self.ro,tasks_ids = tasks_ids)
+
+    def allocate(self):
+        self.reset_algorithm_agents()
+        self.mailer.reset(self.tnow)
+        # should_allocate = self.solve_tasks_with_players_that_pay_them_all_bug()
+        self.connect_entities()
+        self.agents_initialize()
+        self.start_all_threads()
+        self.mailer.start()
+        self.mailer.join()
+        return self.mailer.time_mailer.clock
 
 class FMC_TA(AllocationSolverAllPlayersInit):
     def __init__(self, util_structure_level=1, mailer=None, f_termination_condition=None, f_global_measurements={},
