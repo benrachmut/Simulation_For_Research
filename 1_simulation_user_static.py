@@ -15,16 +15,15 @@ from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY  # , FMC_TA
 from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 
 
-
 is_static =True
 
 start = 0
-end = 10
-size_players = 30
-end_time = 10**40
-size_of_initial_tasks = 10
+end = 100
+size_players = 50
+end_time = 10**200
+size_of_initial_tasks = 30
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
-max_nclo_algo_run_list= [5000]
+max_nclo_algo_run_list= [1000]
 max_nclo_algo_run = None
 fisher_data_jumps = 1
 
@@ -260,7 +259,8 @@ if __name__ == '__main__':
                         fisher_measures[i] = single_fisher_measures
                         finished_tasks[i] = sim.finished_tasks_list
                     print("start data ",communication_protocol)
-                    organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold)
+                    organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
+                                                                   size_of_initial_tasks)
 
 
                     if is_with_fisher_data:
