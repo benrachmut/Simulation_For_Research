@@ -214,8 +214,8 @@ class PlayerReceivesNewAllocation(SimulationEvent, ABC):
         """
         SimulationEvent.__init__(self, time_=time_, player=player)
 
-        def handle_event(self, simulation):
-            simulation.check_new_allocation_for_player(self.player)
+    def handle_event(self, simulation):
+        simulation.check_new_allocation_for_player(self.player)
 
 
 class TaskArrivalToMainComputerEvent(SimulationEvent):
@@ -233,7 +233,6 @@ class TaskArrivalToMainComputerEvent(SimulationEvent):
         SimulationEvent.__init__(self, time_=time_, task=task)
 
     def handle_event(self, simulation):
-        find_and_allocate_responsible_player(task=self.task, players=simulation.players_list)
         simulation.tasks_list.append(self.task)
         simulation.solver.add_task_to_solver(self.task)
         simulation.remove_solver_finish_event()
@@ -257,6 +256,9 @@ class newTaskDiscoveredEvent(SimulationEvent):
     def handle_event(self, simulation):
         find_and_allocate_responsible_player(task=self.task, players=simulation.players_list)
         delay = simulation.f_generate_message_disturbance(simulation.main_computer_entity, self.task)  #  # TODO BEN
+        if delay is None:
+            simulation.generate_new_task_to_diary()
+            return
         ev = TaskArrivalToMainComputerEvent(task=self.task, time_=self.time + delay)
         simulation.diary.append(ev)
         simulation.generate_new_task_to_diary()  # Ask Ben?
@@ -337,7 +339,6 @@ class Simulation:
         if self.check_diary_during_solver(time):
             self.diary.append(SolverFinishEvent(time_=time))
             return
-        # self.tnow = self.tnow + solver_duration_NCLO
         self.tnow = self.tnow + solver_duration_NCLO
         # handle_new allocation
         self.remove_mission_finished_events()
@@ -534,6 +535,8 @@ class SimulationCentralized(Simulation):
     def generate_players_receive_allocation_events(self):
         for p in self.players_list:
             delay_time = self.f_generate_message_disturbance(self.main_computer_entity, p)  # TODO BEN
+            if delay_time is None:
+                continue
             e = PlayerReceivesNewAllocation(time_=self.tnow + delay_time, player=p)
             self.diary.append(e)
 
@@ -567,13 +570,8 @@ class SimulationCentralized(Simulation):
             else:  # The player has a new allocation (missions in schedule)
                 if player.schedule[0][1] == player.current_mission:  # The players remains in his current mission
                     if player.status == Status.ON_MISSION:  # If the has already arrived to the mission
-                    #     # player.current_mission.add_allocated_player(player)
-                    #     # player.current_mission.add_handling_player(player, self.tnow)
-                    #     self.generate_mission_finished_event(mission=player.current_mission,
-                    #                                          task=player.current_task)
                         player.schedule.pop(0)
-                    # elif player.status == Status.TO_MISSION:
-                    #     self.generate_player_arrives_to_mission_event(player=player)
+
 
                 else:  # The player abandons his current event to a new allocation
                     self.handle_abandonment_event(player=player, mission=player.current_mission,
