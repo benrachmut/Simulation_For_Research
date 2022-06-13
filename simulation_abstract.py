@@ -191,10 +191,10 @@ class PlayerArriveToTaskEvent(SimulationEvent):
         SimulationEvent.__init__(self, time_=time_, task=task, mission=mission, player=player)
 
     def handle_event(self, simulation):
-        self.player.update_status(Status.ON_MISSION, self.time)
         self.player.update_location(self.task.location, self.time)
-
-        self.player.schedule.pop(0)
+        self.player.update_status(Status.ON_MISSION, self.time)
+        if len(self.player.schedule) > 0 and self.player.current_task.id_ == self.player.schedule[0][0].id_:
+            self.player.schedule.pop(0)
         self.mission.add_handling_player(self.player, self.time)
         simulation.generate_mission_finished_event(mission=self.mission, task=self.task)
         # simulation.generate_player_update_event(player=self.player)
