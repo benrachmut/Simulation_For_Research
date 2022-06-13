@@ -337,7 +337,7 @@ class SimulationDistributed:
         if self.debug_mode:
             print("SOLVER STARTS:", self.solver_counter)
         self.update_locations_of_players()  # Ask Ben
-        solver_duration_NCLO = self.solver.solve(self.tnow)
+        solver_duration_NCLO = self.solver.solve(self.tnow)/1000
         time = self.tnow + solver_duration_NCLO
         if self.check_diary_during_solver(time):
             self.diary.append(SolverFinishEvent(time_=time))

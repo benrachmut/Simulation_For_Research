@@ -19,7 +19,7 @@ end_time = 10**200
 size_of_initial_tasks = 30
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
-max_nclo_algo_run = 5000
+max_nclo_algo_run = 20000
 fisher_data_jumps = 1
 
 pace_of_tasks = 30000
@@ -37,7 +37,7 @@ speed = 1
 # name,alpha,delta_x,delta_y,
 
 counter_of_converges=1
-Threshold=10**-200
+Threshold=10**-4
 
 
 # --- communication_protocols ---

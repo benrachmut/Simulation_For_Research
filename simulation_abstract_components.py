@@ -619,8 +619,8 @@ class MissionSimple:
         else:
             self.measurements.update_time_per_amount(self.max_players, delta, productivity)
 
-        if self.remaining_workload < -0.01:
-            raise Exception("Negative workload to mission" + str(self.mission_id))
+        if self.remaining_workload < -50:
+            raise Exception("Negative workload to mission" + str(self.mission_id) + str(self.remaining_workload))
         if len(self.players_handling_with_the_mission) > self.max_players:
             pass
             # raise Exception("Too many players allocated" + str(self.mission_id))
