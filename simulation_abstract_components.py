@@ -56,7 +56,7 @@ class MapSimple:
 
 
 class TaskGenerator(ABC):
-    def __init__(self, map_=MapSimple(seed=1), seed=1):
+    def __init__(self, map_=MapSimple(seed=1), seed=1,beta = 0):
         """
 
         :param map_:
@@ -65,6 +65,7 @@ class TaskGenerator(ABC):
         self.map = map_
         self.random = random.Random(seed)
         self.rnd_numpy = np.random.default_rng(seed=seed)
+        self.beta = beta
 
     @abc.abstractmethod
     def get_task(self, tnow):
@@ -88,7 +89,7 @@ class Status(enum.Enum):
 
 
 class SimpleTaskGenerator(TaskGenerator):
-    def __init__(self, max_number_of_missions, map_, seed, players_list, max_importance=10):
+    def __init__(self, max_number_of_missions, map_, seed, players_list, max_importance=10, beta = 0):
         """
 
         :param map_: object to initiate location
@@ -97,7 +98,7 @@ class SimpleTaskGenerator(TaskGenerator):
         :param max_importance: the maximum level of importance
         :param exp_lambda_parameter: used to get random gap between tasks exp(exp_lambda_parameter)
         """
-        TaskGenerator.__init__(self, map_, seed)
+        TaskGenerator.__init__(self, map_, seed, beta)
         self.id_task_counter = 1
         self.id_mission_counter = 1
         self.max_importance = max_importance

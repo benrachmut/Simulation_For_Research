@@ -89,7 +89,6 @@ class CommunicationProtocolDelayPoisson(CommunicationProtocol):
             return "No Delay"
         else:
             return "Delay"
-
 class CommunicationProtocolDistance(CommunicationProtocol):
     def __init__(self, name, alpha, delta_x, delta_y, is_with_timestamp):
         self.delta_x = delta_x
@@ -107,8 +106,6 @@ class CommunicationProtocolDistance(CommunicationProtocol):
         if entity_quad_distance > max_quad_distance:
             return 1
         return entity_quad_distance / max_quad_distance
-
-
 class CommunicationProtocolLossConstant(CommunicationProtocol):
     def __init__(self, p):
         name = "P=" + str(p)

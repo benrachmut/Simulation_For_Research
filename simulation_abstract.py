@@ -193,10 +193,8 @@ class PlayerArriveToTaskEvent(SimulationEvent):
     def handle_event(self, simulation):
         self.player.update_status(Status.ON_MISSION, self.time)
         self.player.update_location(self.task.location, self.time)
-        if len(self.player.schedule) == 0:
-            print("bug in line 141 simulation abstract")
-        else:
-            self.player.schedule.pop(0)
+
+        self.player.schedule.pop(0)
         self.mission.add_handling_player(self.player, self.time)
         simulation.generate_mission_finished_event(mission=self.mission, task=self.task)
         # simulation.generate_player_update_event(player=self.player)
@@ -270,7 +268,10 @@ def get_mission_from_task_by_id(next_task, mission_id):
             return mission
 
 
-class Simulation:
+def default_communication_disturbance():
+    return False
+
+class SimulationDistributed:
     def __init__(self, name: str, players_list: list, solver, tasks_generator: TaskGenerator, end_time: float,
                  number_of_initial_tasks=10, is_static=True, debug_mode=True
                  ):
@@ -284,6 +285,8 @@ class Simulation:
         :param f_is_player_can_be_allocated_to_task: The function checks if the player can be allocated to mission
         :param f_calculate_distance: calculate the distance
         """
+        #self.f_generate_message_disturbance = f_generate_message_disturbance
+
         self.is_static = is_static
         self.tnow = 0
         self.prev_time = 0
@@ -345,7 +348,7 @@ class Simulation:
         self.remove_player_arrive_to_mission_event_from_diary()
         self.clear_players_before_allocation()
         self.check_new_allocation()
-        print(self.diary)
+        #print(self.diary)
 
     def check_new_allocation(self):
         # if not self.is_centralized:
@@ -449,6 +452,10 @@ class Simulation:
         next_task = self.get_simulation_task_by_id(task_id)
         if next_task is not None:
             mission_id = player.schedule[0][1].mission_id
+            #next_mission = get_mission_from_task_by_id(next_task, mission_id)
+            #if next_mission is None:
+                #print("aaaaaaaa")
+
             next_mission = get_mission_from_task_by_id(next_task, mission_id)
             next_mission.add_allocated_player(player)
             player.current_mission = next_mission
@@ -494,7 +501,7 @@ class Simulation:
                 return p
 
 
-class SimulationCentralized(Simulation):
+class SimulationCentralized(SimulationDistributed):
 
     def __init__(self, name: str, players_list: list, solver, f_generate_message_disturbance,
                  tasks_generator: TaskGenerator, end_time: float,
@@ -514,8 +521,8 @@ class SimulationCentralized(Simulation):
         :param debug_mode:
         """
 
-        Simulation.__init__(self, name, players_list, solver, tasks_generator, end_time,
-                            number_of_initial_tasks, is_static, debug_mode)
+        SimulationDistributed.__init__(self, name, players_list, solver, tasks_generator, end_time,
+                                       number_of_initial_tasks, is_static, debug_mode)
         self.f_generate_message_disturbance = f_generate_message_disturbance
         self.main_computer_entity = Entity(id_="main computer", location=[0, 0])
         self.run_simulation()
