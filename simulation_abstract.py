@@ -337,7 +337,7 @@ class SimulationDistributed:
         if self.debug_mode:
             print("SOLVER STARTS:", self.solver_counter)
         self.update_locations_of_players()  # Ask Ben
-        solver_duration_NCLO = self.solver.solve(self.tnow)/1000
+        solver_duration_NCLO = self.solver.solve(self.tnow)
         time = self.tnow + solver_duration_NCLO
         if self.check_diary_during_solver(time):
             self.diary.append(SolverFinishEvent(time_=time))
@@ -359,6 +359,7 @@ class SimulationDistributed:
         # self.generate_update_player_event(player)
 
     def check_new_allocation_for_player(self, player):
+        self.clean_schedule(player)
         if player.current_mission is None:  # The agent doesn't have a current mission
             if len(player.schedule) == 0:  # The agent doesn't have a new allocation
                 player.update_status(Status.IDLE, self.tnow)
@@ -384,6 +385,8 @@ class SimulationDistributed:
                     self.handle_abandonment_event(player=player, mission=player.current_mission,
                                                   task=player.current_task)
                     self.generate_player_arrives_to_mission_event(player=player)
+                    self.generate_player_arrives_to_mission_event(player=player)
+
 
     def update_workload(self):
         for t in self.tasks_list:
@@ -452,9 +455,11 @@ class SimulationDistributed:
         next_task = self.get_simulation_task_by_id(task_id)
         if next_task is not None:
             mission_id = player.schedule[0][1].mission_id
+
             #next_mission = get_mission_from_task_by_id(next_task, mission_id)
-            #if next_mission is None:
-                #print("aaaaaaaa")
+            # if next_mission is None:
+            #
+            #     print("aaaaaaaa")
 
             next_mission = get_mission_from_task_by_id(next_task, mission_id)
             next_mission.add_allocated_player(player)
@@ -499,6 +504,25 @@ class SimulationDistributed:
         for p in self.solver.centralized_computer.players_simulation:
             if p.id_ == player_id_:
                 return p
+
+    def clean_schedule(self, player):
+        count = 0
+        for all in player.schedule:
+            task_id = all[0].id_
+            next_task = self.get_simulation_task_by_id(task_id)
+            if next_task is None:
+                count += 1
+                continue
+            mission_id = all[1].mission_id
+            next_mission = get_mission_from_task_by_id(next_task, mission_id)
+            if next_mission is None:
+                count += 1
+                continue
+            break
+        for _ in range(count):
+            player.schedule.pop(0)
+
+
 
 
 class SimulationCentralized(SimulationDistributed):
