@@ -6,7 +6,7 @@ from abc import ABC
 import numpy as np
 
 travel_factor = 0.9
-travel_factor_normalized = 1000
+travel_factor_normalized = 10**5
 length_ = None
 width_ = None
 
@@ -21,7 +21,7 @@ class MapSimple:
     method. The simple map is in the shape of rectangle (with width and length parameters).
     """
 
-    def __init__(self, seed=1, length=900.0, width=900.0):
+    def __init__(self, length, width,seed=1):
         """
         :param number_of_centers: number of centers in the map. Each center represents a possible base for the player.
         :type: int
@@ -56,13 +56,13 @@ class MapSimple:
 
 
 class TaskGenerator(ABC):
-    def __init__(self, map_=MapSimple(seed=1), seed=1,beta = 0):
+    def __init__(self, map_, seed=1,beta = 0):
         """
 
         :param map_:
         :param seed:
         """
-        self.map = map_
+        self.map_ = map_
         self.random = random.Random(seed)
         self.rnd_numpy = np.random.default_rng(seed=seed)
         self.beta = beta
@@ -89,7 +89,7 @@ class Status(enum.Enum):
 
 
 class SimpleTaskGenerator(TaskGenerator):
-    def __init__(self, max_number_of_missions, map_, seed, players_list, max_importance=10, beta = 0):
+    def __init__(self, max_number_of_missions, map_, seed, players_list, initial_workload_multiple,max_importance=10, beta = 0):
         """
 
         :param map_: object to initiate location
@@ -108,6 +108,7 @@ class SimpleTaskGenerator(TaskGenerator):
         for skill_number in range(self.max_number_of_missions):
             self.skill_range.append(skill_number)
 
+        self.initial_workload_multiple = initial_workload_multiple
     def time_gap_between_tasks(self):
         return self.rnd_numpy.exponential(scale=self.beta, size=1)[0]
 
@@ -120,8 +121,9 @@ class SimpleTaskGenerator(TaskGenerator):
         required_abilities = self.skill_range  # self.random.sample(self.skill_range ,amount_of_missions)
         self.id_task_counter = self.id_task_counter + 1
         id_ = str(self.id_task_counter)
-        location = self.map.generate_location()  # #self.map.generate_location()
+        location = self.map_.generate_location()  # #self.map.generate_location()
         rnd_number = self.random.random()
+
         importance = (rnd_number * self.max_importance)
         if flag_time_zero:
             arrival_time = tnow
@@ -131,7 +133,7 @@ class SimpleTaskGenerator(TaskGenerator):
         for ability in required_abilities:
             mission_created = self.create_random_mission(task_id=id_, task_importance=importance,
                                                          arrival_time=arrival_time, ability=ability,
-                                                         rnd_number=rnd_number)
+                                                        initial_workload_multiple = self.initial_workload_multiple)
             missions_list.append(mission_created)
 
         task = TaskSimple(id_=id_, location=location, importance=importance,
@@ -158,14 +160,14 @@ class SimpleTaskGenerator(TaskGenerator):
             ans.append(self.get_task(tnow=tnow, flag_time_zero=True))
         return ans
 
-    def create_random_mission(self, task_id, task_importance: float, arrival_time: float, ability, rnd_number):
+    def create_random_mission(self, task_id, task_importance: float, arrival_time: float, ability,initial_workload_multiple):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
-        initial_workload = task_importance  # self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
-        arrival_time_to_the_system = arrival_time*1000
+        initial_workload = task_importance*initial_workload_multiple  # self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
+        arrival_time_to_the_system = arrival_time
         rnd_ = max(2, round(self.random.uniform(1, task_importance / 10)))
-        max_players = min(rnd_, 9)
+        max_players =10 #min(rnd_, 9)
 
         return MissionSimple(task_id=task_id, task_importance=task_importance, mission_id=mission_id,
                              initial_workload=initial_workload, arrival_time_to_the_system=arrival_time_to_the_system,

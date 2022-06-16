@@ -1,4 +1,5 @@
 import random
+import sys
 
 from create_dynamic_simulation_cumulative import make_dynamic_simulation_cumulative
 from create_excel_dynamic import make_dynamic_simulation
@@ -15,27 +16,30 @@ from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY  # , FMC_TA
 from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 
 
-is_static =True
 
+
+
+is_static =True
 start = 0
-end = 100
+end = 2
 size_players = 50
-end_time = 10**200
-size_of_initial_tasks = 30
+
+end_time = sys.maxsize
+size_of_initial_tasks =30
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
-max_nclo_algo_run_list= [1000]
+max_nclo_algo_run_list= [5000]
 max_nclo_algo_run = None
 fisher_data_jumps = 1
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number_list = [1,2,4]
+solver_number_list = [2]
 solver_number = None
-is_with_fisher_data = True
+is_with_fisher_data = False
 
 # --- communication_protocols ---
 is_with_timestamp = None
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [1000,0] # Pois(alpha^d)
+constants_delay_poisson_distance = [0] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
@@ -45,15 +49,17 @@ constants_delay_uniform=[] # U(0,UB) #---
 
 
 ##--- map ---
-length = 9000.0
-width = 9000.0
+length = 10**7
+width = 10**7
+
+initial_workload_multiple = 1000 # maybe cahnge
 
 ##--- task generator ---
 max_number_of_missions = 3
 max_importance = 1000
 
 ##--- agents ---
-speed = 1
+speed = 1000
 
 # name,alpha,delta_x,delta_y,
 
@@ -198,8 +204,8 @@ def run_simulation(i):
 
     players_list = create_players(i,map)
 
-    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i*17,
-                                          max_importance=max_importance, players_list=players_list)
+    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i*20,
+                                          max_importance=max_importance, players_list=players_list, initial_workload_multiple = initial_workload_multiple)
     solver = get_solver(communication_protocol)
     #print_initial_tasks(tasks_generator)
     # --- simulation run ---
@@ -215,10 +221,6 @@ def run_simulation(i):
 
 
 if __name__ == '__main__':
-
-
-
-
 
     communication_protocols = get_communication_protocols(
         is_with_timestamp=is_with_timestamp,length=length,width=width,
@@ -236,7 +238,7 @@ if __name__ == '__main__':
             solver_number = solver_number_t
             is_with_timestamp_list = [False]
             if solver_number <= 2:
-                is_with_timestamp_list = [False, True]
+                is_with_timestamp_list = [False]
             for is_with_timestamp_t in is_with_timestamp_list:
                 is_with_timestamp = is_with_timestamp_t
                 for communication_protocol in communication_protocols:

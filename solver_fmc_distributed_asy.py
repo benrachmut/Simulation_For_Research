@@ -542,7 +542,7 @@ class FisherPlayerASY_greedy_Schedual(FisherPlayerASY):
                     productivity = self.simulation_entity.productivity
                     time_at_mission = allocation * (remaining_workload / productivity)
                     denominator = time_to_task + time_at_mission
-                    bang_per_buck[task][mission] = numerator / denominator
+                    bang_per_buck[task][mission] = numerator #/ denominator
 
         return bang_per_buck
 

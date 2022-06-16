@@ -8,7 +8,7 @@ import random
 from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY
 from solver_fmc_distributed_sy import FMC_TA
 
-simulation_type_list = [1] # 1- distributed, 2-centralistic
+simulation_type_list = [2] # 1- distributed, 2-centralistic
 simulation_type = None
 
 debug_mode = True
@@ -30,7 +30,7 @@ width = 9000.0
 ##--- task generator ---
 max_number_of_missions = 3
 max_importance = 1000
-
+initial_workload_multiple = 1000 # task importance * initial_workload_multiple = iniital workload
 ##--- agents ---
 speed = 1
 
@@ -174,7 +174,7 @@ if __name__ == '__main__':
                 solver = get_solver(communication_protocol)
                 f_generate_message_disturbance = communication_protocol.get_communication_disturbance
                 tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i*17,
-                                          max_importance=max_importance, players_list=players_list,beta=pace_of_tasks)
+                                          max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple)
                 sim = create_simulation(simulation_type= simulation_type,players_list=players_list,solver=solver,
                                         tasks_generator=tasks_generator,end_time=end_time,
                                         f_generate_message_disturbance=f_generate_message_disturbance)

@@ -338,12 +338,14 @@ class SimulationDistributed:
             print("SOLVER STARTS:", self.solver_counter)
         self.update_locations_of_players()  # Ask Ben
         solver_duration_NCLO = self.solver.solve(self.tnow)
-        time = self.tnow + solver_duration_NCLO
+        time = self.tnow
+        if self.is_static == False:
+            time = self.tnow + solver_duration_NCLO
         if self.check_diary_during_solver(time):
             self.diary.append(SolverFinishEvent(time_=time))
             return
-        self.tnow = self.tnow + solver_duration_NCLO
-        # handle_new allocation
+           # handle_new allocation
+        self.tnow = time
         self.remove_mission_finished_events()
         self.remove_player_arrive_to_mission_event_from_diary()
         self.clear_players_before_allocation()
