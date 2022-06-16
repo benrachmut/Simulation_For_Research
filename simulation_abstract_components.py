@@ -5,7 +5,7 @@ import random
 from abc import ABC
 import numpy as np
 
-travel_factor = 0.9
+travel_factor = 0.8
 travel_factor_normalized = 10**5
 length_ = None
 width_ = None
@@ -643,7 +643,7 @@ class MissionSimple:
             raise Exception("Double handling of the the same player to one mission" + str(self.mission_id))
         else:
             self.players_handling_with_the_mission.append(player)
-            self.measurements.check_and_update_first_player_present(tnow)
+            #self.measurements.check_and_update_first_player_present(tnow)
 
     def remove_allocated_player(self, player):
         if player not in self.players_allocated_to_the_mission:
@@ -732,7 +732,15 @@ class TaskSimple(Entity):
         if len(self.missions_list) == 0:
             self.is_done = True
 
+    def update_arrive_time(self, t_now):
+        for mission in self.missions_list:
+            if mission.measurements.x1_simulation_time_first_player_arrive is None:
+                mission.measurements.x1_simulation_time_first_player_arrive = copy.copy(t_now)
+                mission.measurements.x2_delay = t_now - mission.measurements.x0_simulation_time_mission_enter_system
 
+            #if self.x1_simulation_time_first_player_arrive is None:
+                #self.x1_simulation_time_first_player_arrive = copy.copy(tnow)
+                #self.x2_delay = tnow - self.x0_simulation_time_mission_enter_system
 def amount_of_task_responsible(player):
     return len(player.tasks_responsible)
 

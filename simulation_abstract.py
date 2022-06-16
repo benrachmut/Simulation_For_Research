@@ -196,6 +196,8 @@ class PlayerArriveToTaskEvent(SimulationEvent):
         if len(self.player.schedule) > 0 and self.player.current_task.id_ == self.player.schedule[0][0].id_:
             self.player.schedule.pop(0)
         self.mission.add_handling_player(self.player, self.time)
+        self.task.update_arrive_time(self.time)
+
         simulation.generate_mission_finished_event(mission=self.mission, task=self.task)
         # simulation.generate_player_update_event(player=self.player)
         # simulation.generate_task_update_event(task=self.task)
@@ -378,6 +380,8 @@ class SimulationDistributed:
                     if player.status == Status.ON_MISSION:  # If the has already arrived to the mission
                         player.current_mission.add_allocated_player(player)
                         player.current_mission.add_handling_player(player, self.tnow)
+                        self.task.update_arrive_time(self.time)
+
                         self.generate_mission_finished_event(mission=player.current_mission,
                                                              task=player.current_task)
                         player.schedule.pop(0)

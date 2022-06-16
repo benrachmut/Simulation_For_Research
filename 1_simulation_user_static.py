@@ -32,7 +32,7 @@ max_nclo_algo_run = None
 fisher_data_jumps = 1
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number_list = [2]
+solver_number_list = [4]
 solver_number = None
 is_with_fisher_data = False
 
@@ -246,6 +246,9 @@ if __name__ == '__main__':
                     fisher_measures = {}  # {number run: measurement}
                     finished_tasks ={}
                     print(communication_protocol)
+                    print("solver_number ",str(solver_number))
+                    print("max_nclo_algo_run ",str(max_nclo_algo_run))
+
                     for i in range(start, end):
                         print("Simulation number = "+str(i))
                         # print_players(players_list)
@@ -260,6 +263,7 @@ if __name__ == '__main__':
                         fisher_measures[i] = single_fisher_measures
                         finished_tasks[i] = sim.finished_tasks_list
                     print("start data ",communication_protocol)
+
                     organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
                                                                    size_of_initial_tasks)
 
