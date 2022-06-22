@@ -369,7 +369,6 @@ class SimulationDistributed:
                 player.update_status(Status.IDLE, self.tnow)
             else:  # The agent has a new allocation
                 self.generate_player_arrives_to_mission_event(player=player)
-
         else:  # The player has a current allocation
             if len(player.schedule) == 0:  # Player doesn't have a new allocation (only the old one)
                 self.handle_abandonment_event(player=player, mission=player.current_mission,
@@ -391,7 +390,7 @@ class SimulationDistributed:
                     self.handle_abandonment_event(player=player, mission=player.current_mission,
                                                   task=player.current_task)
                     self.generate_player_arrives_to_mission_event(player=player)
-                    self.generate_player_arrives_to_mission_event(player=player)
+                    #self.generate_player_arrives_to_mission_event(player=player)
 
 
     def update_workload(self):
