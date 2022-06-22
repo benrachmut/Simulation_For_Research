@@ -380,7 +380,7 @@ class SimulationDistributed:
                     if player.status == Status.ON_MISSION:  # If the has already arrived to the mission
                         player.current_mission.add_allocated_player(player)
                         player.current_mission.add_handling_player(player, self.tnow)
-                        self.task.update_arrive_time(self.time)
+                        player.current_task.update_arrive_time(self.tnow)
 
                         self.generate_mission_finished_event(mission=player.current_mission,
                                                              task=player.current_task)
@@ -442,9 +442,10 @@ class SimulationDistributed:
         """
         if number_of_tasks == 1:
             task: TaskSimple = self.tasks_generator.get_task(self.tnow)
-            task.create_neighbours_list(players_list=self.players_list)
-            event = TaskArrivalEvent(task=task, time_=task.arrival_time)
-            self.diary.append(event)
+            if task is not None:
+                task.create_neighbours_list(players_list=self.players_list)
+                event = TaskArrivalEvent(task=task, time_=task.arrival_time)
+                self.diary.append(event)
         else:
             tasks = self.tasks_generator.get_tasks_number_of_tasks_now(self.tnow, number_of_tasks)
             event = NumberOfTasksArrivalEvent(is_static=self.is_static, tasks=tasks, time_=tasks[0].arrival_time)
@@ -584,9 +585,10 @@ class SimulationCentralized(SimulationDistributed):
         """
         if number_of_tasks == 1:
             task: TaskSimple = self.tasks_generator.get_task(self.tnow)
-            task.create_neighbours_list(players_list=self.players_list)
-            event = newTaskDiscoveredEvent(task=task, time_=task.arrival_time)
-            self.diary.append(event)
+            if task != False:
+                task.create_neighbours_list(players_list=self.players_list)
+                event = newTaskDiscoveredEvent(task=task, time_=task.arrival_time)
+                self.diary.append(event)
         else:
             tasks = self.tasks_generator.get_tasks_number_of_tasks_now(self.tnow, number_of_tasks)
             event = NumberOfTasksArrivalEvent(is_static=self.is_static, tasks=tasks, time_=tasks[0].arrival_time)

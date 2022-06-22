@@ -89,7 +89,7 @@ class Status(enum.Enum):
 
 
 class SimpleTaskGenerator(TaskGenerator):
-    def __init__(self, max_number_of_missions, map_, seed, players_list, initial_workload_multiple,max_importance=10, beta = 0):
+    def __init__(self, max_number_of_missions, map_, seed, players_list, initial_workload_multiple,max_importance=10, beta = 0, limited_additional_tasks = 0):
         """
 
         :param map_: object to initiate location
@@ -107,9 +107,13 @@ class SimpleTaskGenerator(TaskGenerator):
         self.skill_range = []
         for skill_number in range(self.max_number_of_missions):
             self.skill_range.append(skill_number)
-
+        self.limited_additional_tasks = limited_additional_tasks
         self.initial_workload_multiple = initial_workload_multiple
+
     def time_gap_between_tasks(self):
+        self.limited_additional_tasks = self.limited_additional_tasks-1
+        if self.limited_additional_tasks == 0:
+            return None
         return self.rnd_numpy.exponential(scale=self.beta, size=1)[0]
 
     def get_task(self, tnow, flag_time_zero=False):
@@ -128,7 +132,10 @@ class SimpleTaskGenerator(TaskGenerator):
         if flag_time_zero:
             arrival_time = tnow
         else:
-            arrival_time = tnow + self.time_gap_between_tasks()
+            time_gap =  self.time_gap_between_tasks()
+            if time_gap == None:
+                return None
+            arrival_time = tnow + time_gap
         missions_list = []
         for ability in required_abilities:
             mission_created = self.create_random_mission(task_id=id_, task_importance=importance,

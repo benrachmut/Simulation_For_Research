@@ -7,15 +7,17 @@ import random
 
 from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY
 from solver_fmc_distributed_sy import FMC_TA
+import sys
 
-simulation_type_list = [2] # 1- distributed, 2-centralistic
+simulation_type_list = [1] # 1- distributed, 2-centralistic
 simulation_type = None
 
 debug_mode = True
 start = 0
 end = 100
+
 size_players = 50
-end_time = 10**200
+end_time = sys.maxsize
 size_of_initial_tasks = 30
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
@@ -23,21 +25,24 @@ max_nclo_algo_run = 20000
 fisher_data_jumps = 1
 
 pace_of_tasks = 30000
+limited_additional_tasks = 3
 ##--- map ---
-length = 9000.0
-width = 9000.0
+length = 10**7
+width = 10**7
+
+initial_workload_multiple = 1000 # maybe cahnge
 
 ##--- task generator ---
 max_number_of_missions = 3
 max_importance = 1000
-initial_workload_multiple = 1000 # task importance * initial_workload_multiple = iniital workload
+
 ##--- agents ---
-speed = 1
+speed = 1000
 
 # name,alpha,delta_x,delta_y,
 
 counter_of_converges=1
-Threshold=10**-4
+Threshold=10**-3
 
 
 # --- communication_protocols ---
@@ -167,14 +172,16 @@ if __name__ == '__main__':
             simulation_type = simulation_type_temp
             finished_tasks = {}
             for i in range(start, end):
-                communication_protocol.set_seed(i)
 
                 map = MapSimple(seed=i * 17, length=length, width=width)
                 players_list = create_players(i,map)
                 solver = get_solver(communication_protocol)
                 f_generate_message_disturbance = communication_protocol.get_communication_disturbance
+                communication_protocol.set_seed(i)
+
                 tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i*17,
-                                          max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple)
+                                          max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks)
+
                 sim = create_simulation(simulation_type= simulation_type,players_list=players_list,solver=solver,
                                         tasks_generator=tasks_generator,end_time=end_time,
                                         f_generate_message_disturbance=f_generate_message_disturbance)
