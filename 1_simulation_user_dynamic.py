@@ -49,11 +49,11 @@ Threshold=10**-3
 # --- communication_protocols ---
 is_with_timestamp = None
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [0] # Pois(alpha^d)
+constants_delay_poisson_distance = [] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
-constants_delay_poisson = [] # Pois(lambda)
+constants_delay_poisson = [5000] # Pois(lambda)
 constants_delay_uniform=[] # U(0,UB) #---
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
