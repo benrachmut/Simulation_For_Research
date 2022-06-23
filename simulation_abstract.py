@@ -264,6 +264,24 @@ class newTaskDiscoveredEvent(SimulationEvent):
         simulation.generate_new_task_to_diary()  # Ask Ben?
 
 
+class CentralizedSolverFinishEvent(SimulationEvent):
+    def __init__(self, time_):
+        """
+        :param time:the time of the event
+        :type: float
+        :param player: The relevant player that arrives to the given mission on the given task.
+        :type: PlayerSimple
+        :param task: The relevant task that contain the given mission
+        :type: TaskSimple
+        :param mission: The mission that the player arrives to.
+        :type: MissionSimple
+        """
+        SimulationEvent.__init__(self, time_=time_)
+
+    def handle_event(self, simulation):
+        simulation.generate_players_receive_allocation_events()
+
+
 def get_mission_from_task_by_id(next_task, mission_id):
     for mission in next_task.missions_list:
         if mission.mission_id == mission_id:
@@ -339,7 +357,7 @@ class SimulationDistributed:
         self.solver_counter = self.solver_counter + 1
         if self.debug_mode:
             print("SOLVER STARTS:", self.solver_counter)
-        self.update_locations_of_players()  # Ask Ben
+        self.update_locations_of_players()
         solver_duration_NCLO = self.solver.solve(self.tnow)
         time = self.tnow
         if self.is_static == False:
@@ -564,12 +582,17 @@ class SimulationCentralized(SimulationDistributed):
         if self.debug_mode:
             print("SOLVER STARTS:", self.solver_counter)
         solver_duration_NCLO = self.solver.solve(self.tnow)
-        # time = self.tnow + solver_duration_NCLO
-        # if self.check_diary_during_solver(time):
-        # self.diary.append(SolverFinishEvent(time_=time))
-        # raise Exception("im cenralized if im here we need to re do SolverFinishEvent")
-        # self.update_workload()
-        # self.tnow = self.tnow + solver_duration_NCLO
+        time = self.tnow
+        if not self.is_static:
+            time = self.tnow + solver_duration_NCLO
+            if self.check_diary_during_solver(time):
+                #self.update_workload()
+                self.diary.append(CentralizedSolverFinishEvent(time_=time))
+                return
+            self.tnow = time
+            self.update_workload()
+        else:
+            self.tnow = time
         self.generate_players_receive_allocation_events()
 
     def generate_players_receive_allocation_events(self):
