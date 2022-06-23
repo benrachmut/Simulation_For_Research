@@ -255,7 +255,7 @@ class newTaskDiscoveredEvent(SimulationEvent):
 
     def handle_event(self, simulation):
         find_and_allocate_responsible_player(task=self.task, players=simulation.players_list)
-        delay = simulation.f_generate_message_disturbance(simulation.main_computer_entity, self.task)  #  # TODO BEN
+        delay = simulation.f_generate_message_disturbance(simulation.main_computer_entity, self.task)  # # TODO BEN
         if delay is None:
             simulation.generate_new_task_to_diary()
             return
@@ -273,6 +273,7 @@ def get_mission_from_task_by_id(next_task, mission_id):
 def default_communication_disturbance():
     return False
 
+
 class SimulationDistributed:
     def __init__(self, name: str, players_list: list, solver, tasks_generator: TaskGenerator, end_time: float,
                  number_of_initial_tasks=10, is_static=True, debug_mode=True
@@ -287,7 +288,7 @@ class SimulationDistributed:
         :param f_is_player_can_be_allocated_to_task: The function checks if the player can be allocated to mission
         :param f_calculate_distance: calculate the distance
         """
-        #self.f_generate_message_disturbance = f_generate_message_disturbance
+        # self.f_generate_message_disturbance = f_generate_message_disturbance
 
         self.is_static = is_static
         self.tnow = 0
@@ -352,13 +353,13 @@ class SimulationDistributed:
         else:
             self.tnow = time
 
-           # handle_new allocation
+        # handle_new allocation
 
         self.remove_mission_finished_events()
         self.remove_player_arrive_to_mission_event_from_diary()
         self.clear_players_before_allocation()
         self.check_new_allocation()
-        #print(self.diary)
+        # print(self.diary)
 
     def check_new_allocation(self):
         # if not self.is_centralized:
@@ -396,8 +397,7 @@ class SimulationDistributed:
                     self.handle_abandonment_event(player=player, mission=player.current_mission,
                                                   task=player.current_task)
                     self.generate_player_arrives_to_mission_event(player=player)
-                    #self.generate_player_arrives_to_mission_event(player=player)
-
+                    # self.generate_player_arrives_to_mission_event(player=player)
 
     def update_workload(self):
         for t in self.tasks_list:
@@ -412,7 +412,7 @@ class SimulationDistributed:
         player.current_mission = None
         player.current_task = None
         self.generate_mission_finished_event(mission, task)
-        #self.generate_task_update_event(task=task)
+        # self.generate_task_update_event(task=task)
 
     def handle_task_ended(self, task):
         self.finished_tasks_list.append(task)
@@ -468,7 +468,7 @@ class SimulationDistributed:
         if next_task is not None:
             mission_id = player.schedule[0][1].mission_id
 
-            #next_mission = get_mission_from_task_by_id(next_task, mission_id)
+            # next_mission = get_mission_from_task_by_id(next_task, mission_id)
             # if next_mission is None:
             #
             #     print("aaaaaaaa")
@@ -535,8 +535,6 @@ class SimulationDistributed:
             player.schedule.pop(0)
 
 
-
-
 class SimulationCentralized(SimulationDistributed):
 
     def __init__(self, name: str, players_list: list, solver, f_generate_message_disturbance,
@@ -561,18 +559,17 @@ class SimulationCentralized(SimulationDistributed):
         SimulationDistributed.__init__(self, name, players_list, solver, tasks_generator, end_time,
                                        number_of_initial_tasks, is_static, debug_mode)
 
-
     def solve(self):
         self.solver_counter = self.solver_counter + 1
         if self.debug_mode:
             print("SOLVER STARTS:", self.solver_counter)
         solver_duration_NCLO = self.solver.solve(self.tnow)
-        #time = self.tnow + solver_duration_NCLO
-        #if self.check_diary_during_solver(time):
-            #self.diary.append(SolverFinishEvent(time_=time))
-            #raise Exception("im cenralized if im here we need to re do SolverFinishEvent")
-        #self.update_workload()
-        #self.tnow = self.tnow + solver_duration_NCLO
+        # time = self.tnow + solver_duration_NCLO
+        # if self.check_diary_during_solver(time):
+        # self.diary.append(SolverFinishEvent(time_=time))
+        # raise Exception("im cenralized if im here we need to re do SolverFinishEvent")
+        # self.update_workload()
+        # self.tnow = self.tnow + solver_duration_NCLO
         self.generate_players_receive_allocation_events()
 
     def generate_players_receive_allocation_events(self):
@@ -599,7 +596,13 @@ class SimulationCentralized(SimulationDistributed):
             event = NumberOfTasksArrivalEvent(is_static=self.is_static, tasks=tasks, time_=tasks[0].arrival_time)
             self.diary.append(event)
 
+    def remove_player_arrive_to_mission_event_from_diary_before_agent_arrived(self, mission, player):
+        self.diary[:] = filterfalse(lambda ev: type(ev) == PlayerArriveToTaskEvent and
+                                               ev.mission.mission_id == mission.mission_id and
+                                               ev.player.id_ == player.id_, self.diary)
+
     def check_new_allocation_for_player(self, player):
+        self.clean_schedule(player=player)
         if player.current_mission is None:  # The agent doesn't have a current mission
             if len(player.schedule) == 0:  # The agent doesn't have a new allocation
                 player.update_status(Status.IDLE, self.tnow)
@@ -623,7 +626,8 @@ class SimulationCentralized(SimulationDistributed):
                         player.current_mission.remove_handling_player(player=player)
                     elif player.status == Status.TO_MISSION:
                         player.current_mission.remove_allocated_player(player=player)
+                        self.remove_player_arrive_to_mission_event_from_diary_before_agent_arrived(
+                            mission=player.current_mission, player=player)
                     self.handle_abandonment_event(player=player, mission=player.current_mission,
                                                   task=player.current_task)
                     self.generate_player_arrives_to_mission_event(player=player)
-
