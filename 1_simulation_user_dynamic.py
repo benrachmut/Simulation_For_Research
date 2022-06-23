@@ -49,7 +49,7 @@ Threshold=10**-3
 # --- communication_protocols ---
 is_with_timestamp = None
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [1000] # Pois(alpha^d)
+constants_delay_poisson_distance = [0] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
