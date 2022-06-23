@@ -9,7 +9,7 @@ from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY
 from solver_fmc_distributed_sy import FMC_TA
 import sys
 
-simulation_type_list = [1] # 1- distributed, 2-centralistic
+simulation_type_list = [2] # 1- distributed, 2-centralistic
 simulation_type = None
 
 debug_mode = True
@@ -18,14 +18,15 @@ end = 100
 
 size_players = 50
 end_time = sys.maxsize
-size_of_initial_tasks = 30
+size_of_initial_tasks = 15
+limited_additional_tasks = 15
+
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
 max_nclo_algo_run = 20000
 fisher_data_jumps = 1
 
 pace_of_tasks = 30000
-limited_additional_tasks = 3
 ##--- map ---
 length = 10**7
 width = 10**7
@@ -48,7 +49,7 @@ Threshold=10**-3
 # --- communication_protocols ---
 is_with_timestamp = None
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [1000,0] # Pois(alpha^d)
+constants_delay_poisson_distance = [1000] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
@@ -100,6 +101,10 @@ def create_players(i,map1):
         ans.append(player)
     return ans
 
+
+
+
+
 def get_solver(communication_protocol):
     communication_f = communication_protocol.get_communication_disturbance
     data_fisher = get_data_fisher()
@@ -107,20 +112,25 @@ def get_solver(communication_protocol):
     termination_function = f_termination_condition_all_tasks_converged
 
     if simulation_type == 1:
-        ans = FMC_ATA(util_structure_level= 1,f_termination_condition=termination_function,
+
+
+        ans = FMC_ATA(util_structure_level=1, f_termination_condition=termination_function,
                       f_global_measurements=data_fisher,
                       f_communication_disturbance=communication_f,
                       future_utility_function=rij_function,
                       counter_of_converges=counter_of_converges,
-                      Threshold = Threshold,is_with_timestamp= False
-        )
+                      Threshold=Threshold, is_with_timestamp=False
+                      )
 
 
     if simulation_type == 2:
-        cp = CommunicationProtocolDelayUniform(is_with_timestamp=False, ub = 0).get_communication_disturbance
+        cp = CommunicationProtocolDelayUniform(is_with_timestamp=False, ub = 0)
+        cp.set_seed(1)
+
+        func_cp= cp.get_communication_disturbance
         ans = FMC_TA(f_termination_condition=termination_function,
                       f_global_measurements=data_fisher,
-                      f_communication_disturbance=cp,
+                      f_communication_disturbance=func_cp,
                       future_utility_function=rij_function,
                       counter_of_converges=counter_of_converges,
                       Threshold=Threshold

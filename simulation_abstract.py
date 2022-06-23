@@ -343,11 +343,17 @@ class SimulationDistributed:
         time = self.tnow
         if self.is_static == False:
             time = self.tnow + solver_duration_NCLO
-        if self.check_diary_during_solver(time):
-            self.diary.append(SolverFinishEvent(time_=time))
-            return
+            if self.check_diary_during_solver(time):
+                self.update_workload()
+                self.diary.append(SolverFinishEvent(time_=time))
+                return
+            self.tnow = time
+            self.update_workload()
+        else:
+            self.tnow = time
+
            # handle_new allocation
-        self.tnow = time
+
         self.remove_mission_finished_events()
         self.remove_player_arrive_to_mission_event_from_diary()
         self.clear_players_before_allocation()
@@ -550,23 +556,23 @@ class SimulationCentralized(SimulationDistributed):
         :param is_static:
         :param debug_mode:
         """
-
-        SimulationDistributed.__init__(self, name, players_list, solver, tasks_generator, end_time,
-                                       number_of_initial_tasks, is_static, debug_mode)
         self.f_generate_message_disturbance = f_generate_message_disturbance
         self.main_computer_entity = Entity(id_="main computer", location=[0, 0])
-        self.run_simulation()
+        SimulationDistributed.__init__(self, name, players_list, solver, tasks_generator, end_time,
+                                       number_of_initial_tasks, is_static, debug_mode)
+
 
     def solve(self):
         self.solver_counter = self.solver_counter + 1
         if self.debug_mode:
             print("SOLVER STARTS:", self.solver_counter)
         solver_duration_NCLO = self.solver.solve(self.tnow)
-        time = self.tnow + solver_duration_NCLO
-        if self.check_diary_during_solver(time):
-            self.diary.append(SolverFinishEvent(time_=time))
-            return
-        self.tnow = self.tnow + solver_duration_NCLO
+        #time = self.tnow + solver_duration_NCLO
+        #if self.check_diary_during_solver(time):
+            #self.diary.append(SolverFinishEvent(time_=time))
+            #raise Exception("im cenralized if im here we need to re do SolverFinishEvent")
+        #self.update_workload()
+        #self.tnow = self.tnow + solver_duration_NCLO
         self.generate_players_receive_allocation_events()
 
     def generate_players_receive_allocation_events(self):
@@ -584,7 +590,7 @@ class SimulationCentralized(SimulationDistributed):
         """
         if number_of_tasks == 1:
             task: TaskSimple = self.tasks_generator.get_task(self.tnow)
-            if task != False:
+            if task is not None:
                 task.create_neighbours_list(players_list=self.players_list)
                 event = newTaskDiscoveredEvent(task=task, time_=task.arrival_time)
                 self.diary.append(event)
@@ -612,11 +618,12 @@ class SimulationCentralized(SimulationDistributed):
 
 
                 else:  # The player abandons his current event to a new allocation
-                    self.handle_abandonment_event(player=player, mission=player.current_mission,
-                                                  task=player.current_task)
+
                     if player.status == Status.ON_MISSION:
                         player.current_mission.remove_handling_player(player=player)
                     elif player.status == Status.TO_MISSION:
                         player.current_mission.remove_allocated_player(player=player)
+                    self.handle_abandonment_event(player=player, mission=player.current_mission,
+                                                  task=player.current_task)
                     self.generate_player_arrives_to_mission_event(player=player)
 

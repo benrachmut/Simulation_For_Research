@@ -1123,6 +1123,8 @@ class FMC_ATA(AllocationSolverSingleTaskInit):
         return  self.mailer.time_mailer.clock
 
 
+
+
 # class FMC_ATA_task_aware(AllocationSolverAllPlayersInit):
 #     def __init__(self, counter_of_converges,Threshold, is_with_timestamp,util_structure_level = 1, mailer=None, f_termination_condition=None, f_global_measurements={},
 #                  f_communication_disturbance=default_communication_disturbance, future_utility_function=None,

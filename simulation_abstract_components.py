@@ -623,16 +623,15 @@ class MissionSimple:
                 productivity += p.productivity
         self.remaining_workload -= delta * productivity
         current_amount_of_players = len(self.players_handling_with_the_mission)
-        if counter <= self.max_players:
-            self.measurements.update_time_per_amount(current_amount_of_players, delta, productivity)
-        else:
-            self.measurements.update_time_per_amount(self.max_players, delta, productivity)
+        #if counter <= self.max_players:
+        self.measurements.update_time_per_amount(current_amount_of_players, delta, productivity)
+        #else:
+            #self.measurements.update_time_per_amount(self.max_players, delta, productivity)
 
         if self.remaining_workload < -2:
             raise Exception("Negative workload to mission" + str(self.mission_id) + str(self.remaining_workload))
         if len(self.players_handling_with_the_mission) > self.max_players:
-            pass
-            # raise Exception("Too many players allocated" + str(self.mission_id))
+            raise Exception("Too many players allocated" + str(self.mission_id))
 
     def close_measurements(self):
         self.measurements.close_measurements()

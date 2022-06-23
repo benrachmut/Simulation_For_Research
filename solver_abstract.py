@@ -1636,6 +1636,8 @@ class AllocationSolverAllPlayersInit(AllocationSolverDistributedV2):
                  f_communication_disturbance=default_communication_disturbance):
         AllocationSolverDistributedV2.__init__(self, f_termination_condition, f_global_measurements,
                                              f_communication_disturbance)
+
+
     def agents_initialize(self):
 
         for task in self.tasks_simulation:
