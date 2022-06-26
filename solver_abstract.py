@@ -887,8 +887,7 @@ class AgentAlgorithmTaskPlayers(AgentAlgorithm):
 
 
     def set_receive_flag_to_true_given_msg(self, msg:Msg):
-        player_type = self.get_player_type_given_msg(msg)
-        self.ability_received[player_type] = True
+
         sender_id = msg.sender
         list_of_ids_under_responsibility = self.get_list_of_ids_under_responsibility()
         if sender_id in list_of_ids_under_responsibility:

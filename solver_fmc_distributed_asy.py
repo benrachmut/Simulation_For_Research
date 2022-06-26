@@ -692,6 +692,8 @@ class FisherTaskASY(TaskAlgorithm):
         self.send_msgs()  # will send messages with None to all relevent players
 
     def set_receive_flag_to_true_given_msg_after_check(self, msg):
+        player_type = self.get_player_type_given_msg(msg)
+        self.ability_received[player_type] = True
         self.calculate_xjk_flag = True
         #self.ability_received[msg.abilities[0].ability_type]
 

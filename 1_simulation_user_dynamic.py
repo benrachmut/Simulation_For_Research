@@ -11,7 +11,7 @@ from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY
 from solver_fmc_distributed_sy import FMC_TA
 import sys
 
-simulation_type_list = [2] # 1- distributed, 2-centralistic
+simulation_type_list = [1] # 1- distributed, 2-centralistic
 simulation_type = None
 
 debug_mode_full = False
