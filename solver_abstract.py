@@ -201,6 +201,8 @@ class Mailer(threading.Thread):
 
 
     def run(self) -> None:
+        for_check = {}
+        self.update_for_check(for_check)
 
         """
 
@@ -231,11 +233,16 @@ class Mailer(threading.Thread):
         self.mailer_iteration(with_update_clock_for_empty_msg_to_send=True)
 
         while not self.f_termination_condition(self.agents_algorithm, self):
+
+
             self.create_measurements()
 
-            self.self_check_if_all_idle_to_continue()
+            #self.self_check_if_all_idle_to_continue()
 
             self.mailer_iteration(with_update_clock_for_empty_msg_to_send=False)
+
+            self.update_for_check(for_check)
+
             if debug_timestamp:
                 self.print_timestamps()
         self.kill_agents()
@@ -570,6 +577,11 @@ class Mailer(threading.Thread):
 
         return task.player_responsible,agent
 
+    def update_for_check(self, for_check):
+        for agent in self.agents_algorithm:
+            if isinstance(agent, TaskAlgorithm):
+                for_check[agent.simulation_entity.id_] = agent.is_finish_phase_II
+
 
 #---- Agents ----
 
@@ -875,7 +887,8 @@ class AgentAlgorithmTaskPlayers(AgentAlgorithm):
 
 
     def set_receive_flag_to_true_given_msg(self, msg:Msg):
-
+        player_type = self.get_player_type_given_msg(msg)
+        self.ability_received[player_type] = True
         sender_id = msg.sender
         list_of_ids_under_responsibility = self.get_list_of_ids_under_responsibility()
         if sender_id in list_of_ids_under_responsibility:
@@ -1659,3 +1672,6 @@ class AllocationSolverAllPlayersInit(AllocationSolverDistributedV2):
         this method updates the relative information at the players log
         :return:
         """
+
+
+

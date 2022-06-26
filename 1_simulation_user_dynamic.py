@@ -1,3 +1,5 @@
+from create_dynamic_simulation_cumulative import make_dynamic_simulation_cumulative
+from create_excel_dynamic import make_dynamic_simulation
 from general_communication_protocols import CommunicationProtocolDelayUniform, get_communication_protocols
 from general_data_fisher_market import get_data_fisher
 from general_r_ij import calculate_rij_abstract
@@ -12,9 +14,11 @@ import sys
 simulation_type_list = [2] # 1- distributed, 2-centralistic
 simulation_type = None
 
-debug_mode = True
+debug_mode_full = False
+debug_mode_light = True
+
 start = 0
-end = 100
+end = 5
 
 size_players = 50
 end_time = sys.maxsize
@@ -23,8 +27,8 @@ limited_additional_tasks = 15
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
-max_nclo_algo_run = 20000
-fisher_data_jumps = 1
+max_nclo_algo_run = 1000000
+fisher_data_jumps = 1000
 
 pace_of_tasks = 30000
 ##--- map ---
@@ -53,8 +57,8 @@ constants_delay_poisson_distance = [] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
-constants_delay_poisson = [5000] # Pois(lambda)
-constants_delay_uniform=[] # U(0,UB) #---
+constants_delay_poisson = []# Pois(lambda)
+constants_delay_uniform=[0] # U(0,UB) #---
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system
@@ -149,7 +153,8 @@ def create_simulation(simulation_type,players_list,solver,tasks_generator,end_ti
                                     end_time=end_time,
                                     number_of_initial_tasks=size_of_initial_tasks,
                                     is_static=False,
-                                    debug_mode=debug_mode)
+                                    debug_mode_full=debug_mode_full,
+                                    debug_mode_light=debug_mode_light)
     if simulation_type == 2:
         sim = SimulationCentralized(name=str(i),
                                     players_list=players_list,
@@ -159,7 +164,9 @@ def create_simulation(simulation_type,players_list,solver,tasks_generator,end_ti
                                     end_time=end_time,
                                     number_of_initial_tasks=size_of_initial_tasks,
                                     is_static=False,
-                                    debug_mode=debug_mode)
+                                    debug_mode_full=debug_mode_full,
+                                    debug_mode_light=debug_mode_light)
+
 
     return sim
 if __name__ == '__main__':
@@ -182,6 +189,8 @@ if __name__ == '__main__':
             simulation_type = simulation_type_temp
             finished_tasks = {}
             for i in range(start, end):
+                print(communication_protocol)
+                print("simulation number:",str(i))
 
                 map = MapSimple(seed=i * 17, length=length, width=width)
                 players_list = create_players(i,map)
@@ -195,4 +204,9 @@ if __name__ == '__main__':
                 sim = create_simulation(simulation_type= simulation_type,players_list=players_list,solver=solver,
                                         tasks_generator=tasks_generator,end_time=end_time,
                                         f_generate_message_disturbance=f_generate_message_disturbance)
+
                 finished_tasks[i] = sim.finished_tasks_list
+            organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
+                                                                   size_of_initial_tasks)
+            make_dynamic_simulation_cumulative(communication_protocol, length, width, algo_name, max_nclo_algo_run,
+                                               Threshold, organized_data, fisher_data_jumps, name_)

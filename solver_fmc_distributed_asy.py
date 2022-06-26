@@ -86,6 +86,8 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
         self.set_msgs()
         self.more_reset_additional_fields()
 
+
+
     @abc.abstractmethod
     def more_reset_additional_fields(self):
         raise NotImplementedError
@@ -399,6 +401,8 @@ class FisherPlayerASY_greedy_Schedual(FisherPlayerASY):
 
 
 
+
+
     def more_reset_additional_fields(self):
         self.allocations_data = []
         self.allocation_data_dict = {}
@@ -620,11 +624,20 @@ class FisherTaskASY(TaskAlgorithm):
         self.price_current = {}
         self.price_delta = {}
         self.r_jk = {}
+        self.ability_received = {}
         for mission in self.simulation_entity.missions_list:
             self.price_t_minus[mission] = 9999999
             self.price_current[mission] = 0
             self.price_delta[mission] = 9999999
             self.counter_of_converges_dict[mission] = self.counter_of_converges
+            self.ability_received[mission.abilities[0].ability_type] = False
+
+    def get_player_type_given_msg(self, msg):
+        info = msg.information[0]
+        for k, v in info.items():
+            if v != 0:
+                return k.abilities[0].ability_type
+
 
     def reset_additional_fields(self):
         self.is_finish_phase_II = False
@@ -680,6 +693,7 @@ class FisherTaskASY(TaskAlgorithm):
 
     def set_receive_flag_to_true_given_msg_after_check(self, msg):
         self.calculate_xjk_flag = True
+        #self.ability_received[msg.abilities[0].ability_type]
 
     def get_current_timestamp_from_context(self, msg):
         player_id = msg.sender
@@ -798,7 +812,7 @@ class FisherTaskASY(TaskAlgorithm):
             current_price = self.price_current[mission]
             t_minus_price = self.price_t_minus[mission]
             self.price_delta[mission] = math.fabs(t_minus_price - current_price)
-            if self.price_delta[mission] != 0:
+            if self.ability_received[mission.abilities[0].ability_type]:#self.price_delta[mission] != 0:
                 self.update_converges_conditions(mission)
 
     def update_converges_conditions(self, mission):
@@ -887,6 +901,8 @@ class FisherTaskASY(TaskAlgorithm):
                 return self.msgs_from_players[task]
 
     def set_receive_flag_to_false(self):
+        for  k in self.ability_received.keys():
+            self.ability_received[k] = False
         self.calculate_xjk_flag = False
 
     def measurements_per_agent(self):

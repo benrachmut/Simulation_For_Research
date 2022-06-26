@@ -6,6 +6,8 @@ from abc import ABC
 import numpy as np
 
 travel_factor = 0.8
+travel_factor_agent_was_present = 0.7
+
 travel_factor_normalized = 10**5
 length_ = None
 width_ = None

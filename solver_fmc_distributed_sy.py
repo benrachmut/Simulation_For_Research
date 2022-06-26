@@ -56,6 +56,11 @@ class FisherTaskSY_greedy_Schedual(FisherTaskASY_greedy_Schedual):
         self.msgs_timestamp[sender_id] = timestamp_msg
 
     def set_receive_flag_to_true_given_msg(self, msg):
+
+
+        player_type = self.get_player_type_given_msg(msg)
+        self.ability_received[player_type] = True
+
         self.update_msgs_timestamp_dict(msg)
         for timestamp_in_memory in self.msgs_timestamp.values():
             if timestamp_in_memory - 1 != self.timestamp_counter:
@@ -121,6 +126,8 @@ class FisherPlayerSY_greedy_Schedual(FisherPlayerASY_greedy_Schedual):
         self.msgs_timestamp[sender_id] = timestamp_msg
 
     def set_receive_flag_to_true_given_msg(self, msg):
+
+
         self.update_msgs_timestamp_dict(msg)
         for timestamp_in_memory in self.msgs_timestamp.values():
             if timestamp_in_memory  != self.timestamp_counter:

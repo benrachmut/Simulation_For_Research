@@ -12,6 +12,13 @@ def get_normalized_distance(player_entity, task_entity):
 
     return distance/max_map_distance
 
+
+def agent_was_present(mission_entity):
+    if mission_entity.measurements.x1_simulation_time_first_player_arrive is None:
+        return False
+    return True
+
+
 def calculate_rij_abstract(player_entity :PlayerSimple, mission_entity:MissionSimple, task_entity:TaskSimple,
                                                  t_now=0):
 
@@ -25,7 +32,11 @@ def calculate_rij_abstract(player_entity :PlayerSimple, mission_entity:MissionSi
     speed = player_entity.speed
     arrive_time = distance/speed
 
-    travel_factor = simulation_abstract_components.travel_factor
+    if agent_was_present(mission_entity):
+        travel_factor = simulation_abstract_components.travel_factor_agent_was_present
+    else:
+        travel_factor = simulation_abstract_components.travel_factor
+
     travel_factor_normalized = simulation_abstract_components.travel_factor_normalized
 
     distance_parameter = travel_factor**(arrive_time / travel_factor_normalized)

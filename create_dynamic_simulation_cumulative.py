@@ -127,7 +127,7 @@ def make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_
     #data_scenario_by_index_by_importance = get_data_scenario_by_index_by_importance(organized_data)
     #data_group_by_scenario_by_importance_via_list = get_group_by_scenario_by_importance(organized_data,data_scenario_by_index,keys)
 
-    data_time_simNumber_indexs = get_data_time_simNumber_indexs(data_group_by_scenario_via_list,max_time,fisher_data_jumps)
+    data_time_simNumber_indexs = get_data_time_simNumber_indexs(data_group_by_scenario_via_list,max_time,fisher_data_jumps = 1000)
     data_prior_cumulative = get_data_prior_cumulative(data_time_simNumber_indexs, data_group_by_scenario_via_list,keys)
     data_cumulative_dict = get_data_cumulative_dict(data_prior_cumulative)
 

@@ -84,6 +84,29 @@ class TaskArrivalEvent(SimulationEvent):
         simulation.generate_new_task_to_diary()
 
 
+class TaskArrivalToMainComputerEvent(SimulationEvent):
+    """
+    Class that represent a simulation event of new task arrival.
+    """
+
+    def __init__(self, time_: float, task: TaskSimple):
+        """
+        :param time_:the time of the event
+        :type: float
+        :param task: The new task that arrives to simulation.
+        :type: TaskSimple
+        """
+        SimulationEvent.__init__(self, time_=time_, task=task)
+
+    def handle_event(self, simulation):
+        find_and_allocate_responsible_player(task=self.task, players=simulation.players_list)
+
+        simulation.tasks_list.append(self.task)
+        simulation.solver.add_task_to_solver(self.task)
+        simulation.remove_solver_finish_event()
+
+        simulation.solve()
+
 class NumberOfTasksArrivalEvent(SimulationEvent):
     """
     Class that represent an simulation event of new tasks arrival.
@@ -218,25 +241,6 @@ class PlayerReceivesNewAllocation(SimulationEvent, ABC):
         simulation.check_new_allocation_for_player(self.player)
 
 
-class TaskArrivalToMainComputerEvent(SimulationEvent):
-    """
-    Class that represent a simulation event of new task arrival.
-    """
-
-    def __init__(self, time_: float, task: TaskSimple):
-        """
-        :param time_:the time of the event
-        :type: float
-        :param task: The new task that arrives to simulation.
-        :type: TaskSimple
-        """
-        SimulationEvent.__init__(self, time_=time_, task=task)
-
-    def handle_event(self, simulation):
-        simulation.tasks_list.append(self.task)
-        simulation.solver.add_task_to_solver(self.task)
-        simulation.remove_solver_finish_event()
-        simulation.solve()
 
 
 class newTaskDiscoveredEvent(SimulationEvent):
@@ -294,7 +298,7 @@ def default_communication_disturbance():
 
 class SimulationDistributed:
     def __init__(self, name: str, players_list: list, solver, tasks_generator: TaskGenerator, end_time: float,
-                 number_of_initial_tasks=10, is_static=True, debug_mode=True
+                 number_of_initial_tasks=10, is_static=True, debug_mode_full=False,debug_mode_light = True
                  ):
         """
         :param name: The name of simulation
@@ -326,7 +330,9 @@ class SimulationDistributed:
         self.tasks_list = []
         self.finished_tasks_list = []
         self.diary.append(EndSimulationEvent(time_=end_time))
-        self.debug_mode = debug_mode
+        self.debug_mode_full = debug_mode_full
+        self.debug_mode_light = debug_mode_light
+
         self.solver_counter = 0
         self.run_simulation()
 
@@ -334,7 +340,7 @@ class SimulationDistributed:
         while True:
             self.diary = sorted(self.diary, key=lambda event: event.time)
             self.last_event = self.diary.pop(0)
-            if self.debug_mode:
+            if self.debug_mode_full:
                 print(self.last_event)
             if type(self.last_event) == EndSimulationEvent:
                 self.close_mission_measurements()
@@ -355,10 +361,12 @@ class SimulationDistributed:
 
     def solve(self):
         self.solver_counter = self.solver_counter + 1
-        if self.debug_mode:
+        if self.debug_mode_full or self.debug_mode_light:
             print("SOLVER STARTS:", self.solver_counter)
         self.update_locations_of_players()
         solver_duration_NCLO = self.solver.solve(self.tnow)
+        if self.debug_mode_full or self.debug_mode_light:
+            print("SOLVER finish with time:", solver_duration_NCLO)
         time = self.tnow
         if self.is_static == False:
             time = self.tnow + solver_duration_NCLO
@@ -559,7 +567,8 @@ class SimulationCentralized(SimulationDistributed):
                  tasks_generator: TaskGenerator, end_time: float,
                  number_of_initial_tasks=10,
                  is_static=True,
-                 debug_mode=True
+                 debug_mode_full=False,
+                 debug_mode_light = True
                  ):
         """
         :param name: The name of simulation
@@ -575,13 +584,15 @@ class SimulationCentralized(SimulationDistributed):
         self.f_generate_message_disturbance = f_generate_message_disturbance
         self.main_computer_entity = Entity(id_="main computer", location=[0, 0])
         SimulationDistributed.__init__(self, name, players_list, solver, tasks_generator, end_time,
-                                       number_of_initial_tasks, is_static, debug_mode)
+                                       number_of_initial_tasks, is_static, debug_mode_full,debug_mode_light)
 
     def solve(self):
         self.solver_counter = self.solver_counter + 1
-        if self.debug_mode:
+        if self.debug_mode_full or self.debug_mode_light:
             print("SOLVER STARTS:", self.solver_counter)
         solver_duration_NCLO = self.solver.solve(self.tnow)
+        if self.debug_mode_full or self.debug_mode_light:
+            print("SOLVER finish with time:", solver_duration_NCLO)
         time = self.tnow
         if not self.is_static:
             time = self.tnow + solver_duration_NCLO
