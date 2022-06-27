@@ -26,6 +26,14 @@ class CommunicationProtocol(ABC):
         self.rnd_numpy = None
 
     @abc.abstractmethod
+    def copy_protocol(self,other_protocol):
+        '''
+        Delay/Loss/Perfect
+        :return:
+        '''
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_type(self):
         '''
         Delay/Loss/Perfect
@@ -55,6 +63,27 @@ class CommunicationProtocol(ABC):
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
         raise NotImplementedError
 
+class CommunicationProtocolPerfectCommunication(CommunicationProtocol):
+    def __init__(self):
+        name = "PC"
+        CommunicationProtocol.__init__(self, is_with_timestamp = False, name = name)
+
+    def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
+        return 0
+
+
+    def get_type(self):
+        if self.ub  == 0:
+            self.name = "PC"
+            return "No Delay"
+        else:
+            return "Delay"
+
+    def copy_protocol(self,other_protocol:CommunicationProtocol):
+        is_with_time_stamp = other_protocol.is_with_time_stamp
+        ub = other_protocol.ub
+        return CommunicationProtocolDelayUniform(is_with_time_stamp,ub)
+
 
 class CommunicationProtocolDelayUniform(CommunicationProtocol):
     def __init__(self, is_with_timestamp, ub):
@@ -73,12 +102,24 @@ class CommunicationProtocolDelayUniform(CommunicationProtocol):
             return "No Delay"
         else:
             return "Delay"
+
+    def copy_protocol(self,other_protocol:CommunicationProtocol):
+        is_with_time_stamp = other_protocol.is_with_time_stamp
+        ub = other_protocol.ub
+        return CommunicationProtocolDelayUniform(is_with_time_stamp,ub)
+
 class CommunicationProtocolDelayPoisson(CommunicationProtocol):
     def __init__(self, is_with_timestamp, lambda_pois):
         self.lambda_pois = lambda_pois
 
         name = "Pois(" + str(self.lambda_pois) + ")"
         CommunicationProtocol.__init__(self, is_with_timestamp, name)
+
+    def copy_protocol(self,other_protocol:CommunicationProtocol):
+        is_with_time_stamp = other_protocol.is_with_time_stamp
+        lambda_pois = other_protocol.lambda_pois
+        return CommunicationProtocolDelayPoisson(is_with_time_stamp,lambda_pois)
+
 
     def get_communication_disturbance_by_protocol(self, entity1: Entity, entity2: Entity):
         return self.rnd_numpy.poisson(self.lambda_pois)
@@ -89,23 +130,7 @@ class CommunicationProtocolDelayPoisson(CommunicationProtocol):
             return "No Delay"
         else:
             return "Delay"
-class CommunicationProtocolDistance(CommunicationProtocol):
-    def __init__(self, name, alpha, delta_x, delta_y, is_with_timestamp):
-        self.delta_x = delta_x
-        self.delta_y = delta_y
-        self.alpha = alpha
 
-        CommunicationProtocol.__init__(self, is_with_timestamp, name)
-
-    def get_entity_quad_distance_rnd(self, entity1, entity2):
-        return quad_distance(entity1, entity2)
-
-    def normalize_distance(self, entity1, entity2):
-        entity_quad_distance = self.get_entity_quad_distance_rnd(entity1, entity2)
-        max_quad_distance = math.sqrt(self.delta_x ** 2 + self.delta_y ** 2)
-        if entity_quad_distance > max_quad_distance:
-            return 1
-        return entity_quad_distance / max_quad_distance
 class CommunicationProtocolLossConstant(CommunicationProtocol):
     def __init__(self, p):
         name = "P=" + str(p)
@@ -127,6 +152,30 @@ class CommunicationProtocolLossConstant(CommunicationProtocol):
             return "No Loss"
         else:
             return "Loss"
+
+    def copy_protocol(self,other_protocol:CommunicationProtocol):
+        p = other_protocol.P
+        return CommunicationProtocolLossConstant(p)
+
+class CommunicationProtocolDistance(CommunicationProtocol):
+    def __init__(self, name, alpha, delta_x, delta_y, is_with_timestamp):
+        self.delta_x = delta_x
+        self.delta_y = delta_y
+        self.alpha = alpha
+
+        CommunicationProtocol.__init__(self, is_with_timestamp, name)
+
+
+    def get_entity_quad_distance_rnd(self, entity1, entity2):
+        return quad_distance(entity1, entity2)
+
+    def normalize_distance(self, entity1, entity2):
+        entity_quad_distance = self.get_entity_quad_distance_rnd(entity1, entity2)
+        max_quad_distance = math.sqrt(self.delta_x ** 2 + self.delta_y ** 2)
+        if entity_quad_distance > max_quad_distance:
+            return 1
+        return entity_quad_distance / max_quad_distance
+
 class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y):
         name = "e^-(" + str(alpha) + "d)"
@@ -149,6 +198,11 @@ class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
         else:
             return "Loss"
 
+    def copy_protocol(self,other_protocol:CommunicationProtocol):
+        delta_x = other_protocol.delta_x
+        delta_y = other_protocol.delta_y
+        alpha = other_protocol.alpha
+        return CommunicationProtocolLossExponent(delta_x =delta_x,delta_y =delta_y,alpha = alpha)
 
 class CommunicationProtocolDelayDistancePoissonExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y, is_with_timestamp):
@@ -170,6 +224,12 @@ class CommunicationProtocolDelayDistancePoissonExponent(CommunicationProtocolDis
         else:
             return "Delay"
 
+    def copy_protocol(self,other_protocol:CommunicationProtocol):
+        delta_x = other_protocol.delta_x
+        delta_y = other_protocol.delta_y
+        alpha = other_protocol.alpha
+        time_stamp = other_protocol.is_with_timestamp
+        return CommunicationProtocolDelayDistancePoissonExponent(delta_x =delta_x,delta_y =delta_y,alpha = alpha,is_with_timestamp =time_stamp)
 
 class CommunicationProtocolDelayDistanceUniformExponent(CommunicationProtocolDistance):
     def __init__(self, alpha, delta_x, delta_y, is_with_timestamp):
@@ -193,7 +253,14 @@ class CommunicationProtocolDelayDistanceUniformExponent(CommunicationProtocolDis
             return "Delay"
 
 
-def get_communication_protocols(width, length, is_with_timestamp,
+    def copy_protocol(self,other_protocol:CommunicationProtocol):
+        delta_x = other_protocol.delta_x
+        delta_y = other_protocol.delta_y
+        alpha = other_protocol.alpha
+        time_stamp = other_protocol.is_with_timestamp
+        return CommunicationProtocolDelayDistanceUniformExponent(delta_x =delta_x,delta_y =delta_y,alpha = alpha,is_with_timestamp =time_stamp)
+
+def get_communication_protocols(width, length, is_with_timestamp, is_with_perfect_communication = True,
                                 constants_loss_distance=[],
                                 constants_loss_constant=[],
 
@@ -204,6 +271,9 @@ def get_communication_protocols(width, length, is_with_timestamp,
 
                                 ):
     ans = []
+
+    if is_with_perfect_communication:
+        ans.append(CommunicationProtocolPerfectCommunication())
 
     for a in constants_loss_distance:
         ans.append(CommunicationProtocolLossExponent(alpha=a, delta_x=width, delta_y=length
