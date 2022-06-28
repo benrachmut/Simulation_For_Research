@@ -25,9 +25,9 @@ debug_mode_full = False
 debug_mode_light = True
 
 start = 0
-end = 1
+end = 10
 
-size_players = 50
+size_players = 60
 end_time = sys.maxsize
 size_of_initial_tasks = 15
 limited_additional_tasks = 15
@@ -37,13 +37,13 @@ limited_additional_tasks = 15
 max_nclo_algo_run = 1000000
 fisher_data_jumps = 1000
 
-pace_of_tasks_list = [30000]
+pace_of_tasks_list = [1000,5000,10000,50000,100000,500000,1000000,5000000]
 
 ##--- map ---
 length = 10**7
 width = 10**7
 
-initial_workload_multiple = 1000 # maybe cahnge
+initial_workload_multiple = 1000 # maybe change
 
 ##--- task generator ---
 max_number_of_missions = 3
@@ -62,7 +62,7 @@ algo_name = ""
 is_with_timestamp = False
 is_with_perfect_communication = False
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [10000] # Pois(alpha^d)
+constants_delay_poisson_distance = [10000] # Pois(alpha^d) 10000
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
@@ -248,7 +248,7 @@ if __name__ == '__main__':
             for pace_of_tasks in pace_of_tasks_list:
                 finished_tasks = {}
                 for i in range(start, end):
-                    print("---simulation number:",str(i),"Communication",communication_protocol,"---")
+                    print("---simulation number:",str(i),"Communication",communication_protocol,",pace_of_tasks",str(pace_of_tasks),"---")
                     # --- communication ----
                     communication_protocol_for_central, communication_protocol_for_distributed = get_communication_protocol_giver_solver(
                         communication_protocol = communication_protocol, solver_type_temp=solver_type_temp, simulation_number=i, is_with_timestamp =is_with_timestamp)
@@ -273,7 +273,7 @@ if __name__ == '__main__':
 
                     finished_tasks[i] = sim.finished_tasks_list
 
-            organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
-                                                                   size_of_initial_tasks)
-            make_dynamic_simulation_cumulative(communication_protocol, length, width, algo_name, max_nclo_algo_run,
-                                               Threshold, organized_data, fisher_data_jumps, name_)
+                organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
+                                                                       size_of_initial_tasks,pace_of_tasks)
+                make_dynamic_simulation_cumulative(communication_protocol, length, width, algo_name, max_nclo_algo_run,
+                                                   Threshold, organized_data, fisher_data_jumps, name_,pace_of_tasks)

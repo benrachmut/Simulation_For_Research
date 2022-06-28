@@ -116,7 +116,7 @@ def calculate_avg_data_cumulative(data_cumulative_dict):
     return ans
 
 
-def make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,converge_threshold,organized_data ,fisher_data_jumps,name_,keys =
+def make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,converge_threshold,organized_data ,fisher_data_jumps,name_,pace_of_tasks,keys =
         ["Total Time In System","Arrival Delay","Cap","Abandonment Penalty","Utility"]):
 
     max_time = int(get_max_time_in_system(organized_data))+1
@@ -133,7 +133,7 @@ def make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_
 
 
     data_cumulative_dict_for_panda = calculate_avg_data_cumulative(data_cumulative_dict)
-    add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_run,converge_threshold,data_cumulative_dict_for_panda)
+    add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_run,converge_threshold,pace_of_tasks,data_cumulative_dict_for_panda)
     file_name = "cumulative_dynamic"+name_
     raw_panda = pd.DataFrame.from_dict(data_cumulative_dict_for_panda)
     raw_panda.to_csv(file_name, sep=',')
