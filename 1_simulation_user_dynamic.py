@@ -54,7 +54,7 @@ speed = 100
 
 # name,alpha,delta_x,delta_y,
 
-counter_of_converges=3
+counter_of_converges=2
 Threshold=10**-4
 
 algo_name = ""
