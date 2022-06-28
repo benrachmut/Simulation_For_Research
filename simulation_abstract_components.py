@@ -5,10 +5,11 @@ import random
 from abc import ABC
 import numpy as np
 
-travel_factor = 0.8
-travel_factor_agent_was_present = 0.7
-
+travel_factor = 0.9
+travel_factor_agent_was_present = 0.8
 travel_factor_normalized = 10**5
+abandonment_factor = 100
+
 length_ = None
 width_ = None
 
@@ -176,7 +177,7 @@ class SimpleTaskGenerator(TaskGenerator):
         initial_workload = task_importance*initial_workload_multiple  # self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
         rnd_ = max(2, round(self.random.uniform(1, task_importance / 10)))
-        max_players =200 #min(rnd_, 9)
+        max_players =10 #min(rnd_, 9)
 
         return MissionSimple(task_id=task_id, task_importance=task_importance, mission_id=mission_id,
                              initial_workload=initial_workload, arrival_time_to_the_system=arrival_time_to_the_system,
@@ -401,7 +402,7 @@ class MissionMeasurements:
         self.x2_delay = None
 
         self.x3_abandonment_counter = 0  # each decrease in players present
-        self.x4_total_abandonment_counter = 0  # decrease from 1 to 0
+        #self.x4_total_abandonment_counter = 0  # decrease from 1 to 0
         self.x5_simulation_time_mission_end = None
         self.x6_total_time_since_arrive_to_system = None
         self.x7_total_time_since_first_agent_arrive = None
@@ -437,7 +438,7 @@ class MissionMeasurements:
         ans["Initial Workload"] = self.initial_workload
         ans["Arrival Delay"] = self.x2_delay
         ans["Abandonment Counter"] = self.x3_abandonment_counter
-        ans["Total Abandonment Counter"] = self.x4_total_abandonment_counter
+        #ans["Total Abandonment Counter"] = self.x4_total_abandonment_counter
         ans["Total Time In System"] = self.x6_total_time_since_arrive_to_system
         ans["Total Time Since First Arrival"] = self.x7_total_time_since_first_agent_arrive
         ans["Time Taken (In System) Relative To Optimal"] = self.x9_ratio_time_taken_arrive_to_system_and_opt
@@ -483,16 +484,17 @@ class MissionMeasurements:
 
         remaining_workload_ratio = current_mission.remaining_workload / current_mission.initial_workload
         abandonment_parameter = \
-            remaining_workload_ratio * (current_task.importance / 3)
+            remaining_workload_ratio * (current_task.importance / abandonment_factor)
         self.x20_abandonment_penalty = self.x20_abandonment_penalty + abandonment_parameter
-
+        self.x3_abandonment_counter = self.x3_abandonment_counter + 1
         flag = False
         if player in self.players_handling_with_the_mission_previous:
-            self.x3_abandonment_counter = self.x3_abandonment_counter + 1
+
             self.players_handling_with_the_mission_previous.remove(player)
             flag = True
         if flag and len(self.players_handling_with_the_mission_previous) == 0:
-            self.x4_total_abandonment_counter = self.x4_total_abandonment_counter + 1
+            pass
+            #self.x4_total_abandonment_counter = self.x4_total_abandonment_counter + 1
 
     def create_dict_of_players_amounts(self):
         ans = {}
@@ -537,8 +539,8 @@ class MissionMeasurements:
 
     def update_time_per_amount(self, current_amount_of_players, delta, productivity):
         if current_amount_of_players not in self.x11_time_per_quantity_time_in_system:
-            current_time_per_quantity = 0
-            current_workload_per_quantity = 0
+            current_time_per_quantity = self.x11_time_per_quantity_time_in_system[current_amount_of_players-1]
+            current_workload_per_quantity = self.x12_workload_per_quantity_time_in_system[current_amount_of_players-1]
         else:
             current_time_per_quantity = self.x11_time_per_quantity_time_in_system[current_amount_of_players]
             current_workload_per_quantity = self.x12_workload_per_quantity_time_in_system[current_amount_of_players]
@@ -636,7 +638,8 @@ class MissionSimple:
         if self.remaining_workload < -2:
             raise Exception("Negative workload to mission" + str(self.mission_id) + str(self.remaining_workload))
         if len(self.players_handling_with_the_mission) > self.max_players:
-            raise Exception("Too many players allocated" + str(self.mission_id))
+            pass
+            #raise Exception("Too many players allocated" + str(self.mission_id))
 
     def close_measurements(self):
         self.measurements.close_measurements()
@@ -651,14 +654,15 @@ class MissionSimple:
     def add_handling_player(self, player, tnow):
         if player in self.players_handling_with_the_mission:
             print("Double handling of the the same player to one mission" + str(self.mission_id))
-            raise Exception("Double handling of the the same player to one mission" + str(self.mission_id))
+            #raise Exception("Double handling of the the same player to one mission" + str(self.mission_id))
         else:
             self.players_handling_with_the_mission.append(player)
             #self.measurements.check_and_update_first_player_present(tnow)
 
     def remove_allocated_player(self, player):
         if player not in self.players_allocated_to_the_mission:
-            raise Exception("Allocated player is not exist in the mission" + str(self.mission_id))
+            return
+            #raise Exception("Allocated player is not exist in the mission" + str(self.mission_id))
         self.players_allocated_to_the_mission.remove(player)
 
     def remove_handling_player(self, player):

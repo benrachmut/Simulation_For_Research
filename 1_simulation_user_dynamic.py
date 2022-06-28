@@ -4,12 +4,12 @@ from general_communication_protocols import CommunicationProtocolDelayUniform, g
     CommunicationProtocolPerfectCommunication
 from general_data_fisher_market import get_data_fisher
 from general_r_ij import calculate_rij_abstract
-from simulation_abstract import SimulationDistributed, SimulationCentralized
+from simulation_abstract import SimulationV1, SimulationV2
 from simulation_abstract_components import AbilitySimple, PlayerSimple, MapSimple, SimpleTaskGenerator
 import random
 
 from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY
-from solver_fmc_distributed_sy import FMC_TA
+from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 import sys
 
 
@@ -18,14 +18,14 @@ import sys
 # 3-distributed (FMC_ATA task aware with protocol + for centralized with protocol)
 # 4-distributed (FMC_ATA with protocol + for centralized pois (0))
 
-simulation_type_list = [1]
-simulation_type = None
+solver_type_list = [1,4,2,3]
+solver_type = None
 
 debug_mode_full = False
 debug_mode_light = True
 
 start = 0
-end = 5
+end = 1
 
 size_players = 50
 end_time = sys.maxsize
@@ -37,7 +37,8 @@ limited_additional_tasks = 15
 max_nclo_algo_run = 1000000
 fisher_data_jumps = 1000
 
-pace_of_tasks = 30000
+pace_of_tasks_list = [30000]
+
 ##--- map ---
 length = 10**7
 width = 10**7
@@ -49,24 +50,24 @@ max_number_of_missions = 3
 max_importance = 1000
 
 ##--- agents ---
-speed = 1000
+speed = 100
 
 # name,alpha,delta_x,delta_y,
 
-counter_of_converges=2
-Threshold=10**-3
+counter_of_converges=3
+Threshold=10**-4
 
 algo_name = ""
 # --- communication_protocols ---
-is_with_timestamp = None
-is_with_perfect_communication = True
+is_with_timestamp = False
+is_with_perfect_communication = False
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [] # Pois(alpha^d)
+constants_delay_poisson_distance = [10000] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
 constants_delay_poisson = []# Pois(lambda)
-constants_delay_uniform=[0] # U(0,UB) #---
+constants_delay_uniform=[] # U(0,UB) #---
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system
@@ -117,68 +118,77 @@ def create_players(i,map1):
 
 
 
-def get_solver(communication_protocol):
-    communication_f = communication_protocol.get_communication_disturbance
+def get_solver(communication_protocol_distributed):
+
+    # 1-centralistic (FMC_TA with pois (0) + for centralized with protocol)
+    # 2-distributed (FMC_TA with protocol + for centralized with protocol)
+    # 3-distributed (FMC_ATA task aware with protocol + for centralized with protocol)
+    # 4-distributed (FMC_ATA with protocol + for centralized pois (0))
+
+    communication_f = communication_protocol_distributed.get_communication_disturbance
     data_fisher = get_data_fisher()
     rij_function = calculate_rij_abstract
     termination_function = f_termination_condition_all_tasks_converged
 
-    if simulation_type == 1:
-        ans = FMC_ATA(util_structure_level=1, f_termination_condition=termination_function,
+    if solver_type == 1:
+        ans  = FMC_TA(util_structure_level=1,f_termination_condition=termination_function,
                       f_global_measurements=data_fisher,
                       f_communication_disturbance=communication_f,
                       future_utility_function=rij_function,
                       counter_of_converges=counter_of_converges,
-                      Threshold=Threshold, is_with_timestamp=False
-                      )
-
-        algo_name = "FMC_ATA distributed"
-
-    if simulation_type == 2:
-        cp = CommunicationProtocolDelayUniform(is_with_timestamp=False, ub = 0)
-        cp.set_seed(1)
-        func_cp= cp.get_communication_disturbance
-        ans = FMC_TA(f_termination_condition=termination_function,
-                      f_global_measurements=data_fisher,
-                      f_communication_disturbance=func_cp,
-                      future_utility_function=rij_function,
-                      counter_of_converges=counter_of_converges,
                       Threshold=Threshold
                       )
-        algo_name = "FMC_ATA centralized"
+
+        algo_name_t = "FMC_TA centralized"
+
+    if solver_type == 2:
+        ans  = FMC_TA(util_structure_level=1,f_termination_condition=termination_function,
+                      f_global_measurements=data_fisher,
+                      f_communication_disturbance=communication_f,
+                      future_utility_function=rij_function,
+                      counter_of_converges=counter_of_converges,
+                      Threshold=Threshold, is_with_timestamp=is_with_timestamp
+                                 )
+
+        algo_name_t = "FMC_TA semi centralized"
+
+    if solver_type ==3 :
+        ans = FMC_ATA_task_aware(util_structure_level=1, f_termination_condition=termination_function,
+                                 f_global_measurements=data_fisher,
+                                 f_communication_disturbance=communication_f,
+                                 future_utility_function=rij_function,
+                                 counter_of_converges=counter_of_converges,
+                                 Threshold=Threshold, is_with_timestamp=is_with_timestamp)
+        algo_name_t = "FMC_ATA semi centralized"
+
+    if solver_type == 4:
+        ans = FMC_ATA(util_structure_level=1,f_termination_condition=termination_function,
+                     f_global_measurements=data_fisher,
+                     f_communication_disturbance=communication_f,
+                     future_utility_function=rij_function,
+                     counter_of_converges=counter_of_converges,
+                     Threshold=Threshold, is_with_timestamp=is_with_timestamp)
+        algo_name_t = "FMC_ATA distributed"
 
 
-    return ans
+    return ans,algo_name_t
 
 
-def create_simulation(simulation_type,players_list,solver,tasks_generator,end_time,f_generate_message_disturbance):
-    if simulation_type == 1:
-        sim = SimulationDistributed(name=str(i),
-                                    players_list=players_list,
-                                    solver=solver,
-                                    tasks_generator=tasks_generator,
-                                    end_time=end_time,
-                                    number_of_initial_tasks=size_of_initial_tasks,
-                                    is_static=False,
-                                    debug_mode_full=debug_mode_full,
-                                    debug_mode_light=debug_mode_light)
-    if simulation_type == 2:
-        sim = SimulationCentralized(name=str(i),
-                                    players_list=players_list,
-                                    solver=solver,
-                                    f_generate_message_disturbance=f_generate_message_disturbance,
-                                    tasks_generator=tasks_generator,
-                                    end_time=end_time,
-                                    number_of_initial_tasks=size_of_initial_tasks,
-                                    is_static=False,
-                                    debug_mode_full=debug_mode_full,
-                                    debug_mode_light=debug_mode_light)
-
-
+def create_simulation(simulation_number ,players_list,solver,tasks_generator,end_time,f_generate_message_disturbance):
+    sim = SimulationV2(name=str(simulation_number),
+                       players_list=players_list,
+                       solver=solver,
+                       f_generate_message_disturbance=f_generate_message_disturbance,
+                       tasks_generator=tasks_generator,
+                       end_time=end_time,
+                       number_of_initial_tasks=size_of_initial_tasks,
+                       is_static=False,
+                       debug_mode_full=debug_mode_full,
+                       debug_mode_light=debug_mode_light)
     return sim
 
 
-def get_communication_protocol_giver_solver(communication_protocol,simulation_type_temp, simulation_number,is_with_timestamp ):
+def get_communication_protocol_giver_solver(communication_protocol,solver_type_temp, simulation_number,is_with_timestamp ):
 
     # 1-centralistic (FMC_TA with pois (0) + for centralized with protocol)
     # 2-distributed (FMC_TA with protocol + for centralized with protocol)
@@ -188,25 +198,33 @@ def get_communication_protocol_giver_solver(communication_protocol,simulation_ty
     communication_protocol_for_central = None
     communication_protocol_for_distributed = None
 
-    if simulation_type_temp == 1:
+    if solver_type_temp == 1:
         communication_protocol_for_central = communication_protocol.copy_protocol()
         communication_protocol_for_distributed = CommunicationProtocolPerfectCommunication()
 
-    if simulation_number == 2 or simulation_number == 3:
+    if solver_type_temp == 2 or solver_type_temp == 3:
+        if communication_protocol.get_type()== "Loss":
+            raise Exception("Message loss is not appliable with solver number",str(simulation_number) )
         communication_protocol_for_central = communication_protocol.copy_protocol()
         communication_protocol_for_distributed = communication_protocol.copy_protocol()
 
-    if simulation_number == 4:
+    if solver_type_temp == 4:
         communication_protocol_for_central = CommunicationProtocolPerfectCommunication()
         communication_protocol_for_distributed = communication_protocol.copy_protocol()
 
+    communication_protocol_for_central.set_seed(simulation_number)
+    communication_protocol_for_distributed.set_seed(simulation_number)
     # communication_protocol.set_seed(i)
     # communication_protocol_for_central.is_with_timestamp = is_with_timestamp
 
     communication_protocol_for_distributed.is_with_timestamp = is_with_timestamp
     communication_protocol_for_central.is_with_timestamp = False
 
-    communication_protocol.set_seed(i)
+    communication_protocol_for_distributed.set_seed(i)
+    communication_protocol_for_central.set_seed(i)
+
+    return communication_protocol_for_central, communication_protocol_for_distributed
+
 if __name__ == '__main__':
 
     communication_protocols = get_communication_protocols(
@@ -221,39 +239,40 @@ if __name__ == '__main__':
 
     for communication_protocol in communication_protocols:
 
-
-
-
-
-
         fisher_measures = {}  # {number run: measurement}
         finished_tasks = {}
-        for simulation_type_temp in simulation_type_list:
+        for solver_type_temp in solver_type_list:
+            if communication_protocol.get_type() == "Loss" and solver_type_temp == 3:
+                continue
+            solver_type = solver_type_temp
+            for pace_of_tasks in pace_of_tasks_list:
+                finished_tasks = {}
+                for i in range(start, end):
+                    print("---simulation number:",str(i),"Communication",communication_protocol,"---")
+                    # --- communication ----
+                    communication_protocol_for_central, communication_protocol_for_distributed = get_communication_protocol_giver_solver(
+                        communication_protocol = communication_protocol, solver_type_temp=solver_type_temp, simulation_number=i, is_with_timestamp =is_with_timestamp)
 
+                    # --- players ----
+                    map_for_players = MapSimple(seed=i * 17, length=length, width=width)
+                    players_list = create_players(i,map_for_players)
 
+                    # --- tasks ----
+                    map_for_tasks = MapSimple(seed=i * (17*17), length=length, width=width)
+                    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map_for_tasks, seed=i*17,
+                                              max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks)
 
+                    # --- solver ----
+                    solver,algo_name = get_solver(communication_protocol_for_distributed)
+                    print("***---***",algo_name,"***---***")
 
-            simulation_type = simulation_type_temp
-            finished_tasks = {}
-            for i in range(start, end):
-                print("simulation number:",str(i),"Communication",communication_protocol_for_distributed)
-                communication_protocol_for_central, communication_protocol_for_distributed = get_communication_protocol_giver_solver(
-                    communication_protocol =communication_protocol, simulation_type_temp=simulation_type_temp,simulation_number=i, is_with_timestamp =is_with_timestamp)
+                    # --- simulation ----
+                    sim = create_simulation(simulation_number = i, players_list=players_list, solver=solver,
+                                            tasks_generator=tasks_generator, end_time=end_time,
+                                            f_generate_message_disturbance=communication_protocol_for_central.get_communication_disturbance)
 
-                map_for_players = MapSimple(seed=i * 17, length=length, width=width)
-                players_list = create_players(i,map_for_players)
-                f_generate_message_disturbance = communication_protocol.get_communication_disturbance
-                solver = get_solver(communication_protocol)
+                    finished_tasks[i] = sim.finished_tasks_list
 
-                map_for_players = MapSimple(seed=i * (17*17), length=length, width=width)
-                tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i*17,
-                                          max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks)
-
-                sim = create_simulation(simulation_type= simulation_type,players_list=players_list,solver=solver,
-                                        tasks_generator=tasks_generator,end_time=end_time,
-                                        f_generate_message_disturbance=f_generate_message_disturbance)
-
-                finished_tasks[i] = sim.finished_tasks_list
             organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
                                                                    size_of_initial_tasks)
             make_dynamic_simulation_cumulative(communication_protocol, length, width, algo_name, max_nclo_algo_run,

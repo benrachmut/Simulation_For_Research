@@ -296,7 +296,7 @@ def default_communication_disturbance():
     return False
 
 
-class SimulationDistributed:
+class SimulationV1:
     def __init__(self, name: str, players_list: list, solver, tasks_generator: TaskGenerator, end_time: float,
                  number_of_initial_tasks=10, is_static=True, debug_mode_full=False,debug_mode_light = True
                  ):
@@ -561,7 +561,7 @@ class SimulationDistributed:
             player.schedule.pop(0)
 
 
-class SimulationCentralized(SimulationDistributed):
+class SimulationV2(SimulationV1):
 
     def __init__(self, name: str, players_list: list, solver, f_generate_message_disturbance,
                  tasks_generator: TaskGenerator, end_time: float,
@@ -583,8 +583,8 @@ class SimulationCentralized(SimulationDistributed):
         """
         self.f_generate_message_disturbance = f_generate_message_disturbance
         self.main_computer_entity = Entity(id_="main computer", location=[0, 0])
-        SimulationDistributed.__init__(self, name, players_list, solver, tasks_generator, end_time,
-                                       number_of_initial_tasks, is_static, debug_mode_full,debug_mode_light)
+        SimulationV1.__init__(self, name, players_list, solver, tasks_generator, end_time,
+                              number_of_initial_tasks, is_static, debug_mode_full, debug_mode_light)
 
     def solve(self):
         self.solver_counter = self.solver_counter + 1

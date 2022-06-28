@@ -8,7 +8,7 @@ from general_communication_protocols import CommunicationProtocolLossExponent, \
     CommunicationProtocolDelayDistancePoissonExponent, get_communication_protocols
 from general_data_fisher_market import get_data_fisher
 from general_r_ij import calculate_rij_abstract
-from simulation_abstract import SimulationDistributed
+from simulation_abstract import SimulationV1
 from simulation_abstract_components import SimpleTaskGenerator, MapSimple, PlayerSimple, AbilitySimple
 from solver_fmc_centralized import  FisherCentralizedPrice
 
@@ -209,14 +209,14 @@ def run_simulation(i):
     solver = get_solver(communication_protocol)
     #print_initial_tasks(tasks_generator)
     # --- simulation run ---
-    sim = SimulationDistributed(name=name,
-                                players_list=players_list,
-                                solver=solver,
-                                tasks_generator=tasks_generator,
-                                end_time=end_time,
-                                number_of_initial_tasks=size_of_initial_tasks,
-                                is_static=is_static,
-                                debug_mode=False)
+    sim = SimulationV1(name=name,
+                       players_list=players_list,
+                       solver=solver,
+                       tasks_generator=tasks_generator,
+                       end_time=end_time,
+                       number_of_initial_tasks=size_of_initial_tasks,
+                       is_static=is_static,
+                       debug_mode=False)
     return sim
 
 

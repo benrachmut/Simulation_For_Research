@@ -26,7 +26,7 @@ class CommunicationProtocol(ABC):
         self.rnd_numpy = None
 
     @abc.abstractmethod
-    def copy_protocol(self,other_protocol):
+    def copy_protocol(self):
         '''
         Delay/Loss/Perfect
         :return:
@@ -73,16 +73,11 @@ class CommunicationProtocolPerfectCommunication(CommunicationProtocol):
 
 
     def get_type(self):
-        if self.ub  == 0:
-            self.name = "PC"
-            return "No Delay"
-        else:
-            return "Delay"
+        return "PC"
 
-    def copy_protocol(self,other_protocol:CommunicationProtocol):
-        is_with_time_stamp = other_protocol.is_with_time_stamp
-        ub = other_protocol.ub
-        return CommunicationProtocolDelayUniform(is_with_time_stamp,ub)
+    def copy_protocol(self):
+
+        return CommunicationProtocolPerfectCommunication()
 
 
 class CommunicationProtocolDelayUniform(CommunicationProtocol):
@@ -103,9 +98,9 @@ class CommunicationProtocolDelayUniform(CommunicationProtocol):
         else:
             return "Delay"
 
-    def copy_protocol(self,other_protocol:CommunicationProtocol):
-        is_with_time_stamp = other_protocol.is_with_time_stamp
-        ub = other_protocol.ub
+    def copy_protocol(self):
+        is_with_time_stamp = self.is_with_time_stamp
+        ub = self.ub
         return CommunicationProtocolDelayUniform(is_with_time_stamp,ub)
 
 class CommunicationProtocolDelayPoisson(CommunicationProtocol):
@@ -115,9 +110,9 @@ class CommunicationProtocolDelayPoisson(CommunicationProtocol):
         name = "Pois(" + str(self.lambda_pois) + ")"
         CommunicationProtocol.__init__(self, is_with_timestamp, name)
 
-    def copy_protocol(self,other_protocol:CommunicationProtocol):
-        is_with_time_stamp = other_protocol.is_with_time_stamp
-        lambda_pois = other_protocol.lambda_pois
+    def copy_protocol(self):
+        is_with_time_stamp = self.is_with_time_stamp
+        lambda_pois = self.lambda_pois
         return CommunicationProtocolDelayPoisson(is_with_time_stamp,lambda_pois)
 
 
@@ -153,8 +148,8 @@ class CommunicationProtocolLossConstant(CommunicationProtocol):
         else:
             return "Loss"
 
-    def copy_protocol(self,other_protocol:CommunicationProtocol):
-        p = other_protocol.P
+    def copy_protocol(self):
+        p = self.P
         return CommunicationProtocolLossConstant(p)
 
 class CommunicationProtocolDistance(CommunicationProtocol):
@@ -198,10 +193,10 @@ class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
         else:
             return "Loss"
 
-    def copy_protocol(self,other_protocol:CommunicationProtocol):
-        delta_x = other_protocol.delta_x
-        delta_y = other_protocol.delta_y
-        alpha = other_protocol.alpha
+    def copy_protocol(self):
+        delta_x = self.delta_x
+        delta_y = self.delta_y
+        alpha = self.alpha
         return CommunicationProtocolLossExponent(delta_x =delta_x,delta_y =delta_y,alpha = alpha)
 
 class CommunicationProtocolDelayDistancePoissonExponent(CommunicationProtocolDistance):
@@ -224,11 +219,11 @@ class CommunicationProtocolDelayDistancePoissonExponent(CommunicationProtocolDis
         else:
             return "Delay"
 
-    def copy_protocol(self,other_protocol:CommunicationProtocol):
-        delta_x = other_protocol.delta_x
-        delta_y = other_protocol.delta_y
-        alpha = other_protocol.alpha
-        time_stamp = other_protocol.is_with_timestamp
+    def copy_protocol(self):
+        delta_x = self.delta_x
+        delta_y = self.delta_y
+        alpha = self.alpha
+        time_stamp = self.is_with_timestamp
         return CommunicationProtocolDelayDistancePoissonExponent(delta_x =delta_x,delta_y =delta_y,alpha = alpha,is_with_timestamp =time_stamp)
 
 class CommunicationProtocolDelayDistanceUniformExponent(CommunicationProtocolDistance):
@@ -253,11 +248,11 @@ class CommunicationProtocolDelayDistanceUniformExponent(CommunicationProtocolDis
             return "Delay"
 
 
-    def copy_protocol(self,other_protocol:CommunicationProtocol):
-        delta_x = other_protocol.delta_x
-        delta_y = other_protocol.delta_y
-        alpha = other_protocol.alpha
-        time_stamp = other_protocol.is_with_timestamp
+    def copy_protocol(self):
+        delta_x = self.delta_x
+        delta_y = self.delta_y
+        alpha = self.alpha
+        time_stamp = self.is_with_timestamp
         return CommunicationProtocolDelayDistanceUniformExponent(delta_x =delta_x,delta_y =delta_y,alpha = alpha,is_with_timestamp =time_stamp)
 
 def get_communication_protocols(width, length, is_with_timestamp, is_with_perfect_communication = True,
