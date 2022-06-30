@@ -237,8 +237,7 @@ if __name__ == '__main__':
 
         for pace_of_tasks in pace_of_tasks_list:
             for solver_type_temp in solver_type_list:
-                if communication_protocol.get_type() == "Loss" and solver_type_temp == 3:
-                    continue
+
                 solver_type = solver_type_temp
                 finished_tasks = {}
                 for i in range(start, end):
