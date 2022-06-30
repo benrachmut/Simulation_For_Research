@@ -272,7 +272,7 @@ class newTaskDiscoveredEvent(SimulationEvent):
 
 
 class CentralizedSolverFinishEvent(SimulationEvent):
-    def __init__(self, time_):
+    def __init__(self, time_, zero_for_sure):
         """
         :param time:the time of the event
         :type: float
@@ -284,9 +284,9 @@ class CentralizedSolverFinishEvent(SimulationEvent):
         :type: MissionSimple
         """
         SimulationEvent.__init__(self, time_=time_)
-
+        self.zero_for_sure = zero_for_sure
     def handle_event(self, simulation):
-        simulation.generate_players_receive_allocation_events()
+        simulation.generate_players_receive_allocation_events(self.zero_for_sure)
 
 
 def get_mission_from_task_by_id(next_task, mission_id):
@@ -571,6 +571,9 @@ class SimulationV2(SimulationV1):
                  number_of_initial_tasks=10,
                  is_static=True,
                  cenralized_always_discovers_without_delay = False,
+
+
+                is_without_CentralizedSolverFinishEvent = False,
                  debug_mode_full=False,
                  debug_mode_light = True,
                  ):
@@ -588,6 +591,7 @@ class SimulationV2(SimulationV1):
         self.f_generate_message_disturbance = f_generate_message_disturbance
         self.main_computer_entity = Entity(id_="main computer", location=[0, 0])
         self.centralized_always_discovers_without_delay = cenralized_always_discovers_without_delay
+        self.is_without_CentralizedSolverFinishEvent = is_without_CentralizedSolverFinishEvent
         SimulationV1.__init__(self, name, players_list, solver, tasks_generator, end_time,
                               number_of_initial_tasks, is_static, debug_mode_full, debug_mode_light)
 
@@ -603,7 +607,7 @@ class SimulationV2(SimulationV1):
             time = self.tnow + solver_duration_NCLO
             if self.check_diary_during_solver(time):
                 #self.update_workload()
-                self.diary.append(CentralizedSolverFinishEvent(time_=time))
+                self.diary.append(CentralizedSolverFinishEvent(time_=time, zero_for_sure=self.is_without_CentralizedSolverFinishEvent))
                 return
             self.tnow = time
             self.update_workload()
@@ -611,9 +615,11 @@ class SimulationV2(SimulationV1):
             self.tnow = time
         self.generate_players_receive_allocation_events()
 
-    def generate_players_receive_allocation_events(self):
+    def generate_players_receive_allocation_events(self,zero_for_sure = False):
         for p in self.players_list:
             delay_time = self.f_generate_message_disturbance(self.main_computer_entity, p)  # TODO BEN
+            if zero_for_sure:
+                delay_time =0
             if delay_time is None:
                 continue
             e = PlayerReceivesNewAllocation(time_=self.tnow + delay_time, player=p)

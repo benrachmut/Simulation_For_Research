@@ -17,14 +17,14 @@ import sys
 # 3. centralistic (FMC_TA with pois (0) + for centralized with protocol) all discover
 
 
-solver_type_list = [1,2,3] # [1,2,3]
+solver_type_list = [2] # [1,2,3]
 solver_type = None
 
 debug_mode_full = False
 debug_mode_light = True
 
 start = 0
-end = 10
+end = 1
 
 size_players = 50
 end_time = sys.maxsize
@@ -53,8 +53,8 @@ speed = 100
 
 # name,alpha,delta_x,delta_y,
 
-counter_of_converges=1
-Threshold=10**-4
+counter_of_converges=2
+Threshold=10**-2
 
 algo_name = ""
 # --- communication_protocols ---
@@ -119,9 +119,10 @@ def create_players(i,map1):
 
 
 def get_solver(communication_protocol_distributed):
-    # 1. FMC_ATA distributed distributed (FMC_TA with protocol + for centralized with protocol)
+    # 1. FMC_ATA distributed distributed (FMC_ATA with protocol + for centralized with protocol)
     # 2. centralistic (FMC_TA with pois (0) + for centralized with protocol)
     # 3. centralistic (FMC_TA with pois (0) + for centralized with protocol) all discover
+    # 1. FMC_ATA semi taskaware distributed  (FMC_ATA with protocol + for centralized with protocol)
 
 
 
@@ -130,7 +131,7 @@ def get_solver(communication_protocol_distributed):
     data_fisher = get_data_fisher()
     rij_function = calculate_rij_abstract
     termination_function = f_termination_condition_all_tasks_converged
-
+    is_without_CentralizedSolverFinishEvent = False
     if solver_type == 1:
         ans = FMC_ATA(util_structure_level=1, f_termination_condition=termination_function,
                       f_global_measurements=data_fisher,
@@ -165,10 +166,34 @@ def get_solver(communication_protocol_distributed):
 
         algo_name_t = "FMC_TA centralized all discover"
 
-    return ans,algo_name_t,cenralized_always_discovers_without_delay
+        if solver_type == 4:
+            ans = FMC_ATA_task_aware(util_structure_level=1, f_termination_condition=termination_function,
+                         f_global_measurements=data_fisher,
+                         f_communication_disturbance=communication_f,
+                         future_utility_function=rij_function,
+                         counter_of_converges=counter_of_converges,
+                         Threshold=Threshold
+                         )
+            cenralized_always_discovers_without_delay = False
+            is_without_CentralizedSolverFinishEvent = True
+            algo_name_t = "FMC_ATA task aware"
+
+        if solver_type == 5:
+            ans = FMC_TA(util_structure_level=1, f_termination_condition=termination_function,
+                         f_global_measurements=data_fisher,
+                         f_communication_disturbance=communication_f,
+                         future_utility_function=rij_function,
+                         counter_of_converges=counter_of_converges,
+                         Threshold=Threshold
+                         )
+            cenralized_always_discovers_without_delay = False
+            is_without_CentralizedSolverFinishEvent = True
+            algo_name_t = "FMC_TA semi-distributedtask aware"
+
+    return ans,algo_name_t,cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent
 
 
-def create_simulation(simulation_number ,players_list,solver,tasks_generator,end_time,f_generate_message_disturbance,cenralized_always_discovers_without_delay):
+def create_simulation(simulation_number ,players_list,solver,tasks_generator,end_time,f_generate_message_disturbance,cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent):
     # 1. FMC_ATA distributed distributed (FMC_TA with protocol + for centralized with protocol)
     # 2. centralistic (FMC_TA with pois (0) + for centralized with protocol)
     # 3. centralistic (FMC_TA with pois (0) + for centralized with protocol) all discover
@@ -182,6 +207,7 @@ def create_simulation(simulation_number ,players_list,solver,tasks_generator,end
                        number_of_initial_tasks=size_of_initial_tasks,
                        is_static=False,
                        cenralized_always_discovers_without_delay = cenralized_always_discovers_without_delay,
+                       is_without_CentralizedSolverFinishEvent =is_without_CentralizedSolverFinishEvent,
                        debug_mode_full=debug_mode_full,
                        debug_mode_light=debug_mode_light)
     return sim
@@ -202,6 +228,9 @@ def get_communication_protocol_giver_solver(communication_protocol,solver_type_t
         communication_protocol_for_central = communication_protocol.copy_protocol()
         communication_protocol_for_distributed = CommunicationProtocolPerfectCommunication()
 
+    if solver_type_temp == 4 or solver_type_temp == 5:
+        communication_protocol_for_central = communication_protocol.copy_protocol()
+        communication_protocol_for_distributed = communication_protocol.copy_protocol()
 
 
 
@@ -211,7 +240,7 @@ def get_communication_protocol_giver_solver(communication_protocol,solver_type_t
     # communication_protocol_for_central.is_with_timestamp = is_with_timestamp
 
     communication_protocol_for_distributed.is_with_timestamp = is_with_timestamp
-    communication_protocol_for_central.is_with_timestamp = False
+    communication_protocol_for_central.is_with_timestamp = True
 
     communication_protocol_for_distributed.set_seed(i)
     communication_protocol_for_central.set_seed(i)
@@ -237,7 +266,8 @@ if __name__ == '__main__':
 
         for pace_of_tasks in pace_of_tasks_list:
             for solver_type_temp in solver_type_list:
-
+                if solver_type_temp == 5 and communication_protocol.get_type() == Loss:
+                    continue
                 solver_type = solver_type_temp
                 finished_tasks = {}
                 for i in range(start, end):
@@ -256,13 +286,13 @@ if __name__ == '__main__':
                                               max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks)
 
                     # --- solver ----
-                    solver,algo_name,cenralized_always_discovers_without_delay = get_solver(communication_protocol_for_distributed)
+                    solver,algo_name,cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent = get_solver(communication_protocol_for_distributed)
                     print("***---***",algo_name,"***---***")
 
                     # --- simulation ----
                     sim = create_simulation(simulation_number = i, players_list=players_list, solver=solver,
                                             tasks_generator=tasks_generator, end_time=end_time,
-                                            f_generate_message_disturbance=communication_protocol_for_central.get_communication_disturbance,cenralized_always_discovers_without_delay=cenralized_always_discovers_without_delay)
+                                            f_generate_message_disturbance=communication_protocol_for_central.get_communication_disturbance,cenralized_always_discovers_without_delay=cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent=is_without_CentralizedSolverFinishEvent)
 
                     finished_tasks[i] = sim.finished_tasks_list
 

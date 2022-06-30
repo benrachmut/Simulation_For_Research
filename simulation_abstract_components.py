@@ -5,8 +5,8 @@ import random
 from abc import ABC
 import numpy as np
 
-travel_factor = 0.9
-travel_factor_agent_was_present = 0.8
+travel_factor = 0.8
+travel_factor_agent_was_present = 0.6
 travel_factor_normalized = 10**5
 abandonment_factor = 100
 
