@@ -241,14 +241,12 @@ class PlayerReceivesNewAllocation(SimulationEvent, ABC):
         simulation.check_new_allocation_for_player(self.player)
 
 
-
-
 class newTaskDiscoveredEvent(SimulationEvent):
     """
     Class that represent a simulation event of message arrival to main computer, about discovered new event
     """
 
-    def __init__(self, time_: float, task: TaskSimple):
+    def __init__(self, time_: float, task: TaskSimple,cenralized_always_discovers_without_delay):
         """
         :param time_:the time of the event
         :type: float
@@ -256,10 +254,15 @@ class newTaskDiscoveredEvent(SimulationEvent):
         :type: TaskSimple
         """
         SimulationEvent.__init__(self, time_=time_, task=task)
+        self.cenralized_always_discovers_without_delay = cenralized_always_discovers_without_delay
 
     def handle_event(self, simulation):
         find_and_allocate_responsible_player(task=self.task, players=simulation.players_list)
         delay = simulation.f_generate_message_disturbance(simulation.main_computer_entity, self.task)  # # TODO BEN
+
+
+        if self.cenralized_always_discovers_without_delay:
+            delay= 0
         if delay is None:
             simulation.generate_new_task_to_diary()
             return
@@ -567,8 +570,9 @@ class SimulationV2(SimulationV1):
                  tasks_generator: TaskGenerator, end_time: float,
                  number_of_initial_tasks=10,
                  is_static=True,
+                 cenralized_always_discovers_without_delay = False,
                  debug_mode_full=False,
-                 debug_mode_light = True
+                 debug_mode_light = True,
                  ):
         """
         :param name: The name of simulation
@@ -583,6 +587,7 @@ class SimulationV2(SimulationV1):
         """
         self.f_generate_message_disturbance = f_generate_message_disturbance
         self.main_computer_entity = Entity(id_="main computer", location=[0, 0])
+        self.centralized_always_discovers_without_delay = cenralized_always_discovers_without_delay
         SimulationV1.__init__(self, name, players_list, solver, tasks_generator, end_time,
                               number_of_initial_tasks, is_static, debug_mode_full, debug_mode_light)
 
@@ -623,7 +628,7 @@ class SimulationV2(SimulationV1):
             task: TaskSimple = self.tasks_generator.get_task(self.tnow)
             if task is not None:
                 task.create_neighbours_list(players_list=self.players_list)
-                event = newTaskDiscoveredEvent(task=task, time_=task.arrival_time)
+                event = newTaskDiscoveredEvent(task=task, time_=task.arrival_time, cenralized_always_discovers_without_delay = self.centralized_always_discovers_without_delay)
                 self.diary.append(event)
         else:
             tasks = self.tasks_generator.get_tasks_number_of_tasks_now(self.tnow, number_of_tasks)
