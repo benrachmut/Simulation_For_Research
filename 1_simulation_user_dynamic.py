@@ -24,7 +24,7 @@ debug_mode_full = False
 debug_mode_light = True
 
 start = 0
-end = 1
+end = 10
 
 size_players = 50
 end_time = sys.maxsize
@@ -36,7 +36,7 @@ limited_additional_tasks = 15
 max_nclo_algo_run = 1000000
 fisher_data_jumps = 1000
 
-pace_of_tasks_list = [0,1000,5000,10000,50000,100000]
+pace_of_tasks_list = [0,1000,5000,10000,50000,100000,500000]
 
 ##--- map ---
 length = 10**7
@@ -62,7 +62,7 @@ cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
 is_with_perfect_communication = False
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [1000] # Pois(alpha^d) 1000, 10000, 100000
+constants_delay_poisson_distance = [] # Pois(alpha^d) 1000, 10000, 100000
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
