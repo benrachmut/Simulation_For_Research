@@ -26,7 +26,7 @@ debug_mode_light = True
 start = 0
 end = 10
 
-size_players = 60
+size_players = 50
 end_time = sys.maxsize
 size_of_initial_tasks = 15
 limited_additional_tasks = 15
