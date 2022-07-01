@@ -267,7 +267,7 @@ if __name__ == '__main__':
 
         for pace_of_tasks in pace_of_tasks_list:
             for solver_type_temp in solver_type_list:
-                if solver_type_temp == 5 and communication_protocol.get_type() == Loss:
+                if solver_type_temp == 5 and communication_protocol.get_type() == "Loss":
                     continue
                 solver_type = solver_type_temp
                 finished_tasks = {}
