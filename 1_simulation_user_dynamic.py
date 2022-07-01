@@ -132,6 +132,7 @@ def get_solver(communication_protocol_distributed):
     rij_function = calculate_rij_abstract
     termination_function = f_termination_condition_all_tasks_converged
     is_without_CentralizedSolverFinishEvent = False
+    ans = None
     if solver_type == 1:
         ans = FMC_ATA(util_structure_level=1, f_termination_condition=termination_function,
                       f_global_measurements=data_fisher,
@@ -188,7 +189,7 @@ def get_solver(communication_protocol_distributed):
                          )
             cenralized_always_discovers_without_delay = False
             is_without_CentralizedSolverFinishEvent = True
-            algo_name_t = "FMC_TA semi-distributedtask aware"
+            algo_name_t = "FMC_TA semi-distributed"#"FMC_TA semi-distributedtask aware"
 
     return ans,algo_name_t,cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent
 
