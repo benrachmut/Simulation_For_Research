@@ -36,7 +36,7 @@ limited_additional_tasks = 15
 max_nclo_algo_run = 1000000
 fisher_data_jumps = 1000
 
-pace_of_tasks_list = [0,10**2,10**3,10**4,10**5,10**6,10**2.5,10**3.5,10**4.5,10**5.5,]
+pace_of_tasks_list = [0,10**1,10**2,10**3,10**4,10**5,10**6]
 
 ##--- map ---
 length = 10**7
@@ -54,7 +54,7 @@ speed = 100
 # name,alpha,delta_x,delta_y,
 
 counter_of_converges=2
-Threshold=10**-2
+Threshold=10**-3
 
 algo_name = ""
 # --- communication_protocols ---
