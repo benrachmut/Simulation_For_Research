@@ -17,7 +17,7 @@ import sys
 # 3. centralistic (FMC_TA with pois (0) + for centralized with protocol) all discover
 
 
-solver_type_list = [2] # [1,2,3]
+solver_type_list = [5] # [1,2,3]
 solver_type = None
 
 debug_mode_full = False
@@ -60,7 +60,7 @@ algo_name = ""
 # --- communication_protocols ---
 cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
-is_with_perfect_communication = False
+is_with_perfect_communication = True
 constants_loss_distance = [] # e^-(alpha*d)
 constants_delay_poisson_distance = [] # Pois(alpha^d) 1000, 10000, 100000
 constants_delay_uniform_distance=[] # U(0, alpha^d)
@@ -167,29 +167,29 @@ def get_solver(communication_protocol_distributed):
 
         algo_name_t = "FMC_TA centralized all discover"
 
-        if solver_type == 4:
-            ans = FMC_ATA_task_aware(util_structure_level=1, f_termination_condition=termination_function,
-                         f_global_measurements=data_fisher,
-                         f_communication_disturbance=communication_f,
-                         future_utility_function=rij_function,
-                         counter_of_converges=counter_of_converges,
-                         Threshold=Threshold
-                         )
-            cenralized_always_discovers_without_delay = False
-            is_without_CentralizedSolverFinishEvent = True
-            algo_name_t = "FMC_ATA task aware"
+    if solver_type == 4:
+        ans = FMC_ATA_task_aware(util_structure_level=1, f_termination_condition=termination_function,
+                     f_global_measurements=data_fisher,
+                     f_communication_disturbance=communication_f,
+                     future_utility_function=rij_function,
+                     counter_of_converges=counter_of_converges,
+                     Threshold=Threshold
+                     )
+        cenralized_always_discovers_without_delay = False
+        is_without_CentralizedSolverFinishEvent = True
+        algo_name_t = "FMC_ATA task aware"
 
-        if solver_type == 5:
-            ans = FMC_TA(util_structure_level=1, f_termination_condition=termination_function,
-                         f_global_measurements=data_fisher,
-                         f_communication_disturbance=communication_f,
-                         future_utility_function=rij_function,
-                         counter_of_converges=counter_of_converges,
-                         Threshold=Threshold
-                         )
-            cenralized_always_discovers_without_delay = False
-            is_without_CentralizedSolverFinishEvent = True
-            algo_name_t = "FMC_TA semi-distributed"#"FMC_TA semi-distributedtask aware"
+    if solver_type == 5:
+        ans = FMC_TA(util_structure_level=1, f_termination_condition=termination_function,
+                     f_global_measurements=data_fisher,
+                     f_communication_disturbance=communication_f,
+                     future_utility_function=rij_function,
+                     counter_of_converges=counter_of_converges,
+                     Threshold=Threshold
+                     )
+        cenralized_always_discovers_without_delay = False
+        is_without_CentralizedSolverFinishEvent = True
+        algo_name_t = "FMC_TA semi-distributed"#"FMC_TA semi-distributedtask aware"
 
     return ans,algo_name_t,cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent
 
