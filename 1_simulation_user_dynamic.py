@@ -12,19 +12,26 @@ from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY
 from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 import sys
 
+# 1. "FMC_ATA distributed" - between agents protocol, with central  = 0
+# 2. FMC_TA
+
 # 1. FMC_ATA distributed distributed (FMC_TA with protocol + for centralized with protocol)
 # 2. centralistic (FMC_TA with pois (0) + for centralized with protocol)
 # 3. centralistic (FMC_TA with pois (0) + for centralized with protocol) all discover
 
 
-solver_type_list = [5] # [1,2,3]
+solver_type_list = [1] # [1,2,3]
+
 solver_type = None
 
 debug_mode_full = False
 debug_mode_light = True
 
-start = 0
-end = 10
+x = 10
+
+y = 0
+start = x*y
+end = x*(y+1)
 
 size_players = 50
 end_time = sys.maxsize
@@ -36,7 +43,7 @@ limited_additional_tasks = 15
 max_nclo_algo_run = 1000000
 fisher_data_jumps = 1000
 
-pace_of_tasks_list = [0,10**1,10**2,10**3,10**4,10**5,10**6]
+pace_of_tasks_list = [10**5]
 
 ##--- map ---
 length = 10**7
@@ -60,9 +67,9 @@ algo_name = ""
 # --- communication_protocols ---
 cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
-is_with_perfect_communication = True
+is_with_perfect_communication = False
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [] # Pois(alpha^d) 1000, 10000, 100000
+constants_delay_poisson_distance = [10000] # Pois(alpha^d) 1000, 10000, 100000
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
@@ -299,5 +306,5 @@ if __name__ == '__main__':
 
                 organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
                                                                        size_of_initial_tasks,pace_of_tasks)
-                make_dynamic_simulation_cumulative(communication_protocol, length, width, algo_name, max_nclo_algo_run,
-                                                   Threshold, organized_data, fisher_data_jumps, name_,pace_of_tasks)
+                #make_dynamic_simulation_cumulative(communication_protocol, length, width, algo_name, max_nclo_algo_run,
+                 #                                  Threshold, organized_data, fisher_data_jumps, name_,pace_of_tasks)
