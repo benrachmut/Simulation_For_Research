@@ -278,7 +278,7 @@ if __name__ == '__main__':
                 solver_type = solver_type_temp
                 finished_tasks = {}
                 for i in range(start, end):
-                    print("---simulation number:",str(i),"Communication",communication_protocol,",pace_of_tasks",str(pace_of_tasks),"---")
+                    print("---simulation number:",str(i),"Communication",communication_protocol,",pace_of_tasks",str(pace_of_tasks),",central_location_multiplier",str(central_location_multiplier),"---")
                     # --- communication ----
                     communication_protocol_for_central, communication_protocol_for_distributed = get_communication_protocol_giver_solver(
                         communication_protocol = communication_protocol, solver_type_temp=solver_type_temp, simulation_number=i, is_with_timestamp =is_with_timestamp)
