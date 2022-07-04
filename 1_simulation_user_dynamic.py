@@ -45,7 +45,7 @@ fisher_data_jumps = 1000
 pace_of_tasks_list = [10**5]
 
 ##--- map ---
-central_location_multiplier = 2
+central_location_multiplier = 3
 length = 10**7
 width = 10**7
 
