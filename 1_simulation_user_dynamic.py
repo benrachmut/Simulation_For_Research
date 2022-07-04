@@ -28,7 +28,7 @@ debug_mode_full = False
 debug_mode_light = True
 
 x = 10
-y = 0
+y = 1
 start = x*y
 end = x*(y+1)
 
