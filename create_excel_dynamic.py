@@ -57,7 +57,7 @@ def make_dynamic_simulation(finished_tasks,start, end,communication_protocol,alg
     basic_name = ",algo_" + algo_name + ",comm_" + communication_protocol.name + ",start_" + str(start) + ",end_" + str(
         end) + ",maxNclo_" + str(
         max_nclo_algo_run) + ",threshold_" + str(converge_threshold) +","+str(communication_protocol.is_with_timestamp)+",numPlayers_"+str(num_players)+",numTasks"+\
-                 str(num_tasks)+",pace_of_tasks_"+str(pace_of_tasks)+",central_location_multiplier_"+str(central_location_multiplier_list)+".csv"
+                 str(num_tasks)+",pace_of_tasks_"+str(pace_of_tasks)+",central_location_"+str(central_location_multiplier_list)+".csv"
 
 
     file_name = "dynamic"+basic_name
