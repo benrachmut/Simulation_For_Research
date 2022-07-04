@@ -167,8 +167,8 @@ class CommunicationProtocolDistance(CommunicationProtocol):
     def normalize_distance(self, entity1, entity2):
         entity_quad_distance = self.get_entity_quad_distance_rnd(entity1, entity2)
         max_quad_distance = math.sqrt(self.delta_x ** 2 + self.delta_y ** 2)
-        if entity_quad_distance > max_quad_distance:
-            return 1
+        #if entity_quad_distance > max_quad_distance:
+        #    return 1
         return entity_quad_distance / max_quad_distance
 
 class CommunicationProtocolLossExponent(CommunicationProtocolDistance):
