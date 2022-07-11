@@ -77,11 +77,13 @@ class TaskArrivalEvent(SimulationEvent):
 
     def handle_event(self, simulation):
         find_and_allocate_responsible_player(task=self.task, players=simulation.players_list)
-        simulation.tasks_list.append(self.task)
+        if simulation.tasks_generator is not None:
+            simulation.tasks_list.append(self.task)
         simulation.solver.add_task_to_solver(self.task)
         simulation.remove_solver_finish_event()
         simulation.solve()
-        simulation.generate_new_task_to_diary()
+        if simulation.tasks_generator is not None:
+            simulation.generate_new_task_to_diary()
 
 
 class TaskArrivalToMainComputerEvent(SimulationEvent):
@@ -126,12 +128,13 @@ class NumberOfTasksArrivalEvent(SimulationEvent):
     def handle_event(self, simulation):
         for task in self.tasks:
             find_and_allocate_responsible_player(task=task, players=simulation.players_list)
-            simulation.tasks_list.append(task)
+            if simulation.tasks_generator is not None:
+                simulation.tasks_list.append(task)
             simulation.solver.add_task_to_solver(task)
 
         simulation.solve()
 
-        if not self.is_static:
+        if not self.is_static and simulation.tasks_generator is not None:
             simulation.generate_new_task_to_diary()
 
 
@@ -295,8 +298,8 @@ def default_communication_disturbance():
 
 class SimulationV1:
     def __init__(self, name: str, players_list: list, solver, tasks_generator: TaskGenerator, end_time: float,
-                 number_of_initial_tasks=10, is_static=True, debug_mode_full=False,debug_mode_light = True
-                 ):
+                 number_of_initial_tasks=10, is_static=True, debug_mode_full=False,debug_mode_light = True,
+                 tasks_list = []):
         """
         :param name: The name of simulation
         :param players_list: The list of the players(players) that are participate
@@ -323,15 +326,35 @@ class SimulationV1:
         # tasks initialization
         self.tasks_generator = tasks_generator
         self.f_calculate_distance = calculate_distance
-        self.generate_new_task_to_diary(number_of_tasks=number_of_initial_tasks)
-        self.tasks_list = []
+        if len(tasks_list) == 0:
+            self.generate_new_task_to_diary(number_of_tasks=number_of_initial_tasks)
+
+
+
+
+        self.tasks_list = tasks_list
         self.finished_tasks_list = []
         self.diary.append(EndSimulationEvent(time_=end_time))
         self.debug_mode_full = debug_mode_full
         self.debug_mode_light = debug_mode_light
 
         self.solver_counter = 0
+
+        self.enter_tasks_to_diary()
         self.run_simulation()
+
+    def enter_tasks_to_diary(self):
+        if len(self.tasks_list) != 0:
+            self.tasks_generator = None
+            tasks_zero = []
+            for task in self.tasks_list:
+                if task.arrival_time == 0:
+                    tasks_zero.append(task)
+                else:
+                    event = TaskArrivalEvent(task=task, time_=task.arrival_time)
+                    self.diary.append(event)
+            event = NumberOfTasksArrivalEvent(is_static=self.is_static, tasks=tasks_zero, time_=0)
+            self.diary.append(event)
 
     def run_simulation(self):
         while True:
@@ -567,7 +590,8 @@ class SimulationV2(SimulationV1):
 
                  debug_mode_full=False,
                  debug_mode_light = True,
-                 central_location_multiplier=0
+                 central_location_multiplier=0,
+                 tasks_list = []
                  ):
         """
         :param name: The name of simulation
@@ -588,7 +612,9 @@ class SimulationV2(SimulationV1):
 
 
         SimulationV1.__init__(self, name, players_list, solver, tasks_generator, end_time,
-                              number_of_initial_tasks, is_static, debug_mode_full, debug_mode_light)
+                              number_of_initial_tasks, is_static, debug_mode_full, debug_mode_light,tasks_list)
+
+
 
     def solve(self):
         self.solver_counter = self.solver_counter + 1
@@ -598,8 +624,11 @@ class SimulationV2(SimulationV1):
         if self.debug_mode_full or self.debug_mode_light:
             print("SOLVER finish with time:", solver_duration_NCLO)
         time = self.tnow
+        self.time_before_solver = self.tnow
+
         if not self.is_static:
-            time = self.tnow + solver_duration_NCLO
+            #time = self.tnow + solver_duration_NCLO
+            time = self.tnow
             if self.check_diary_during_solver(time):
                 #self.update_workload()
                 self.diary.append(CentralizedSolverFinishEvent(time_=time))
@@ -609,6 +638,15 @@ class SimulationV2(SimulationV1):
         else:
             self.tnow = time
         self.generate_players_receive_allocation_events()
+
+        allo = {}
+        for player in self.players_list:
+            allo[player.id_] = []
+            for al in player.schedule:
+                allo[player.id_].append(al[0].id_)
+        print(allo)
+
+
 
     def generate_players_receive_allocation_events(self):
         for p in self.players_list:
@@ -625,7 +663,7 @@ class SimulationV2(SimulationV1):
         add newTaskDiscoveredEvent to the diary.
         """
         if number_of_tasks == 1:
-            task: TaskSimple = self.tasks_generator.get_task(self.tnow)
+            task: TaskSimple = self.tasks_generator.get_task(self.time_before_solver)
             if task is not None:
                 task.create_neighbours_list(players_list=self.players_list)
                 event = newTaskDiscoveredEvent(task=task, time_=task.arrival_time)
@@ -670,3 +708,5 @@ class SimulationV2(SimulationV1):
                     self.handle_abandonment_event(player=player, mission=player.current_mission,
                                                   task=player.current_task)
                     self.generate_player_arrives_to_mission_event(player=player)
+
+

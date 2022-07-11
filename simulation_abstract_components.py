@@ -5,8 +5,8 @@ import random
 from abc import ABC
 import numpy as np
 
-travel_factor = 0.8
-travel_factor_agent_was_present = 0.6
+travel_factor = 0.9
+travel_factor_agent_was_present = 0.7
 travel_factor_normalized = 10**5
 abandonment_factor = 100
 
@@ -92,7 +92,7 @@ class Status(enum.Enum):
 
 
 class SimpleTaskGenerator(TaskGenerator):
-    def __init__(self, max_number_of_missions, map_, seed, players_list, initial_workload_multiple,max_importance=10, beta = 0, limited_additional_tasks = 0):
+    def __init__(self, max_number_of_missions, map_, seed, players_list, initial_workload_multiple,max_importance=10, beta = 0, limited_additional_tasks = 0, initial_tasks_size = 0):
         """
 
         :param map_: object to initiate location
@@ -112,6 +112,23 @@ class SimpleTaskGenerator(TaskGenerator):
             self.skill_range.append(skill_number)
         self.limited_additional_tasks = limited_additional_tasks
         self.initial_workload_multiple = initial_workload_multiple
+        self.initial_tasks_size = initial_tasks_size
+
+
+
+    def create_tasks_for_simulation_list(self):
+        ans = []
+        for _ in range(self.initial_tasks_size):
+            task = self.get_task_before_running(time_of_arrival_input=0)
+            ans.append(task)
+
+        last_time = 0
+        for _ in range(self.limited_additional_tasks):
+            last_time = last_time +  self.time_gap_between_tasks_before_running()
+            task = self.get_task_before_running(time_of_arrival_input=last_time)
+            ans.append(task)
+
+        return ans
 
     def time_gap_between_tasks(self):
         self.limited_additional_tasks = self.limited_additional_tasks-1
@@ -119,11 +136,45 @@ class SimpleTaskGenerator(TaskGenerator):
             return None
         return self.rnd_numpy.exponential(scale=self.beta, size=1)[0]
 
+    def time_gap_between_tasks_before_running(self):
+        '''
+        will return gap unconditionally
+        :return:
+        '''
+        ans = self.rnd_numpy.exponential(scale=self.beta, size=1)[0]
+        return ans
+
+    def get_task_before_running(self, time_of_arrival_input):
+        """
+        if we want to create tasks NOT during the dynamic simulation
+        """
+        # amount_of_missions = self.random.randint(1, self.max_number_of_missions)
+        required_abilities = self.skill_range  # self.random.sample(self.skill_range ,amount_of_missions)
+        self.id_task_counter = self.id_task_counter + 1
+        id_ = str(self.id_task_counter)
+        location = self.map_.generate_location()  # #self.map.generate_location()
+        rnd_number = self.random.random()
+
+        importance = (rnd_number * self.max_importance)
+
+        arrival_time = time_of_arrival_input
+        missions_list = []
+        for ability in required_abilities:
+            mission_created = self.create_random_mission(task_id=id_, task_importance=importance,
+                                                         arrival_time=arrival_time, ability=ability,
+                                                        initial_workload_multiple = self.initial_workload_multiple)
+            missions_list.append(mission_created)
+
+        task = TaskSimple(id_=id_, location=location, importance=importance,
+                          missions_list=missions_list, arrival_time=arrival_time)
+
+        task.neighbours = self.get_neighbors_ids(missions_list)
+        return task
+
     def get_task(self, tnow, flag_time_zero=False):
         """
         :rtype: TaskSimple
         """
-
         # amount_of_missions = self.random.randint(1, self.max_number_of_missions)
         required_abilities = self.skill_range  # self.random.sample(self.skill_range ,amount_of_missions)
         self.id_task_counter = self.id_task_counter + 1
@@ -174,7 +225,7 @@ class SimpleTaskGenerator(TaskGenerator):
         created_ability = AbilitySimple(ability_type=ability)
         self.id_mission_counter = self.id_mission_counter + 1
         mission_id = str(self.id_mission_counter)
-        initial_workload = task_importance*initial_workload_multiple  # self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
+        initial_workload = self.random.uniform(initial_workload_multiple,initial_workload_multiple+task_importance) #self.rnd_numpy.poisson(lam=(initial_workload_multiple+task_importance*initial_workload_multiple/10), size=1)[0] #lam=(initial_workload_multiple)#self.rnd_numpy.poisson(lam=(initial_workload_multiple), size=1)[0]  # self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
         rnd_ = max(2, round(self.random.uniform(1, task_importance / 10)))
         max_players =10 #min(rnd_, 9)

@@ -434,6 +434,8 @@ class FisherPlayerASY_greedy_Schedual(FisherPlayerASY):
             self.allocations_data = sorted(self.allocations_data, key= get_allocation_measure, reverse=True)
             self.measure_arrival_time()
             only_allocated_missions = self.get_only_allocated_missions()
+            only_allocated_missions = sorted(only_allocated_missions, key= get_allocation_measure, reverse=True)
+
             allocation_list = self.exam_switch(only_allocated_missions)
             self.update_schedule_for_simulation_player(allocation_list)
 
@@ -819,7 +821,7 @@ class FisherTaskASY(TaskAlgorithm):
 
     def update_converges_conditions(self, mission):
 
-        if self.price_delta[mission] < self.Threshold:
+        if self.price_delta[mission] < self.Threshold: #and self.price_delta[mission] !=0:
             self.counter_of_converges_dict[mission] = self.counter_of_converges_dict[mission] - 1
         else:
             self.counter_of_converges_dict[mission] = self.counter_of_converges
@@ -1066,10 +1068,8 @@ class FisherTaskASY_greedy_Schedual(FisherTaskASY, ABC):
             allocations_dict = msg.information[2]
             player_id_sender = msg.sender
             for mission, time_arrive in allocations_dict.items():
-                try:
-                    self.player_greedy_arrive_dict[mission][player_id_sender] = time_arrive
-                except:
-                    print("line 1050")
+                self.player_greedy_arrive_dict[mission][player_id_sender] = time_arrive
+
         else:
             pass
 

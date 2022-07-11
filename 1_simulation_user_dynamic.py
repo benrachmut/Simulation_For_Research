@@ -1,5 +1,6 @@
 from create_dynamic_simulation_cumulative import make_dynamic_simulation_cumulative
 from create_excel_dynamic import make_dynamic_simulation
+from create_excel_fisher import make_fisher_data
 from general_communication_protocols import CommunicationProtocolDelayUniform, get_communication_protocols, \
     CommunicationProtocolPerfectCommunication
 from general_data_fisher_market import get_data_fisher
@@ -27,49 +28,49 @@ solver_type = None
 debug_mode_full = False
 debug_mode_light = True
 
-x = 10
+x = 1
 y = 0
 start = x*y
 end = x*(y+1)
 
-size_players = 50
+size_players = 30
 end_time = sys.maxsize
-size_of_initial_tasks = 15
-limited_additional_tasks = 15
+size_of_initial_tasks = 10 # 15
+limited_additional_tasks = 5 #15
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
-max_nclo_algo_run = 1000000
-fisher_data_jumps = 1000
+max_nclo_algo_run = 60000
+fisher_data_jumps = 10
 
 pace_of_tasks_list = [10**5]
 
 ##--- map ---
 central_location_multiplier = 3
-length = 10**7
-width = 10**7
+length = 10000#10**7
+width = 10000#10**7
 
-initial_workload_multiple = 1000 # maybe change
+initial_workload_multiple = 10000 # maybe change
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 1000
+max_importance = 10000
 
 ##--- agents ---
-speed = 100
+speed = 0.5
 
 # name,alpha,delta_x,delta_y,
 
-counter_of_converges=2
-Threshold=10**-3
+counter_of_converges=1
+Threshold=10**-7
 
 algo_name = ""
 # --- communication_protocols ---
 cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
-is_with_perfect_communication = False
+is_with_perfect_communication = True
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [10000] # Pois(alpha^d) 1000, 10000, 100000
+constants_delay_poisson_distance = [] # Pois(alpha^d) 1000, 10000, 100000
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
@@ -201,7 +202,7 @@ def get_solver(communication_protocol_distributed):
     return ans,algo_name_t,cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent
 
 
-def create_simulation(simulation_number ,players_list,solver,tasks_generator,end_time,f_generate_message_disturbance,cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent):
+def create_simulation(simulation_number ,players_list,solver,tasks_generator,end_time,f_generate_message_disturbance,tasks_list ):
     # 1. FMC_ATA distributed distributed (FMC_TA with protocol + for centralized with protocol)
     # 2. centralistic (FMC_TA with pois (0) + for centralized with protocol)
     # 3. centralistic (FMC_TA with pois (0) + for centralized with protocol) all discover
@@ -216,7 +217,7 @@ def create_simulation(simulation_number ,players_list,solver,tasks_generator,end
                        is_static=False,
                        debug_mode_full=debug_mode_full,
                        debug_mode_light=debug_mode_light,
-                       central_location_multiplier = central_location_multiplier )
+                       central_location_multiplier = central_location_multiplier,tasks_list = tasks_list )
     return sim
 
 
@@ -284,14 +285,14 @@ if __name__ == '__main__':
                         communication_protocol = communication_protocol, solver_type_temp=solver_type_temp, simulation_number=i, is_with_timestamp =is_with_timestamp)
 
                     # --- players ----
-                    map_for_players = MapSimple(seed=i * 17, length=length, width=width)
+                    map_for_players = MapSimple(seed=i * 17 + 15, length=length, width=width)
                     players_list = create_players(i,map_for_players)
 
                     # --- tasks ----
-                    map_for_tasks = MapSimple(seed=i * (17*17), length=length, width=width)
+                    map_for_tasks = MapSimple(seed=i * (17*17) + 88, length=length, width=width)
                     tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map_for_tasks, seed=i*17,
-                                              max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks)
-
+                                              max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks, initial_tasks_size= size_of_initial_tasks)
+                    tasks_list = tasks_generator.create_tasks_for_simulation_list()
                     # --- solver ----
                     solver,algo_name,cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent = get_solver(communication_protocol_for_distributed)
                     print("***---***",algo_name,"***---***")
@@ -299,11 +300,16 @@ if __name__ == '__main__':
                     # --- simulation ----
                     sim = create_simulation(simulation_number = i, players_list=players_list, solver=solver,
                                             tasks_generator=tasks_generator, end_time=end_time,
-                                            f_generate_message_disturbance=communication_protocol_for_central.get_communication_disturbance,cenralized_always_discovers_without_delay=cenralized_always_discovers_without_delay,is_without_CentralizedSolverFinishEvent=is_without_CentralizedSolverFinishEvent)
+                                            f_generate_message_disturbance=communication_protocol_for_central.get_communication_disturbance,tasks_list = tasks_list)
 
                     finished_tasks[i] = sim.finished_tasks_list
-
+                    #single_fisher_measures = sim.solver.mailer.measurements
+                    #fisher_measures[i] = single_fisher_measures
                 organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
                                                                        size_of_initial_tasks,pace_of_tasks,central_location_multiplier)
+
+                #make_fisher_data(fisher_measures, get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,
+                 #                communication_protocol, algo_name, length, width, Threshold, name_)
+
                 #make_dynamic_simulation_cumulative(communication_protocol, length, width, algo_name, max_nclo_algo_run,
                  #                                  Threshold, organized_data, fisher_data_jumps, name_,pace_of_tasks)
