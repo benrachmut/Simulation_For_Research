@@ -21,7 +21,7 @@ import sys
 # 3. centralistic (FMC_TA with pois (0) + for centralized with protocol) all discover
 
 
-solver_type_list = [2] # [1,2,3]
+solver_type_list = [1] # [1,2,3]
 
 solver_type = None
 
@@ -35,8 +35,8 @@ end = x*(y+1)
 
 size_players = 30
 end_time = sys.maxsize
-size_of_initial_tasks = 10 # 15
-limited_additional_tasks = 5 #15
+size_of_initial_tasks = 15 # 15
+limited_additional_tasks = 15 #15
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
@@ -47,8 +47,8 @@ pace_of_tasks_list = [10**5]
 
 ##--- map ---
 central_location_multiplier = 3
-length = 10000#10**7
-width = 10000#10**7
+length = 10**6
+width = 10**6
 
 initial_workload_multiple = 10000 # maybe change
 
@@ -57,7 +57,7 @@ max_number_of_missions = 3
 max_importance = 10000
 
 ##--- agents ---
-speed = 0.5
+speed = 10
 
 # name,alpha,delta_x,delta_y,
 
