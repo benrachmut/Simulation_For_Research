@@ -631,13 +631,13 @@ class SimulationV2(SimulationV1):
             #time = self.tnow
             if self.check_diary_during_solver(time):
                 #self.update_workload()
-
-                allo = {}
-                for player in self.players_list:
-                    allo[player.id_] = []
-                    for al in player.schedule:
-                        allo[player.id_].append(al[0].id_)
-                print(allo)
+                if self.debug_mode_light:
+                    allo = {}
+                    for player in self.players_list:
+                        allo[player.id_] = []
+                        for al in player.schedule:
+                            allo[player.id_].append(al[0].id_)
+                    print(allo)
                 self.diary.append(CentralizedSolverFinishEvent(time_=time))
                 return
             self.tnow = time
@@ -646,7 +646,13 @@ class SimulationV2(SimulationV1):
             self.tnow = time
         self.generate_players_receive_allocation_events()
 
-
+        if self.debug_mode_light:
+            allo = {}
+            for player in self.players_list:
+                allo[player.id_] = []
+                for al in player.schedule:
+                    allo[player.id_].append(al[0].id_)
+            print(allo)
 
 
     def generate_players_receive_allocation_events(self):
