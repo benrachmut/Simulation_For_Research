@@ -33,7 +33,7 @@ y = 0
 start = x*y
 end = x*(y+1)
 
-size_players = 30
+size_players = 50
 end_time = sys.maxsize
 size_of_initial_tasks = 15 # 15
 limited_additional_tasks = 15 #15
@@ -62,7 +62,7 @@ speed = 1
 # name,alpha,delta_x,delta_y,
 
 counter_of_converges=3
-Threshold=10**-7
+Threshold=10**-5
 
 algo_name = ""
 # --- communication_protocols ---

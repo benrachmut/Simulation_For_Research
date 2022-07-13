@@ -627,8 +627,8 @@ class SimulationV2(SimulationV1):
         self.time_before_solver = self.tnow
 
         if not self.is_static:
-            #time = self.tnow + solver_duration_NCLO
-            time = self.tnow
+            time = self.tnow + solver_duration_NCLO
+            #time = self.tnow
             if self.check_diary_during_solver(time):
                 #self.update_workload()
                 self.diary.append(CentralizedSolverFinishEvent(time_=time))
