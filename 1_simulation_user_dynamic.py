@@ -57,11 +57,11 @@ max_number_of_missions = 3
 max_importance = 10000
 
 ##--- agents ---
-speed = 10
+speed = 1
 
 # name,alpha,delta_x,delta_y,
 
-counter_of_converges=1
+counter_of_converges=3
 Threshold=10**-7
 
 algo_name = ""
