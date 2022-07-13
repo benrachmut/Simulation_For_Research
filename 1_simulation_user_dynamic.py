@@ -40,10 +40,10 @@ limited_additional_tasks = 15 #15
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
-max_nclo_algo_run = 60000
+max_nclo_algo_run = 1000000
 fisher_data_jumps = 10
 
-pace_of_tasks_list = [10**5]
+pace_of_tasks_list = [10**4]
 
 ##--- map ---
 central_location_multiplier = 3
