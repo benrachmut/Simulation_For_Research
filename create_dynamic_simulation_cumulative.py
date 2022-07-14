@@ -133,7 +133,9 @@ def make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_
 
 
     data_cumulative_dict_for_panda = calculate_avg_data_cumulative(data_cumulative_dict)
-    add_more_info(communication_protocol,length,width,algo_name,max_nclo_algo_run,converge_threshold,pace_of_tasks,data_cumulative_dict_for_panda)
+    add_more_info(communication_protocol=communication_protocol,length=length,width=width,algo_name=algo_name,max_nclo_algo_run=max_nclo_algo_run,converge_threshold=converge_threshold,pace_of_tasks=pace_of_tasks,central_location_multiplier_list =0,dict_=data_cumulative_dict_for_panda)
+
+
     file_name = "cumulative_dynamic"+name_
     raw_panda = pd.DataFrame.from_dict(data_cumulative_dict_for_panda)
     raw_panda.to_csv(file_name, sep=',')

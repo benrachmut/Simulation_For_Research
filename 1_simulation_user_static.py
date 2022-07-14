@@ -21,20 +21,20 @@ from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 
 is_static =True
 start = 0
-end = 2
+end = 100
 size_players = 50
 
 end_time = sys.maxsize
 size_of_initial_tasks =30
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
-max_nclo_algo_run_list= [5000]
+max_nclo_algo_run_list= [9000,4000,2000]
 max_nclo_algo_run = None
-fisher_data_jumps = 1
+fisher_data_jumps = 1000
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number_list = [4]
+solver_number_list = [1]
 solver_number = None
-is_with_fisher_data = False
+is_with_fisher_data = True
 
 # --- communication_protocols ---
 is_with_timestamp = None
@@ -49,17 +49,17 @@ constants_delay_uniform=[] # U(0,UB) #---
 
 
 ##--- map ---
-length = 10**7
-width = 10**7
+length = 10**6
+width = 10**6
 
-initial_workload_multiple = 1000 # maybe cahnge
+initial_workload_multiple = 10000 # maybe change
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 1000
+max_importance = 10000
 
 ##--- agents ---
-speed = 1000
+speed = 1
 
 # name,alpha,delta_x,delta_y,
 
@@ -216,7 +216,7 @@ def run_simulation(i):
                        end_time=end_time,
                        number_of_initial_tasks=size_of_initial_tasks,
                        is_static=is_static,
-                       debug_mode=False)
+                       debug_mode_light=False, debug_mode_full=False)
     return sim
 
 
@@ -264,10 +264,12 @@ if __name__ == '__main__':
                         finished_tasks[i] = sim.finished_tasks_list
                     print("start data ",communication_protocol)
 
-                    organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
-                                                                   size_of_initial_tasks)
+                    organized_data,name_ = make_dynamic_simulation(finished_tasks=finished_tasks,start =start, end=end,communication_protocol =communication_protocol,algo_name =algo_name,length =length,width =width,max_nclo_algo_run =max_nclo_algo_run,converge_threshold =Threshold,num_players =size_players,
+                                                                   num_tasks =size_of_initial_tasks, pace_of_tasks = 0, central_location_multiplier_list = 0 )
+
+
 
 
                     if is_with_fisher_data:
                         make_fisher_data(fisher_measures,get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,communication_protocol,algo_name,length,width,Threshold,name_)
-                        make_dynamic_simulation_cumulative(communication_protocol,length,width,algo_name,max_nclo_algo_run,Threshold,organized_data,fisher_data_jumps,name_)
+                        #make_dynamic_simulation_cumulative(communication_protocol=communication_protocol,length =length,width=width,algo_name=algo_name,max_nclo_algo_run =max_nclo_algo_run,converge_threshold= Threshold,organized_data = organized_data,fisher_data_jumps = fisher_data_jumps,name_ = name_,pace_of_tasks =0)
