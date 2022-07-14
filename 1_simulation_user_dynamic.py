@@ -43,7 +43,7 @@ limited_additional_tasks = 15 #15
 max_nclo_algo_run = 1000000
 fisher_data_jumps = 10
 
-pace_of_tasks_list = [5*(10**3)]
+pace_of_tasks_list = [1*(10**5)]
 
 ##--- map ---
 central_location_multiplier = 3
