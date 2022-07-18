@@ -255,7 +255,7 @@ class CommunicationProtocolDelayDistanceUniformExponent(CommunicationProtocolDis
         time_stamp = self.is_with_timestamp
         return CommunicationProtocolDelayDistanceUniformExponent(delta_x =delta_x,delta_y =delta_y,alpha = alpha,is_with_timestamp =time_stamp)
 
-def get_communication_protocols(width, length, is_with_timestamp, is_with_perfect_communication = True,
+def get_communication_protocols(width, length, is_with_timestamp, is_with_perfect_communication = False,
                                 constants_loss_distance=[],
                                 constants_loss_constant=[],
 

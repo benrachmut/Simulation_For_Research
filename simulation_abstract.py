@@ -352,7 +352,10 @@ class SimulationV1:
                     tasks_zero.append(task)
                 else:
                     event = TaskArrivalEvent(task=task, time_=task.arrival_time)
-                    self.diary.append(event)
+                    delay = self.f_generate_message_disturbance(self.main_computer_entity,
+                                                                      task)  # # TODO BEN
+                    if delay is not None:
+                        self.diary.append(event)
             event = NumberOfTasksArrivalEvent(is_static=self.is_static, tasks=tasks_zero, time_=0)
             self.diary.append(event)
 
@@ -658,6 +661,8 @@ class SimulationV2(SimulationV1):
     def generate_players_receive_allocation_events(self):
         for p in self.players_list:
             delay_time = self.f_generate_message_disturbance(self.main_computer_entity, p)  # TODO BEN
+            #if  not self.create_comm_aware_after_solver:
+                #delay_time = 0
 
             if delay_time is None:
                 continue

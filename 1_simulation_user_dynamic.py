@@ -13,23 +13,19 @@ from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY
 from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 import sys
 
-# 1. "FMC_ATA distributed" - between agents protocol, with central  = 0
-# 2. FMC_TA
-
-# 1. FMC_ATA distributed distributed (FMC_TA with protocol + for centralized with protocol)
-# 2. centralistic (FMC_TA with pois (0) + for centralized with protocol)
-# 3. centralistic (FMC_TA with pois (0) + for centralized with protocol) all discover
 
 
-solver_type_list = [1] # [1,2,3]
+solver_type_list = [2] # [1,2,3]
 
 solver_type = None
 
 debug_mode_full = False
 debug_mode_light = True
 
-x = 1
-y = 0
+x = 5
+y =4
+
+
 start = x*y
 end = x*(y+1)
 
@@ -40,13 +36,14 @@ limited_additional_tasks = 15 #15
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
-max_nclo_algo_run = 1000000
+max_nclo_algo_run = 100000
+
 fisher_data_jumps = 10
 
 pace_of_tasks_list = [1*(10**5)]
 
 ##--- map ---
-central_location_multiplier = 3
+central_location_multiplier = 0.5
 length = 10**6
 width = 10**6
 
@@ -66,15 +63,17 @@ Threshold=10**-5
 
 algo_name = ""
 # --- communication_protocols ---
+cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
-is_with_perfect_communication = True
-constants_loss_distance = [] # e^-(alpha*d)
+is_with_perfect_communication = False
+constants_loss_distance = [1] # e^-(alpha*d)
 constants_delay_poisson_distance = [] # Pois(alpha^d) 1000, 10000, 100000
-constants_delay_uniform_distance=[] # U(0, alpha^d)
+constants_delay_uniform_distance=[] # U(0, alpha^d) 50000
 
 constants_loss_constant=[] # prob
 constants_delay_poisson = []# Pois(lambda)
 constants_delay_uniform=[] # U(0,UB) #---
+
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system
@@ -147,6 +146,8 @@ def get_solver(communication_protocol_distributed):
                       counter_of_converges=counter_of_converges,
                       Threshold=Threshold, is_with_timestamp=is_with_timestamp)
         algo_name_t = "FMC_ATA distributed"
+        create_comm_aware_after_solver = False
+
 
     if solver_type == 2:
         ans  = FMC_TA(util_structure_level=1,f_termination_condition=termination_function,
@@ -158,16 +159,8 @@ def get_solver(communication_protocol_distributed):
                       )
 
         algo_name_t = "FMC_TA centralized"
+        create_comm_aware_after_solver = True
 
-    if solver_type == 3:
-        ans = FMC_TA(util_structure_level=1, f_termination_condition=termination_function,
-                     f_global_measurements=data_fisher,
-                     f_communication_disturbance=communication_f,
-                     future_utility_function=rij_function,
-                     counter_of_converges=counter_of_converges,
-                     Threshold=Threshold
-                     )
-        algo_name_t = "FMC_TA semi-distributed"  # "FMC_TA semi-distributedtask aware"
     # if solver_type == 3:
     #     ans = FMC_TA(util_structure_level=1, f_termination_condition=termination_function,
     #                  f_global_measurements=data_fisher,
@@ -176,20 +169,19 @@ def get_solver(communication_protocol_distributed):
     #                  counter_of_converges=counter_of_converges,
     #                  Threshold=Threshold
     #                  )
-    #
-    #     algo_name_t = "FMC_TA centralized all discover"
-    #
+    #     algo_name_t = "FMC_TA semi-distributed"  # "FMC_TA semi-distributedtask aware"
+    #     create_comm_aware_after_solver = False
+
     # if solver_type == 4:
     #     ans = FMC_ATA_task_aware(util_structure_level=1, f_termination_condition=termination_function,
-    #                  f_global_measurements=data_fisher,
-    #                  f_communication_disturbance=communication_f,
-    #                  future_utility_function=rij_function,
-    #                  counter_of_converges=counter_of_converges,
-    #                  Threshold=Threshold
-    #                  )
-    #     algo_name_t = "FMC_ATA task aware"
-    #
-
+    #               f_global_measurements=data_fisher,
+    #               f_communication_disturbance=communication_f,
+    #               future_utility_function=rij_function,
+    #               counter_of_converges=counter_of_converges,
+    #               Threshold=Threshold
+    #               )
+    #     algo_name_t = "FMC_ATA semi-distributed"
+    #     create_comm_aware_after_solver = False
 
     return ans,algo_name_t
 
@@ -209,7 +201,7 @@ def create_simulation(simulation_number ,players_list,solver,tasks_generator,end
                        is_static=False,
                        debug_mode_full=debug_mode_full,
                        debug_mode_light=debug_mode_light,
-                       central_location_multiplier = central_location_multiplier,tasks_list = tasks_list )
+                       central_location_multiplier = central_location_multiplier,tasks_list = tasks_list)
     return sim
 
 
@@ -232,6 +224,9 @@ def get_communication_protocol_giver_solver(communication_protocol,solver_type_t
         communication_protocol_for_central = communication_protocol.copy_protocol()
         communication_protocol_for_distributed = communication_protocol.copy_protocol()
 
+    if solver_type_temp == 4:
+        communication_protocol_for_central = communication_protocol.copy_protocol()
+        communication_protocol_for_distributed = communication_protocol.copy_protocol()
 
 
     communication_protocol_for_central.set_seed(simulation_number)

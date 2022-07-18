@@ -27,14 +27,14 @@ size_players = 50
 end_time = sys.maxsize
 size_of_initial_tasks =30
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
-max_nclo_algo_run_list= [9000,4000,2000]
+max_nclo_algo_run_list= [8000,3000]
 max_nclo_algo_run = None
 fisher_data_jumps = 1000
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number_list = [1]
+solver_number_list = [4]
 solver_number = None
-is_with_fisher_data = True
+is_with_fisher_data = False
 
 # --- communication_protocols ---
 is_with_timestamp = None
