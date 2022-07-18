@@ -15,7 +15,7 @@ import sys
 
 
 
-solver_type_list = [1] # [1,2,3]
+solver_type_list = [2] # [1,2,3]
 
 solver_type = None
 
@@ -43,7 +43,7 @@ fisher_data_jumps = 10
 pace_of_tasks_list = [1*(10**5)]
 
 ##--- map ---
-central_location_multiplier = 2
+central_location_multiplier = 0.5
 length = 10**6
 width = 10**6
 
@@ -66,8 +66,8 @@ algo_name = ""
 cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
 is_with_perfect_communication = False
-constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [10000] # Pois(alpha^d) 1000, 10000, 100000
+constants_loss_distance = [2] # e^-(alpha*d)
+constants_delay_poisson_distance = [] # Pois(alpha^d) 1000, 10000, 100000
 constants_delay_uniform_distance=[] # U(0, alpha^d) 50000
 
 constants_loss_constant=[] # prob
