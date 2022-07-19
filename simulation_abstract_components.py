@@ -228,7 +228,7 @@ class SimpleTaskGenerator(TaskGenerator):
         initial_workload = self.random.uniform(initial_workload_multiple,initial_workload_multiple+task_importance) #self.rnd_numpy.poisson(lam=(initial_workload_multiple+task_importance*initial_workload_multiple/10), size=1)[0] #lam=(initial_workload_multiple)#self.rnd_numpy.poisson(lam=(initial_workload_multiple), size=1)[0]  # self.random.uniform(task_importance*5,task_importance*10)#self.rnd_numpy.poisson(lam=(task_importance), size=1)[0]#self.factor_initial_workload ** (task_importance/1000)
         arrival_time_to_the_system = arrival_time
         rnd_ = max(2, round(self.random.uniform(1, task_importance / 10)))
-        max_players =10 #min(rnd_, 9)
+        max_players =5 #min(rnd_, 9)
 
         return MissionSimple(task_id=task_id, task_importance=task_importance, mission_id=mission_id,
                              initial_workload=initial_workload, arrival_time_to_the_system=arrival_time_to_the_system,
