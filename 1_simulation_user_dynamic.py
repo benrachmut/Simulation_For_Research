@@ -29,7 +29,7 @@ y =4
 start = x*y
 end = x*(y+1)
 
-size_players = 50
+size_players = 60
 end_time = sys.maxsize
 size_of_initial_tasks = 10 # 15
 limited_additional_tasks = 15 #15
@@ -54,7 +54,7 @@ max_number_of_missions = 3
 max_importance = 100000
 
 ##--- agents ---
-speed = 1
+speed = 5
 
 # name,alpha,delta_x,delta_y,
 

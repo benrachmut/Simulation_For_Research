@@ -8,7 +8,7 @@ import numpy as np
 travel_factor = 0.9
 travel_factor_agent_was_present = 0.7
 travel_factor_normalized = 10**5
-abandonment_factor = 100
+abandonment_factor = 500
 
 length_ = None
 width_ = None
