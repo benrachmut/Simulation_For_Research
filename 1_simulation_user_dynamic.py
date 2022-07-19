@@ -36,7 +36,7 @@ limited_additional_tasks = 15 #15
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
-max_nclo_algo_run = 100000
+max_nclo_algo_run = 1000000
 
 fisher_data_jumps = 10
 
@@ -54,7 +54,7 @@ max_number_of_missions = 3
 max_importance = 10000
 
 ##--- agents ---
-speed = 1
+speed = 10
 
 # name,alpha,delta_x,delta_y,
 
