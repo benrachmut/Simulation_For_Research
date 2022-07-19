@@ -31,7 +31,7 @@ end = x*(y+1)
 
 size_players = 50
 end_time = sys.maxsize
-size_of_initial_tasks = 15 # 15
+size_of_initial_tasks = 10 # 15
 limited_additional_tasks = 15 #15
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
@@ -47,11 +47,11 @@ central_location_multiplier = 0.5
 length = 10**6
 width = 10**6
 
-initial_workload_multiple = 10000 # maybe change
+initial_workload_multiple = 100000 # maybe change
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 10000
+max_importance = 100000
 
 ##--- agents ---
 speed = 1
