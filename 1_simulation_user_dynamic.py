@@ -66,8 +66,8 @@ algo_name = ""
 cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
 is_with_perfect_communication = False
-constants_loss_distance = [2] # e^-(alpha*d)
-constants_delay_poisson_distance = [] # Pois(alpha^d) 1000, 10000, 100000
+constants_loss_distance = [] # e^-(alpha*d)
+constants_delay_poisson_distance = [1000] # Pois(alpha^d) 1000, 10000, 100000
 constants_delay_uniform_distance=[] # U(0, alpha^d) 50000
 
 constants_loss_constant=[] # prob

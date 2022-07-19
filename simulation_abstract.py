@@ -102,11 +102,9 @@ class TaskArrivalToMainComputerEvent(SimulationEvent):
 
     def handle_event(self, simulation):
         find_and_allocate_responsible_player(task=self.task, players=simulation.players_list)
-
         simulation.tasks_list.append(self.task)
         simulation.solver.add_task_to_solver(self.task)
         simulation.remove_solver_finish_event()
-
         simulation.solve()
 
 class NumberOfTasksArrivalEvent(SimulationEvent):
@@ -351,14 +349,8 @@ class SimulationV1:
                 if task.arrival_time == 0:
                     tasks_zero.append(task)
                 else:
-
-
-                    self.enter_single_task_to_diary(task)
-
-
-
-
-
+                    ev = newTaskDiscoveredEvent(task=task, time_=task.arrival_time)
+                    self.diary.append(ev)
 
             event = NumberOfTasksArrivalEvent(is_static=self.is_static, tasks=tasks_zero, time_=0)
             self.diary.append(event)
@@ -587,22 +579,6 @@ class SimulationV1:
         for _ in range(count):
             player.schedule.pop(0)
 
-    def enter_single_task_to_diary(self, task):
-        delay = self.f_generate_message_disturbance(self.main_computer_entity,
-                                                    task)  # # TODO BEN
-        if delay is not None:
-            self.enter_single_task_to_diary_cent_dist(task,delay)
-
-
-
-
-
-
-    def enter_single_task_to_diary_cent_dist(self, task,delay):
-        event = TaskArrivalEvent(task=task, time_=task.arrival_time)
-        self.diary.append(event)
-
-
 
 class SimulationV2(SimulationV1):
 
@@ -637,10 +613,6 @@ class SimulationV2(SimulationV1):
         SimulationV1.__init__(self, name, players_list, solver, tasks_generator, end_time,
                               number_of_initial_tasks, is_static, debug_mode_full, debug_mode_light,tasks_list)
 
-
-    def enter_single_task_to_diary_cent_dist(self, task,delay):
-        ev = TaskArrivalToMainComputerEvent(task=task, time_=task.arrival_time + delay)
-        self.diary.append(ev)
 
 
     def solve(self):
