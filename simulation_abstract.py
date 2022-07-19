@@ -264,7 +264,8 @@ class newTaskDiscoveredEvent(SimulationEvent):
             return
         ev = TaskArrivalToMainComputerEvent(task=self.task, time_=self.time + delay)
         simulation.diary.append(ev)
-        simulation.generate_new_task_to_diary()  # Ask Ben?
+        if simulation.tasks_generator is not None:
+            simulation.generate_new_task_to_diary()  # Ask Ben?
 
 
 class CentralizedSolverFinishEvent(SimulationEvent):
