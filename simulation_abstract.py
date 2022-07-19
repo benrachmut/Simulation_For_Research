@@ -5,7 +5,7 @@ from itertools import filterfalse
 from simulation_abstract_components import TaskGenerator, TaskSimple, calculate_distance, \
     find_and_allocate_responsible_player, PlayerSimple, MissionSimple, Status, Entity
 
-
+NCLO_divider = 10
 class SimulationEvent:
     """
     Class that represents an event in the simulation log.
@@ -262,7 +262,7 @@ class newTaskDiscoveredEvent(SimulationEvent):
         if delay is None:
             simulation.generate_new_task_to_diary()
             return
-        ev = TaskArrivalToMainComputerEvent(task=self.task, time_=self.time + delay)
+        ev = TaskArrivalToMainComputerEvent(task=self.task, time_=self.time + delay/NCLO_divider)
         simulation.diary.append(ev)
         if simulation.tasks_generator is not None:
             simulation.generate_new_task_to_diary()  # Ask Ben?
@@ -627,7 +627,7 @@ class SimulationV2(SimulationV1):
         self.time_before_solver = self.tnow
 
         if not self.is_static:
-            time = self.tnow + solver_duration_NCLO/10
+            time = self.tnow + solver_duration_NCLO/NCLO_divider
             #time = self.tnow
             if self.check_diary_during_solver(time):
                 #self.update_workload()
@@ -663,7 +663,7 @@ class SimulationV2(SimulationV1):
 
             if delay_time is None:
                 continue
-            e = PlayerReceivesNewAllocation(time_=self.tnow + delay_time, player=p)
+            e = PlayerReceivesNewAllocation(time_=self.tnow + delay_time/NCLO_divider, player=p)
             self.diary.append(e)
 
     def generate_new_task_to_diary(self, number_of_tasks=1):
