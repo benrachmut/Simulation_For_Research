@@ -131,7 +131,6 @@ def create_excel_fisher(basic_name, data_avg_before_excel, data_last_before_exce
 
 def make_fisher_data(fisher_measures,get_data_fisher,max_nclo_algo_run, fisher_data_jumps,start,end,communication_protocol,algo_name,length,width,converge_threshold,basic_name):
     data_avg_before_excel,data_last_before_excel,data_time_converged_before_excel = process_data_before_excel(fisher_measures,get_data_fisher,max_nclo_algo_run, fisher_data_jumps,start,end)
-    add_communication_protocol_and_algo(data_avg_before_excel, data_last_before_excel, data_time_converged_before_excel, communication_protocol, algo_name,length,width,max_nclo_algo_run,converge_threshold)
-    #basic_name = ",algo_"+algo_name+",comm_"+communication_protocol.name+",start_"+str(start)+",end_"+str(end)\
-    #             +","+str(int(length))+"x"+str(int(width))+",maxNclo_"+str(max_nclo_algo_run)+",threshold_"+str(converge_threshold)+".csv"
+    #add_communication_protocol_and_algo(data_avg_before_excel, data_last_before_excel, data_time_converged_before_excel, communication_protocol, algo_name,length,width,max_nclo_algo_run,converge_threshold)
+
     create_excel_fisher(basic_name,data_avg_before_excel,data_last_before_excel,data_time_converged_before_excel)

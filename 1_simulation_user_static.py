@@ -21,7 +21,7 @@ from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 
 is_static =True
 start = 0
-end = 3
+end = 1
 size_players = 60
 
 end_time = sys.maxsize
