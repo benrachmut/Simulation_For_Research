@@ -377,10 +377,10 @@ def get_data_fisher(price_vector_input=None):
 
     # ---RiXi---
     #ans["Distance Price"] = calculate_distance_price
-    ans["Sigma RiXi"] = calculate_sum_R_X
-    ans["Sigma RiXi pov"] = calculate_sum_R_X_pov
-    ans["Single Sigma RiXi"] = calculate_single_R_X_player
-    ans["Single Sigma RiXi pov"] = calculate_single_R_X_player_pov
+    #ans["Sigma RiXi"] = calculate_sum_R_X
+    #ans["Sigma RiXi pov"] = calculate_sum_R_X_pov
+    #ans["Single Sigma RiXi"] = calculate_single_R_X_player
+    #ans["Single Sigma RiXi pov"] = calculate_single_R_X_player_pov
 
     # ---Envy---
     #ans["Sigma_Envy_Player View"] = calculate_sum_envy_other_player_view
@@ -396,8 +396,8 @@ def get_data_fisher(price_vector_input=None):
 
     # ---Price---
 
-    ans["Price_Single_Mission"] = calculate_price_single_task_view
-    ans["Price_Single_Mission_Players_View"] = calculate_price_single_player_view
+    #ans["Price_Single_Mission"] = calculate_price_single_task_view
+    #ans["Price_Single_Mission_Players_View"] = calculate_price_single_player_view
 
     # ---bpb
     #ans["Sum BPB"] = calc_sum_sum_bpb
