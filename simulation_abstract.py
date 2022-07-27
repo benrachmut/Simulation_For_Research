@@ -260,7 +260,8 @@ class newTaskDiscoveredEvent(SimulationEvent):
         find_and_allocate_responsible_player(task=self.task, players=simulation.players_list)
         delay = simulation.f_generate_message_disturbance(simulation.main_computer_entity, self.task)  # # TODO BEN
         if delay is None:
-            simulation.generate_new_task_to_diary()
+            if simulation.tasks_generator is not None:
+                simulation.generate_new_task_to_diary()
             return
         ev = TaskArrivalToMainComputerEvent(task=self.task, time_=self.time + delay/NCLO_divider)
         simulation.diary.append(ev)
@@ -327,9 +328,6 @@ class SimulationV1:
         self.f_calculate_distance = calculate_distance
         if len(tasks_list) == 0:
             self.generate_new_task_to_diary(number_of_tasks=number_of_initial_tasks)
-
-
-
 
         self.tasks_list = tasks_list
         self.finished_tasks_list = []

@@ -125,8 +125,8 @@ def create_excel_fisher(basic_name, data_avg_before_excel, data_last_before_exce
     #last_panda = pd.DataFrame.from_dict(data_last_before_excel)
     #last_panda.to_csv("last"+basic_name, sep=',')
 
-    #converge_panda = pd.DataFrame.from_dict(data_time_converged_before_excel)
-    #converge_panda.to_csv("converge"+basic_name, sep=',')
+    converge_panda = pd.DataFrame.from_dict(data_time_converged_before_excel)
+    converge_panda.to_csv("converge"+basic_name, sep=',')
 
 
 def make_fisher_data(fisher_measures,get_data_fisher,max_nclo_algo_run, fisher_data_jumps,start,end,communication_protocol,algo_name,length,width,converge_threshold,basic_name):

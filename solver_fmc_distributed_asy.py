@@ -2,6 +2,7 @@ import abc
 import copy
 import math
 import sys
+import threading
 from abc import ABC
 import random
 
@@ -14,6 +15,9 @@ fisher_player_debug = False
 print_price_delta_debug = True
 simulation_rep_received = 0
 
+
+lock  = threading.Lock()
+fisher_sy_debug = False
 class Utility:
     def __init__(self, player_entity, mission_entity, task_entity, t_now, future_utility_function,
                  ro=0.9, util=-1):
@@ -351,6 +355,18 @@ class FisherPlayerASY(PlayerAlgorithm, ABC):
                 is_perfect_com = True
             ans.append(Msg(sender=self.simulation_entity.id_, receiver=task.id_, information=information_to_send
                            , is_with_perfect_communication=is_perfect_com))
+
+        if fisher_sy_debug:
+            with lock:
+                print("player",self.simulation_entity.id_,"created the following msgs: ")
+                for msg in ans:
+                    print(msg.receiver,end=",")
+                print()
+
+
+
+
+
         return ans
 
     @abc.abstractmethod
@@ -717,6 +733,9 @@ class FisherTaskASY(TaskAlgorithm):
 
         self.update_more_information_index_2_and_above(player_id =player_id, msg=msg)
 
+        if fisher_sy_debug:
+            with lock:
+                print("task", self.simulation_entity.id_, "receive from",msg.sender)
 
     def update_rij_info(self, rij_dict ,player_id):
         pass

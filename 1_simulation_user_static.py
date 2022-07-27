@@ -21,25 +21,25 @@ from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 
 is_static =True
 start = 0
-end = 100
-size_players = 50
+end = 3
+size_players = 60
 
 end_time = sys.maxsize
-size_of_initial_tasks =30
+size_of_initial_tasks =25
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
-max_nclo_algo_run_list= [8000,3000]
+max_nclo_algo_run_list= [1000000]
 max_nclo_algo_run = None
-fisher_data_jumps = 1000
+fisher_data_jumps = 1000000
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
 solver_number_list = [4]
 solver_number = None
-is_with_fisher_data = False
+is_with_fisher_data = True
 
 # --- communication_protocols ---
 is_with_timestamp = None
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [0] # Pois(alpha^d)
+constants_delay_poisson_distance = [10000] # Pois(alpha^d)
 constants_delay_uniform_distance=[] # U(0, alpha^d)
 
 constants_loss_constant=[] # prob
@@ -52,11 +52,11 @@ constants_delay_uniform=[] # U(0,UB) #---
 length = 10**6
 width = 10**6
 
-initial_workload_multiple = 10000 # maybe change
+initial_workload_multiple = 100000 # maybe change
 
 ##--- task generator ---
 max_number_of_missions = 3
-max_importance = 10000
+max_importance = 100000
 
 ##--- agents ---
 speed = 1
@@ -64,7 +64,7 @@ speed = 1
 # name,alpha,delta_x,delta_y,
 
 counter_of_converges=1
-Threshold=10**-200
+Threshold=10**-5
 
 def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     # TODO take care of only 1 task in system

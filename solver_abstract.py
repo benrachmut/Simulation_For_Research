@@ -237,7 +237,7 @@ class Mailer(threading.Thread):
 
             self.create_measurements()
 
-            #self.self_check_if_all_idle_to_continue()
+            self.self_check_if_all_idle_to_continue()
 
             self.mailer_iteration(with_update_clock_for_empty_msg_to_send=False)
 
@@ -325,6 +325,7 @@ class Mailer(threading.Thread):
         self.agents_receive_msgs(msgs_to_send)
 
         self.delta_time = self.time_mailer.clock-self.last_time
+
     def handle_delay(self):
 
         """

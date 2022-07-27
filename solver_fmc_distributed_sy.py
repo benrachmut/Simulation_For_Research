@@ -49,8 +49,8 @@ class FisherTaskSY_greedy_Schedual(FisherTaskASY_greedy_Schedual):
     def update_msgs_timestamp_dict(self,msg):
         if debug_sy:
 
-            if self.simulation_entity.id_ == "3" and self.timestamp_counter == 12:
-                print(msg.sender)
+            #if self.simulation_entity.id_ == "3" and self.timestamp_counter == 12:
+            print(msg.sender)
         sender_id = msg.sender
         timestamp_msg = msg.timestamp
         self.msgs_timestamp[sender_id] = timestamp_msg
@@ -118,9 +118,9 @@ class FisherPlayerSY_greedy_Schedual(FisherPlayerASY_greedy_Schedual):
 
     def update_msgs_timestamp_dict(self,msg):
         if debug_sy:
-            pass
+
             #if self.simulation_entity.id_ == -9 and self.timestamp_counter == 13:
-            #    print(msg.sender)
+            print(msg.sender)
         sender_id = msg.sender
         timestamp_msg = msg.timestamp
         self.msgs_timestamp[sender_id] = timestamp_msg
