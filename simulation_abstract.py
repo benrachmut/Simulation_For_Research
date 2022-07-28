@@ -650,7 +650,7 @@ class SimulationV2(SimulationV1):
                 allo[player.id_] = []
                 for al in player.schedule:
                     allo[player.id_].append(al[0].id_)
-            print(allo)
+            #print(allo)
 
 
     def generate_players_receive_allocation_events(self):

@@ -36,8 +36,8 @@ limited_additional_tasks =0 #15 #15
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
-max_nclo_algo_run = 1000
-
+max_nclo_algo_run = None
+max_nclo_algo_run_list = [0,1000]
 fisher_data_jumps = 10
 
 pace_of_tasks_list = [1*(10**5)]
@@ -288,35 +288,38 @@ if __name__ == '__main__':
                     continue
                 solver_type = solver_type_temp
                 finished_tasks = {}
-                for i in range(start, end):
-                    print("---simulation number:",str(i),"Communication",communication_protocol,",pace_of_tasks",str(pace_of_tasks),",central_location_multiplier",str(central_location_multiplier),"---")
-                    # --- communication ----
-                    communication_protocol_for_central, communication_protocol_for_distributed = get_communication_protocol_giver_solver(
-                        communication_protocol = communication_protocol, solver_type_temp=solver_type_temp, simulation_number=i, is_with_timestamp =is_with_timestamp)
+                for m_nclo_temp in max_nclo_algo_run_list:
+                    max_nclo_algo_run = m_nclo_temp
 
-                    # --- players ----
-                    map_for_players = MapSimple(seed=i * 17 + 15, length=length, width=width)
-                    players_list = create_players(i,map_for_players)
+                    for i in range(start, end):
+                        print("---simulation number:",str(i),"Communication",communication_protocol,",pace_of_tasks",str(pace_of_tasks),",central_location_multiplier,",str(central_location_multiplier),"max_nclo",str(max_nclo_algo_run),"---")
+                        # --- communication ----
+                        communication_protocol_for_central, communication_protocol_for_distributed = get_communication_protocol_giver_solver(
+                            communication_protocol = communication_protocol, solver_type_temp=solver_type_temp, simulation_number=i, is_with_timestamp =is_with_timestamp)
 
-                    # --- tasks ----
-                    map_for_tasks = MapSimple(seed=i * (17*17) + 88, length=length, width=width)
-                    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map_for_tasks, seed=i*17,
-                                              max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks, initial_tasks_size= size_of_initial_tasks)
-                    tasks_list = tasks_generator.create_tasks_for_simulation_list()
-                    # --- solver ----
-                    solver,algo_name = get_solver(communication_protocol_for_distributed)
-                    print("***---***",algo_name,"***---***")
+                        # --- players ----
+                        map_for_players = MapSimple(seed=i * 17 + 15, length=length, width=width)
+                        players_list = create_players(i,map_for_players)
 
-                    # --- simulation ----
-                    sim = create_simulation(simulation_number = i, players_list=players_list, solver=solver,
-                                            tasks_generator=tasks_generator, end_time=end_time,
-                                            f_generate_message_disturbance=communication_protocol_for_central.get_communication_disturbance,tasks_list = tasks_list)
+                        # --- tasks ----
+                        map_for_tasks = MapSimple(seed=i * (17*17) + 88, length=length, width=width)
+                        tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map_for_tasks, seed=i*17,
+                                                  max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks, initial_tasks_size= size_of_initial_tasks)
+                        tasks_list = tasks_generator.create_tasks_for_simulation_list()
+                        # --- solver ----
+                        solver,algo_name = get_solver(communication_protocol_for_distributed)
+                        print("***---***",algo_name,"***---***")
 
-                    finished_tasks[i] = sim.finished_tasks_list
-                    #single_fisher_measures = sim.solver.mailer.measurements
-                    #fisher_measures[i] = single_fisher_measures
-                organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
-                                                                       size_of_initial_tasks,pace_of_tasks,central_location_multiplier)
+                        # --- simulation ----
+                        sim = create_simulation(simulation_number = i, players_list=players_list, solver=solver,
+                                                tasks_generator=tasks_generator, end_time=end_time,
+                                                f_generate_message_disturbance=communication_protocol_for_central.get_communication_disturbance,tasks_list = tasks_list)
+
+                        finished_tasks[i] = sim.finished_tasks_list
+                        #single_fisher_measures = sim.solver.mailer.measurements
+                        #fisher_measures[i] = single_fisher_measures
+                    organized_data,name_ = make_dynamic_simulation(finished_tasks,start, end,communication_protocol,algo_name,length,width,max_nclo_algo_run,Threshold,size_players,
+                                                                           size_of_initial_tasks,pace_of_tasks,central_location_multiplier)
 
                 #make_fisher_data(fisher_measures, get_data_fisher, max_nclo_algo_run, fisher_data_jumps, start, end,
                  #                communication_protocol, algo_name, length, width, Threshold, name_)
