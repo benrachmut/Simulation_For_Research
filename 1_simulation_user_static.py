@@ -21,18 +21,18 @@ from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 
 is_static =True
 start = 0
-end = 20
+end = 5
 size_players = 60
 
 end_time = sys.maxsize
 size_of_initial_tasks =25
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
-max_nclo_algo_run_list= [1000000]
+max_nclo_algo_run_list= [1000]
 max_nclo_algo_run = None
 fisher_data_jumps = 1000000
 
 ##--- 1 = FMC_ATA; 2 = FMC_ATA_task_aware ; 3 = FMC_ATA rand rij; 4 = FMC_TA---
-solver_number_list = [4]
+solver_number_list = [1]
 solver_number = None
 is_with_fisher_data = True
 
@@ -200,11 +200,11 @@ def run_simulation(i):
     communication_protocol.set_seed(i)
     f_generate_message_disturbance = communication_protocol.get_communication_disturbance
     name = str(i)
-    map = MapSimple(seed=i * 17, length=length, width=width)
+    map = MapSimple(seed=(i+1) * 17, length=length, width=width)
 
-    players_list = create_players(i,map)
+    players_list = create_players(i+1,map)
 
-    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=i*20,
+    tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map, seed=(i+1)*20,
                                           max_importance=max_importance, players_list=players_list, initial_workload_multiple = initial_workload_multiple)
     solver = get_solver(communication_protocol)
     #print_initial_tasks(tasks_generator)
