@@ -37,7 +37,7 @@ limited_additional_tasks =0 #15 #15
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
 max_nclo_algo_run = None
-max_nclo_algo_run_list = [0,1000]
+max_nclo_algo_run_list = [1000]
 fisher_data_jumps = 10
 
 pace_of_tasks_list = [1*(10**5)]
@@ -96,27 +96,34 @@ def f_termination_condition_all_tasks_converged(agents_algorithm, mailer):
     return True
 
 
-def create_random_player(map_,id_, rnd_ability):
-    return PlayerSimple(id_ =id_*-1 , current_location =map_.generate_location(), speed = speed,abilities=[rnd_ability])
+def create_random_player(map_,id_, rnd_abilities):
+    return PlayerSimple(id_ =id_*-1 , current_location =map_.generate_location(), speed = speed,abilities=rnd_abilities)
 
 
 def create_players(i,map1):
     ans = []
     #map1 = MapSimple(seed=i*10, length=length, width=width)
     #map1.generate_location()
-    abil_list = []
-    for abil_number in range(max_number_of_missions):
-        abil_list.append(AbilitySimple(ability_type=abil_number))
+
+    #for abil_number in range(max_number_of_missions):
+    #    abil_list.append(AbilitySimple(ability_type=abil_number))
 
     for j in range(size_players):
-        id_ = j+1
-        if len(abil_list)!=0:
-            abil = abil_list.pop()
-        else:
-            rnd = random.Random(id_ * 100 + i * 10)
-            abil = AbilitySimple(ability_type=rnd.randint(0, max_number_of_missions - 1))
+        abil_list = []
+        id_ = j + 1
+        rnd = random.Random(id_ * 100 + i * 10)
 
-        player = create_random_player(map1,id_,abil)
+        for abil_number in range (max_number_of_missions):
+            rnd_number = rnd.random()
+            if rnd_number<0.5:
+                abil_list.append(AbilitySimple(ability_type=abil_number))
+
+        if len(abil_list) ==0:
+            abil_list.append(AbilitySimple(ability_type=rnd.randint(0, max_number_of_missions - 1)))
+
+
+
+        player = create_random_player(map1,id_,abil_list)
         ans.append(player)
     return ans
 

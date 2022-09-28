@@ -213,6 +213,7 @@ class SimpleTaskGenerator(TaskGenerator):
             for ability in player.abilities:
                 if ability in skills_list:
                     ans.append(player.id_)
+                    break
         return ans
 
     def get_tasks_number_of_tasks_now(self, tnow, number_of_tasks):
