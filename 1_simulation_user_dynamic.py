@@ -15,7 +15,7 @@ import sys
 
 
 is_static = True
-solver_type_list = [4] # [1,2,3]
+solver_type_list = [1] # [1,2,3]
 
 solver_type = None
 
@@ -37,7 +37,7 @@ limited_additional_tasks =0 #15 #15
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
 max_nclo_algo_run = None
-max_nclo_algo_run_list = [1000]
+max_nclo_algo_run_list = [0,1000,10000]
 fisher_data_jumps = 10
 
 pace_of_tasks_list = [1*(10**5)]
@@ -67,7 +67,7 @@ cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
 is_with_perfect_communication = False
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [1000] # Pois(alpha^d) 1000, 10000, 100000
+constants_delay_poisson_distance = [10000] # Pois(alpha^d) 1000, 10000, 100000
 constants_delay_uniform_distance=[] # U(0, alpha^d) 50000
 
 constants_loss_constant=[] # prob
