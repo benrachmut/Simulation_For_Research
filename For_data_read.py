@@ -9,7 +9,10 @@ def concatenate_csv_lines(file_list,temp_path):
     concatenated_lines = []
 
     for file_name in file_list:
-        dir_ = temp_path+"\\"+file_name
+        dir_ = os.path.join(temp_path, file_name)
+        #dynamic, algo_FMC_ATA
+        #distributed, comm_Pois(
+        #    1000000 ^ d), start_0, end_2, maxNclo_100000000, threshold_1e - 05, False, numPlayers_60, numTasks10, pace_of_tasks_100000, central_location_2
         with open(dir_, 'r') as csv_file:
             csv_reader = pd.read_csv(csv_file)
             concatenated_lines.append(csv_reader)
@@ -17,8 +20,10 @@ def concatenate_csv_lines(file_list,temp_path):
 
     return concatenated_df
 
-folder_path = r'C:\Users\Ben\Desktop\CADCOP data II\v18 journal fisher\dynamic'  # Replace with the path to your folder
+folder_path = r'C:\Users\Ben\Desktop\CADCOP data II\v18 journal fisher'  # Replace with the path to your folder
 raw_task_data = pd.read_csv(folder_path+"\\"+"Task_raw_data.csv")
+folder_path = r'C:\Users\Ben\Desktop\dynamic'  # Replace with the path to your folder
+
 #print(raw_task_data.columns.values)
 
 # Get all the files in the folder
@@ -53,13 +58,13 @@ for folder_name in folder_names:
 
         for run in unique_num_runs:
             df_per_run = df[df["Simulation_Number"] == run]
-            for NCLO in range(0, int(max_end_time)+2,NCLO_jumps):
+            for NCLO in range(0, 5000000,NCLO_jumps):
                 relevant_lines_per_nclo = []
                 selected_rows = df[(df['End_time'] < NCLO)]['Utility']
                 sum_per_NCLO = sum(selected_rows.tolist())
                 if NCLO not in nclo_dict:
                     nclo_dict[NCLO] = []
-                nclo_dict[NCLO] = sum_per_NCLO
+                nclo_dict[NCLO].append(sum_per_NCLO)
 
         avg_per_nclo = {}
         for nclo, all_results in nclo_dict.items():
@@ -73,4 +78,5 @@ for folder_name in folder_names:
             lines.append(line)
     df = pd.DataFrame(lines, columns=['String'])
     # Create Excel file
-    df.to_csv(folder_name+"csv", index=False)
+    print(folder_name)
+    df.to_csv(folder_name+".csv", index=False)
