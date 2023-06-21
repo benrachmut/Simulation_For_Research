@@ -21,7 +21,7 @@ from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 
 is_static =True
 start = 0
-end = 5
+end = 50
 size_players = 60
 
 end_time = sys.maxsize
@@ -248,14 +248,8 @@ if __name__ == '__main__':
                     print(communication_protocol)
                     print("solver_number ",str(solver_number))
                     print("max_nclo_algo_run ",str(max_nclo_algo_run))
-
                     for i in range(start, end):
                         print("Simulation number = "+str(i))
-                        # print_players(players_list)
-
-                        #if i not in price_dict.keys():
-                        #    price_vector = get_price_vector(i)
-                        #    price_dict[i] = price_vector
                         sim = run_simulation(i)
 
                         #--- prep data ---

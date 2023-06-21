@@ -234,7 +234,6 @@ class Mailer(threading.Thread):
 
         while not self.f_termination_condition(self.agents_algorithm, self):
 
-
             self.create_measurements()
 
             self.self_check_if_all_idle_to_continue()
@@ -313,6 +312,7 @@ class Mailer(threading.Thread):
 
 
         self.last_time = self.time_mailer.clock
+
         msgs_from_inbox = self.inbox.extract()
 
         self.place_msgs_from_inbox_in_msgs_box(msgs_from_inbox)

@@ -1,20 +1,19 @@
-from create_dynamic_simulation_cumulative import make_dynamic_simulation_cumulative
 from create_excel_dynamic import make_dynamic_simulation
-from create_excel_fisher import make_fisher_data
 from general_communication_protocols import CommunicationProtocolDelayUniform, get_communication_protocols, \
     CommunicationProtocolPerfectCommunication
 from general_data_fisher_market import get_data_fisher
 from general_r_ij import calculate_rij_abstract
-from simulation_abstract import SimulationV1, SimulationV2
+from simulation_abstract import SimulationV2
 from simulation_abstract_components import AbilitySimple, PlayerSimple, MapSimple, SimpleTaskGenerator
 import random
 
 from solver_fmc_distributed_asy import FMC_ATA, FisherTaskASY
 from solver_fmc_distributed_sy import FMC_TA, FMC_ATA_task_aware
 import sys
+import pandas as pd
 
 
-is_static = True
+is_static = False
 solver_type_list = [1] # [1,2,3]
 
 solver_type = None
@@ -22,28 +21,28 @@ solver_type = None
 debug_mode_full = False
 debug_mode_light = True
 
-x = 50
-y =0
+x = 1
+y =6
 
 
-start = x*y
-end = x*(y+1)
+start = 0#x*y
+end = 50#x*(y+1)
 
 size_players = 60
 end_time = sys.maxsize
-size_of_initial_tasks = 25#10 # 15
-limited_additional_tasks =0 #15 #15
+size_of_initial_tasks = 10 # 25
+limited_additional_tasks =15 #0
 
 # 1000,5000  range(0,6000,50)  *****10000,50000 range(0,50000,500)
 #max_nclo_algo_run_list= 20000
 max_nclo_algo_run = None
-max_nclo_algo_run_list = [0,1000,10000]
+max_nclo_algo_run_list = [0]#[10**8]#[0,1000,10000]
 fisher_data_jumps = 10
 
 pace_of_tasks_list = [1*(10**5)]
 
 ##--- map ---
-central_location_multiplier = 2
+central_location_multiplier = 1.5
 length = 10**6
 width = 10**6
 
@@ -59,7 +58,7 @@ speed = 1
 # name,alpha,delta_x,delta_y,
 
 counter_of_converges=3
-Threshold=10**-200#10**-5
+Threshold=10**-5
 
 algo_name = ""
 # --- communication_protocols ---
@@ -67,8 +66,8 @@ cenralized_always_discovers_without_delay = None
 is_with_timestamp = False
 is_with_perfect_communication = False
 constants_loss_distance = [] # e^-(alpha*d)
-constants_delay_poisson_distance = [10000] # Pois(alpha^d) 1000, 10000, 100000
-constants_delay_uniform_distance=[] # U(0, alpha^d) 50000
+constants_delay_poisson_distance = [] # Pois(alpha^d) 1000, 10000, 100000
+constants_delay_uniform_distance=[1000000] # U(0, alpha^d) 50000
 
 constants_loss_constant=[] # prob
 constants_delay_poisson = []# Pois(lambda)
@@ -272,6 +271,30 @@ def get_communication_protocol_giver_solver(communication_protocol,solver_type_t
 
     return communication_protocol_for_central, communication_protocol_for_distributed
 
+
+def create_dataframe(string_list):
+    # Split each string by comma to get individual values
+    values = [s.split(',') for s in string_list]
+
+    # Create a DataFrame from the values
+    df = pd.DataFrame(values)
+
+    return df
+
+
+def create_tasks_df(tasks_dict):
+    list_of_str = []
+    list_of_str.append("Simulation_Number,Task_id,Arrival_time")
+    for sim_number, tasks_list_ in tasks_dict.items():
+        for task in tasks_list_:
+            new_line = str(sim_number) + "," + task.id_ + "," + str(task.arrival_time)
+            list_of_str.append(new_line)
+    df = create_dataframe(list_of_str)
+    df.to_csv("Task_raw_data.csv", index=False)
+
+
+
+
 if __name__ == '__main__':
 
     communication_protocols = get_communication_protocols(
@@ -284,6 +307,7 @@ if __name__ == '__main__':
         constants_delay_uniform=constants_delay_uniform)
     price_dict = {}
 
+    tasks_dict = {}
     for communication_protocol in communication_protocols:
 
         fisher_measures = {}  # {number run: measurement}
@@ -295,6 +319,7 @@ if __name__ == '__main__':
                     continue
                 solver_type = solver_type_temp
                 finished_tasks = {}
+
                 for m_nclo_temp in max_nclo_algo_run_list:
                     max_nclo_algo_run = m_nclo_temp
 
@@ -313,6 +338,8 @@ if __name__ == '__main__':
                         tasks_generator = SimpleTaskGenerator(max_number_of_missions=max_number_of_missions, map_=map_for_tasks, seed=i*17,
                                                   max_importance=max_importance, players_list=players_list,beta=pace_of_tasks, initial_workload_multiple = initial_workload_multiple, limited_additional_tasks = limited_additional_tasks, initial_tasks_size= size_of_initial_tasks)
                         tasks_list = tasks_generator.create_tasks_for_simulation_list()
+                        tasks_dict[i] = tasks_list
+
                         # --- solver ----
                         solver,algo_name = get_solver(communication_protocol_for_distributed)
                         print("***---***",algo_name,"***---***")
@@ -333,3 +360,7 @@ if __name__ == '__main__':
 
                 #make_dynamic_simulation_cumulative(communication_protocol, length, width, algo_name, max_nclo_algo_run,
                  #                                  Threshold, organized_data, fisher_data_jumps, name_,pace_of_tasks)
+
+    #create_tasks_df(tasks_dict)
+
+
