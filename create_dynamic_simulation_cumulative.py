@@ -51,7 +51,6 @@ def get_data_scenario_by_index_by_importance(organized_data):
 
 
 
-    return ans
 
 
 def get_group_by_scenario_by_importance(organized_data, data_scenario_by_index, keys):
