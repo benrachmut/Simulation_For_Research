@@ -28,9 +28,19 @@ for folder_name in folder_names:
         df = pd.merge(df, raw_task_data, on=['Task Id','Simulation_Number'])
         df = df.drop_duplicates(subset=['Task Id','Simulation_Number',"Mission Id"])
 
+        df['Arrival Delay'] = df.apply(
+            lambda row: NCLO_max - row['Arrival_time'] if pd.isnull(row['Arrival Delay']) else row['Arrival Delay'],
+            axis=1)
+
+        #df["Total Time In System"] = df.apply(
+        #    lambda row: df['Arrival Delay'] if pd.isnull(row["Total Time In System"]) else row["Total Time In System"],
+        #    axis=1)
+        df['Total Time In System'] = df['Total Time In System'].fillna(df['Arrival Delay'])
+
         df["End_time"] = df["Arrival_time"] + df["Total Time In System"]
+
         df["Time_of_First_Arrive"] = df["Arrival_time"] + df["Arrival Delay"]
-        max_end_time = max(df["End_time"])
+        ##max_end_time = max(df["End_time"])
         unique_num_runs = pd.unique(df["Simulation_Number"])
         nclo_dict = create_nclo_dict(unique_num_runs,df,field_name=field_name)
         avg_per_nclo = {}
@@ -43,6 +53,7 @@ for folder_name in folder_names:
             algo = folder_of_excel_file1
             line = [comm , algo ,nclo,avg]
             lines.append(line)
+
         print(folder_of_excel_file1)
     df = pd.DataFrame(lines, columns=['Protocol', 'Algorithm', 'NCLO', "Average"])
     #df = df.drop(0)
