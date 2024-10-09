@@ -30,8 +30,28 @@ def create_nclo_dict(unique_num_runs,df,field_name):
     for run in unique_num_runs:
             df_per_run = df[df["Simulation_Number"] == run]
             for NCLO in range(0, NCLO_max, NCLO_jumps):
-                selected_rows = df_per_run[( df["Time_of_First_Arrive"] < NCLO)][field_name]
+                selected_rows = df_per_run[( df_per_run["End_time"] < NCLO)][field_name]
                 sum_per_NCLO = sum(selected_rows.tolist())
+                if NCLO not in nclo_dict:
+                    nclo_dict[NCLO] = []
+                nclo_dict[NCLO].append(sum_per_NCLO)
+    return  nclo_dict
+
+
+def create_nclo_dict_for_updated_delay(unique_num_runs,df,field_name):
+    nclo_dict={}
+    for run in unique_num_runs:
+            df_per_run = df[df["Simulation_Number"] == run]
+            for NCLO in range(0, NCLO_max, NCLO_jumps):
+                selected_rows = df_per_run[( df_per_run["Arrival_time"] < NCLO)]
+                if selected_rows.empty:
+                    sum_per_NCLO = 0
+                else:
+                    result_list = selected_rows.apply(
+                        lambda row: NCLO - row['Arrival_time'] if NCLO < row['Time_of_First_Arrive'] else
+                        row['Arrival Delay'], axis=1).tolist()
+
+                    sum_per_NCLO = sum(result_list)
                 if NCLO not in nclo_dict:
                     nclo_dict[NCLO] = []
                 nclo_dict[NCLO].append(sum_per_NCLO)
